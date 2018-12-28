@@ -14,6 +14,11 @@ In this workshop you will learn to design a data pipeline solution that leverage
 
 At the end of this workshop, you will be better able to design and implement solutions that leverage the strengths of Cosmos DB in support of advanced analytics solutions that require high throughput ingest, low latency serving and global scale in combination with scalable machine learning, big data and real-time processing capabilities.
 
+#### Outline: Architecture Overview
+The workshop explores the components in the following architecture:
+
+![Outline Architecture](./Media/outline-architecture.png)
+
 ### Whiteboard design session *(this will go in the readme and in the WDS document)*
 Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a PoC of an innovative fraud detection solution. They want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service. 
 
