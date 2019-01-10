@@ -268,6 +268,8 @@ _Data pipeline processing_
 
 3.  How will your chosen data processing platform connect to and process data from your chosen data ingest solution for streaming data?
 
+4.  The customer is concerned about being able to protect secrets, like service account keys and connection strings. How do you propose storing and providing access to these secrets within the selected data pipeline processing platform?
+
 _Long-term data storage_
 
 1.  As streaming data is processed, refined, and scored, all of the transactions need to be persisted to long-term storage for analysis, model training and validation, and reporting. This storage needs to handle long-term growth, be fast enough to rapidly ingest new data while simultaneously handling reads against the same data set without interference, and act as a reliable data source for dashboards and reports. Which is your recommended long-term data storage solution, keeping in mind its role within your selected data pipeline processing platform?
