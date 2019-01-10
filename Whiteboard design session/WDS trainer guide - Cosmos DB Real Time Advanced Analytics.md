@@ -452,7 +452,40 @@ _Data ingest_
 
 1.  What are your recommended options for ingesting payment transaction events as they occur in a scalable way that can be easily processed while maintaining event order with no data loss?
 
+    There are a couple of options in Azure for ingesting real-time streaming payment transactions. Which one you choose will depend on various factors, including the rate of flow (how many transactions/second), data source and compatibility, and long-term storage needs:
+
+    1.  **Event Hubs** is a Big Data streaming platform and event ingestion service, capable of ingesting millions of events per second. It supports multiple consumers (event processors), and is automatically scalable. Event Hubs is a good candidate for this architecture for the following reasons:
+
+        - Fully managed PaaS with little configuration or management overhead.
+        - Highly scalable to process millions of events per second. Use the Auto-inflate feature to automatically scale the number of throughput units to meet usage needs.
+        - Contains an optional Apache Kafka endpoint, allowing for event processing from existing Kafka-based applications. This also allows for simple integration with Apache Spark clusters, such as those hosted in Azure Databricks.
+        - Simultaneously supports real-time and batch processing through Event Hubs Capture. This feature allows one to easily capture and store all events in their raw form to either Azure Blob storage or Azure Data Lake Store for long-term retention and micro-batch processing.
+        - Event publishers (systems sending payment transaction data) can publish events using HTTPS, AMQP 1.0, or Apache Kafka 1.0 and above.
+        - Event consumers can process streams using .NET, Java, Python, Go, or Node.js.
+
+    Things to be cautious about are:
+
+        -  Event Hubs guarantees consistency and event ordering _per partition_. Since it is important to keep payment transactions in order when processing them, you can guarantee ordering by setting a partition key on the event, or use a `PartitionSender` object to only send events to a certain partition. This has scaling implications if you plan to use more than one partition. It also has uptime implications if the partition you are trying to send to is unavailable. If no partition is defined, then the data is distributed across available partitions. You may choose to ensure ordering by region or merchant, as an example, by creating a partition for the region or merchant. The potential downside to this approach is finite number of available partitions for a given event hub (32 max by default, higher via quota increase request). Another option is to aggregate events within the processing application by time-stamping the event with a custom sequence number. This requires state to be kept within the processing application.
+
+    2.  **Azure Cosmos DB change feed** outputs a sorted list of documents that were changed in the order in which they were modified or inserted. Like Event Hubs, the change feed output can be distributed across one or more consumers for parallel processing. Azure Cosmos DB change feed is a good candidate for this architecture for the following reasons:
+
+        - Fully managed PaaS with little configuration or management overhead.
+        - Cosmos DB is highly scalable, and is already being used to store pre-scored fraud data.
+        - An Apache Spark connector is available, allowing Azure Databricks clusters to directly access the change feed with very little code.
+        - Cosmos DB with change feed enabled acts as both a raw data store for batch processing and stream processing.
+        - Event publishers can publish events to Cosmos DB using .NET, Java, Node.js, and Python, using a number of APIs, such as SQL, Cassandra, MongoDB, Gremlin, and Azure Table Storage. However, please note that change feed is currently only supported by the SQL and Gremlin APIs.
+        - Cosmos DB is globally accessible across many Azure regions, bringing it closer to distributed event publishers and consumers.
+        - In a multi-region Azure Cosmos account, if a write-region fails over, change feed will work across the manual failover operation and it will be contiguous.
+
+    Things to be cautious about are:
+
+        -  Similar to Event Hubs, feed item ordering is guaranteed per logical partition key. There is no guaranteed order across the partition key values. Also similar to Event Hubs, changes are available in parallel across all logical partition keys of a container, allowing for parallel processing by multiple consumers. As discussed in the previous section (globally distributed data), choosing an appropriate partition key for Cosmos DB is a critical step for ensuring balanced reads and writes, scaling, and, in this case, in-order change feed processing per partition. While there are no limits, per se, on the number of logical partitions, a single logical partition is allowed an upper limit of 10 GB of storage. Logical partitions cannot be split across physical partitions. For the same reason, if the partition key chosen is of bad cardinality, we could potentially have skewed storage distribution. For instance, if one logical partition becomes fatter faster than the others and hits the maximum limit of 10 GB, while the others are nearly empty, the physical partition housing the maxed out logical partition cannot split and could cause an application downtime.
+
 2.  Given the technical and business requirements at hand, is it best to narrow your options to one platform, or would you combine services for ingesting this data?
+
+    While it is certainly possible to combine Azure Cosmos DB and Event Hubs for data ingest, this may result in unnecessary complexity, especially considering how closely their features (and challenges) align. For instance, it is possible to ingest all data into Cosmos DB and send events to Event Hubs through an intermediary event processor, such as Azure functions, in order to further process the event hub data downstream by consumers that have no way to use Cosmos DB's change feed. However, this additional layer of abstraction is not necessary for Woodgrove Bank's scenario. All things considered, the best approach is to select one after weighing the pros and cons of each. Remember, you decision should be based on the following factors: the rate of flow (how many transactions/second), data source and compatibility, and long-term storage needs. If the payment processors sending the transaction data can be more easily adapted to send to one service over the other, then the more compatible service may garner higher preference.
+
+    Both services are certainly capable of acting as the ingestion service. Since ordering of transactions is of such high importance, the restrictions on the number of partitions Event Hubs can have tilts the scale toward Cosmos DB change feed. This limitation can be worked around with Event Hubs, but the level of effort to do so may not be worth it in the long run. In this case, we will recommend Azure Cosmos DB for ingest.
 
 _Data pipeline processing_
 
