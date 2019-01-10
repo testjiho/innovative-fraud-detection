@@ -196,7 +196,7 @@ Another motive for rapidly prototyping a real-time fraud detection system is tha
 
 With these challenges in mind, Woodgrove Bank wants to use AI to break the tradeoff between false positive and false negative errors. They hope a well-trained model will also reduce the chance of missing true positives, and do so in a way that is highly performant and globally available. Woodgrove's vision is to offer this capability in the form of new services to their merchant customers. As stated before, their customers are located around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
 
-> **TODO: Add information on how they will use pre-scored "known" fraud data in conjunction with real-time fraud scoring.**
+In addition to real-time fraud detection, Woodgrove Bank would like to periodically evaluate data, customer by customer, and offer a pre-scored data set to merchants on-demand that scores a customer's fraud likelihood based on their transaction history. This "trust list", as well as the real-time scoring model, needs to be made globally available and able to handle varying levels of consumer demand.
 
 ### Customer needs
 
@@ -214,7 +214,7 @@ With these challenges in mind, Woodgrove Bank wants to use AI to break the trade
 
 ### Customer objections
 
-1.  We've found it challenging in the past to deal with both streaming data and long-term storage in a unified way, making it difficult to do both inserts and updates to logical tables, having to manually maintain separate transaction logs. Over time, queries became slower because of having so many small files. How do we address these issues?
+1.  We've found it challenging in the past to deal with both streaming data and long-term storage in a unified way, making it difficult to perform inserts, updates, and deletes to logical tables, having to manually maintain separate transaction logs. Over time, queries became slower because of having so many small files. How do we address these issues?
 
 2.  We are worried about storing secrets, like connection strings, within a notebook anyone can access. We want a centralized way to store these secrets that are accessible across services to cut down on redundancy.
 
@@ -250,15 +250,17 @@ _High-level architecture_
 
 _Globally distributed data_
 
-1.  Which data storage service would you recommend using that can minimize access latency to globally distributed data? Be specific about how data is replicated.
+1.  Which data storage service would you recommend using that can minimize access latency to globally distributed pre-scored fraud data? Be specific about how data is replicated.
 
 2.  How does your chosen service handle scaling to meet varying levels of demand across different regions?
 
+3.  The customer also wants to globally distribute access to trained machine learning models used for real-time fraud detection. How would you architect your solution to meet this requirement?
+
 _Data ingest_
 
-1.  What are your recommended options for ingesting streaming payment transaction events in a scalable way that can be easily processed while maintaining event order with no data loss?
+1.  What are your recommended options for ingesting payment transaction events as they occur in a scalable way that can be easily processed while maintaining event order with no data loss?
 
-2.  Given the technical and business requirements at hand, is it best to narrow your options to one platform, or would you combine services for ingesting streaming data?
+2.  Given the technical and business requirements at hand, is it best to narrow your options to one platform, or would you combine services for ingesting this data?
 
 _Data pipeline processing_
 
@@ -272,9 +274,9 @@ _Data pipeline processing_
 
 _Long-term data storage_
 
-1.  As streaming data is processed, refined, and scored, all of the transactions need to be persisted to long-term storage for analysis, model training and validation, and reporting. This storage needs to handle long-term growth, be fast enough to rapidly ingest new data while simultaneously handling reads against the same data set without interference, and act as a reliable data source for dashboards and reports. Which is your recommended long-term data storage solution, keeping in mind its role within your selected data pipeline processing platform?
+1.  As incoming data is processed, refined, and scored, all of the transactions need to be persisted to long-term storage for analysis, model training and validation, and reporting. This storage needs to handle long-term growth, be fast enough to rapidly ingest new data while simultaneously handling reads against the same data set without interference, and act as a reliable data source for dashboards and reports. Which is your recommended long-term data storage solution, keeping in mind its role within your selected data pipeline processing platform?
 
-2.  How do you ensure your data is continuously optimized within your chosen long-term data storage solution, given the requirements to store inserts and updates while avoiding generating very small, un-optimized files?
+2.  How do you ensure your data is continuously optimized within your chosen long-term data storage solution, given the requirements to store inserts, updates, and deletes while avoiding generating very small, un-optimized files?
 
 3.  Woodgrove Bank wants to retain all raw data (bronze), then parse that data into query tables (silver) which can be joined with dimension tables, such as account information. They also would like to have summary tables (gold) containing business-level aggregates used for their dashboards and reports. How would you support these requirements in your long-term storage solution?
 
@@ -408,13 +410,85 @@ _High-level architecture_
 
     > **Note**: The preferred solution is only one of many possible, viable approaches.
 
-_Title_
+_Globally distributed data_
 
-1.  Number and insert questions and answers here
+1.  Which data storage service would you recommend using that can minimize access latency to globally distributed pre-scored fraud data? Be specific about how data is replicated.
 
-_Title_
+    Azure Cosmos DB is well-suited for delivering large amounts of data in a fast and reliable way through data centers around the world. The fact that it supports multiple models (documents, graphs, key-value, column-family) without requiring schemas provides the flexibility of choice and changing data feature requirements. In addition, there is a connector available for reading and writing to Cosmos DB from Spark clusters, making it a good candidate for both data ingest and as a data serving layer.
 
-1.  Number and insert questions and answers here
+    It is a simple process to add or remove geographical regions associated with a Cosmos DB database at any time with a few clicks, or programmatically through a single API call. Because Cosmos DB automatically indexes the data stored within a Cosmos container (database) upon ingestion, users can query the data without having to deal with a schema or the complications of index management in a globally distributed setup.
+
+    When Woodgrove Bank configures Cosmos DB, they should take good care to select an appropriate partition key for their data. They should select a partition key which provides even distribution of storage and throughput (req/sec) at any given time to avoid storage and performance bottlenecks (for instance, account number or region). This key should be present in the bulk of queries for read-heavy scenarios to avoid excessive fan-out, since each document with a specific partition key value belongs to the same logical partition, and is therefore transparently placed in the same physical partition. Each physical partition is replicated across geographical regions, resulting in global distribution.
+
+2.  How does your chosen service handle scaling to meet varying levels of demand across different regions?
+
+    In Azure Cosmos DB, provisioned throughput is represented as request units/second (RUs). RUs measure the cost of both read and write operations against your Cosmos container. Because Cosmos DB is designed with transparent horizontal scaling and multi-master replication, you can very quickly and easily increase or decrease the number of RUs to handle thousands to hundreds of millions of requests per second around the globe with a single API call.
+
+    When you set a number of RUs for a container, Cosmos DB ensures that those RUs are available in each region associated with your Cosmos DB account. When you scale out the number of regions by adding a new one, Cosmos will automatically provision the 'R' RUs in the newly added region. You cannot selectively assign different RUs to a specific region. These RUs are provisioned for a container (or database) for all associated regions.
+
+    Woodgrove Bank should be aware of the available consistency levels of Azure Cosmos DB, and the potential tradeoffs between read consistency, availability, latency, and throughput. As a general rule of thumb, you can get about 2x read throughput for session, consistent prefix, and eventual consistency models compared to bounded staleness or strong consistency.
+
+3.  The customer also wants to globally distribute access to trained machine learning models used for real-time fraud detection. How would you architect your solution to meet this requirement?
+
+    Use Azure Machine Learning service and the Azure Machine Learning SDK to host a trained machine learning model and automatically deploy the model to an Azure Kubernetes Service (AKS) cluster. Creating the AKS cluster is a one-time process for your workspace, whereafter you can reuse it for multiple deployments as the model gets updated through re-training. The basic steps are as follows:
+
+    1.  Register the model in the workspace model registry.
+
+    2.  Build a Docker image, including:
+
+        - Download the registered model from the registry.
+        - Create a dockerfile, with a Python environment based on the dependencies you specify in the environment yaml file.
+        - Add your model files and the scoring script you supply in the dockerfile.
+        - Build a new Docker image using the dockerfile.
+        - Register the Docker image with the Azure Container Registry associated with the workspace.
+
+    3.  Deploy the Docker image to Azure Kubernetes Service (AKS).
+
+    4.  Start up a new container (or containers) in AKS.
+
+    The above can be done through a series of scripts for automation. To deploy globally, modify the script to deploy to AKS clusters hosted within different regions.
+
+_Data ingest_
+
+1.  What are your recommended options for ingesting payment transaction events as they occur in a scalable way that can be easily processed while maintaining event order with no data loss?
+
+2.  Given the technical and business requirements at hand, is it best to narrow your options to one platform, or would you combine services for ingesting this data?
+
+_Data pipeline processing_
+
+1.  Woodgrove Bank indicated that they would like a unified way to process both streaming data and batch data on a platform that can also support their data science, data engineering, and development needs. Which platform would you recommend, and why?
+
+2.  They are also concerned about difficulties they have had in the past with performing both inserts and updates to long-term storage while processing streaming and batch data. How will your chosen platform cope with this challenge while optimizing file storage, avoiding the degradation in query performance due to many small files?
+
+3.  How will your chosen data processing platform connect to and process data from your chosen data ingest solution for streaming data?
+
+4.  The customer is concerned about being able to protect secrets, like service account keys and connection strings. How do you propose storing and providing access to these secrets within the selected data pipeline processing platform?
+
+_Long-term data storage_
+
+1.  As incoming data is processed, refined, and scored, all of the transactions need to be persisted to long-term storage for analysis, model training and validation, and reporting. This storage needs to handle long-term growth, be fast enough to rapidly ingest new data while simultaneously handling reads against the same data set without interference, and act as a reliable data source for dashboards and reports. Which is your recommended long-term data storage solution, keeping in mind its role within your selected data pipeline processing platform?
+
+2.  How do you ensure your data is continuously optimized within your chosen long-term data storage solution, given the requirements to store inserts, updates, and deletes while avoiding generating very small, un-optimized files?
+
+3.  Woodgrove Bank wants to retain all raw data (bronze), then parse that data into query tables (silver) which can be joined with dimension tables, such as account information. They also would like to have summary tables (gold) containing business-level aggregates used for their dashboards and reports. How would you support these requirements in your long-term storage solution?
+
+_Model training and deployment_
+
+1.  Describe how your chosen data processing platform will support machine learning model training and deployment. The model will need to be trained on and validated against historical payment transaction data that includes known fraudulent transactions.
+
+2.  What are some processes that can be put in place to support a collaborative approach to producing and deploying the model?
+
+3.  How do you propose deploying the trained model in a way that is scalable, globally accessible, and supports redeploying new versions of the model with little to no downtime? Can these steps be performed within the same data processing platform in which the model is re-trained? How will you support model versioning?
+
+4.  How will you address Woodgrove Bank's desire to simplify the process of running and tracking model experiments through hyperparameter tuning, and selecting the best model based on those experiments?
+
+5.  How will you schedule regular batch scoring of fraud data using the trained model, and make that data available to Woodgrove Bank's web applications at a global scale?
+
+_Dashboards and reporting_
+
+1.  Woodgrove Bank's business analysts would like to have a set of dashboards they can monitor that provide real-time views of fraud trends at a global scale. Thinking back to how your proposed solution provides a set of summary (gold) tables containing business-level aggregates, what do you propose using to meet this requirement? Be specific about how this solution will be put in place and which features it supports.
+
+2.  How do you propose giving access to this same data to Woodgrove Bank's data scientists and data engineers within the data processing environment wherein they can craft complex queries and data visualizations?
 
 ## Checklist of preferred objection handling
 
