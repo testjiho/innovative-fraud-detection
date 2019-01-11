@@ -406,7 +406,7 @@ _High-level architecture_
 
     ![The Solution diagram is described in the text following this diagram.](../Media/outline-architecture.png 'Solution diagram')
 
-    The solution begins with streaming payment transaction events...
+    The solution begins with the payment transaction systems writing to Azure Cosmos DB. With change feed enabled in Cosmos, the transactions can be read as a stream of incoming data within an Azure Databricks notebook, using the `azure-cosmosdb-spark` connector, and stored long-term within a Delta table backed by Data Lake Storage. This data can be accessed by business analysts using dashboards and reports in Power BI, using Power BI's Spark connector. Data scientists and engineers can create their own reports against this data, using Databricks notebooks. Azure Databricks also supports training and validating the machine learning model, using historical data stored in Data Lake Storage. The model can periodically be re-trained using the data stored in Delta tables. Azure Machine Learning is used to host the trained model and deploy it as a real-time scoring web service, using a highly available AKS cluster. The trained model is also used in scheduled offline scoring through Databricks jobs, and the "suspicious activity" output is stored in Azure Cosmos DB so it is globally available in regions closest to Woodgrove Bank's customers through their web applications. Finally, Azure Key Vault is used to securely store secrets, such as account keys and connection strings, and serves as a backing for Azure Databricks secret scopes.
 
     > **Note**: The preferred solution is only one of many possible, viable approaches.
 
@@ -478,6 +478,8 @@ _Data ingest_
     Both services are certainly capable of acting as the ingestion service. They both support a high rate of flow, and both have options for long-term storage needs. However, Event Hubs requires an extra step for long-term storage, which is handled through Event Hubs Capture, whereas Cosmos DB already acts as this storage for raw data. Level of effort to implement tilts the scale toward Cosmos DB since transactional data is already being written to a database, those payment processors can be updated to also write to Cosmos DB, or switch over to Cosmos entirely if it makes sense. Event Hubs requires adding an event service to their architecture and learning how to use it from their current systems.
 
     Apart from addressing the primary decision factors above, another strong consideration for choosing Cosmos DB is the issue of data sovereignty. Since Woodgrove Bank has customers around the world, some countries in which they operate may not allow data to be written and stored in a different country. Since Cosmos DB makes it easy to distribute data on a global scale, it may be required to have separate collections per region to meet regulatory requirements. This limitation can be worked around with Event Hubs, but the level of effort to do so may not be worth it in the long run. In this case, we will recommend Azure Cosmos DB for ingest.
+
+    > Please note: for multi-master accounts, change feed based on a server-side token (which is based on aa logical timestamp) will provide a predictable change feed experience is supported. Change feed based on `IfmodifiedSince` in this scenario could result in missing versions and duplicates, and is therefore blocked.
 
 _Data pipeline processing_
 
