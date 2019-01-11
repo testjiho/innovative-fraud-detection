@@ -631,7 +631,17 @@ _Dashboards and reporting_
 
 ## Checklist of preferred objection handling
 
-\[insert your custom workshop content here . . . \]
+1.  We've found it challenging in the past to deal with both streaming data and long-term storage in a unified way, making it difficult to perform inserts, updates, and deletes to logical tables, having to manually maintain separate transaction logs. Over time, queries became slower because of having so many small files. How do we address these issues?
+
+    THIS HAS ALREADY BEEN ANSWERED. REMOVE REDUNDANT QUESTION OR CHANGE THIS OBJECTION.
+
+2.  We are worried about storing secrets, like connection strings, within a notebook anyone can access. We want a centralized way to store these secrets that are accessible across services to cut down on redundancy.
+
+    THIS HAS ALREADY BEEN ANSWERED. REMOVE REDUNDANT QUESTION OR CHANGE THIS OBJECTION.
+
+3.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
+
+    Use Azure Machine Learning to support model experimentation and deployment, and reduce training time by using AutoML features. MORE DETAILS TO FOLLOW...
 
 ## Customer quote (to be read back to the attendees at the end)
 
