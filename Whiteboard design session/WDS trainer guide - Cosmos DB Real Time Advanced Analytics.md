@@ -491,11 +491,50 @@ _Data pipeline processing_
 
 1.  Woodgrove Bank indicated that they would like a unified way to process both streaming data and batch data on a platform that can also support their data science, data engineering, and development needs. Which platform would you recommend, and why?
 
+    The recommended platform that meets these needs for this solution is Azure Databricks. When it comes to working with big data in a unified way, whether you process it real-time as it arrives or in batches, Apache Spark provides an incredibly fast and capable engine that also supports data science processes, like machine learning and advanced analytics. Built as a joint effort by the team that started Apache Spark and Microsoft, Azure Databricks provides data science and engineering teams with a single platform for Big Data processing and Machine Learning.
+
+    There are a lot of features Azure Databricks offers over top of standard Spark installations. The key features that make this a good choice for Woodgrove Bank are:
+
+    - Integrates with Azure Active Directory for single sign-on and RBAC in certain scenarios.
+    - Contains collaborative features such as the workspace that contains both private and shared folders, integrated change tracking of notebooks and integration with git source control systems like GitHub, and granular user and rol-based permissions.
+    - It is possible to start and stop containers either manually or automatically, based on usage.
+    - Supports running scheduled jobs for executing notebooks and libraries on a schedule.
+    - Integrates with Azure Key Vault, which serves as a backing store for secrets within Azure Databricks, including automatic redaction of those secrets when users attempt to output them in a notebook.
+    - Includes Databricks Delta, which supports features Woodgrove Bank is looking for, such as the ability to upsert data into tables, optimize data storage, and simultaneously read data from tables which are being written to by streaming and batch processes.
+    - Join disparate data sets found in data lakes.
+    - Train and evaluate machine learning models.
+
 2.  They are also concerned about difficulties they have had in the past with performing both inserts and updates to long-term storage while processing streaming and batch data. How will your chosen platform cope with this challenge while optimizing file storage, avoiding the degradation in query performance due to many small files?
+
+    Use Databricks Delta. Databricks Delta is a Spark table with built-in reliability and performance optimizations.
+
+    You can read and write data stored in Databricks Delta using the same familiar Apache Spark SQL batch and streaming APIs you use to work with Hive tables or Databricks File Store (DBFS) directories. Databricks Delta provides the following functionality:
+
+    - **ACID transactions** - Multiple writers can simultaneously modify a data set and see consistent views.
+    - **DELETES/UPDATES/UPSERTS** - Writers can modify a data set without interfering with jobs reading the data set.
+    - **Automatic file management** - Data access speeds up by organizing data into large files that can be read efficiently.
+    - **Statistics and data skipping** - Reads are 10-100x faster when statistics are tracked about the data in each file, allowing Delta to avoid reading irrelevant information.
 
 3.  How will your chosen data processing platform connect to and process data from your chosen data ingest solution for streaming data?
 
+    Whether you have chosen to ingest your data using Azure Cosmos DB with change feed, or Event Hubs, you can connect to either of these directly from Spark. For Cosmos DB, use the `azure-cosmosdb-spark` connector, which lets you easily read to and write from Azure Cosmos DB via Spark DataFrames in either Python or Scala. For Event Hubs, either use the `azure-eventhubs-spark` library, or enable Kafka on your event hub and use the Spark-Kafka adapter (supports Kafka v2.0+), available as of Spark v2.4.
+
+    Because the payment transactions will be arriving in real time, you will want to use Structured Streaming to process the data. Think of a stream of data as a table to which data is continously appended. In streaming, the problems of traditional data pipelines are exacerbated. Specifically, with frequent meta data refreshes, table repairs and accumulation of small files on a secondly- or minutely-basis. Many small files result because data (may be) streamed in at low volumes with short triggers. Databricks Delta is uniquely designed to address these needs.
+
+    When defining a Delta streaming query, one of the options that you need to specify is the location of a checkpoint directory.
+
+    `.writeStream.format("delta").option("checkpointLocation", <path-to-checkpoint-directory>) ...`
+
+    This is actually a structured streaming feature. It stores the current state of your streaming job.
+    Should your streaming job stop for some reason and you restart it, it will continue from where it left off.
+
+    Please note, if you do not have a checkpoint directory, when the streaming job stops, you lose all state around your streaming job and upon restart, you start from scratch.
+
 4.  The customer is concerned about being able to protect secrets, like service account keys and connection strings. How do you propose storing and providing access to these secrets within the selected data pipeline processing platform?
+
+    Use Azure Key Vault, in addition to Key Vault-backed secret scopes within Azure Databricks. Azure Key Vault provides a service that allows you to securely centralize application secrets. The benefit of it being a centralized store of secrets, is that you only need to define those secrets, like connection strings or account keys, in one place which can be accessed by several Azure services as well as custom applications.
+
+    Azure Databricks has two types of secret scopes: Key Vault-backed and Databricks-backed. These secret scopes allow you to store secrets, such as database connection strings, securely. If someone tries to output a secret to a notebook, it is replaced by `[REDACTED]`. This helps prevent someone from viewing the secret or accidentally leaking it when displaying or sharing the notebook.
 
 _Long-term data storage_
 
