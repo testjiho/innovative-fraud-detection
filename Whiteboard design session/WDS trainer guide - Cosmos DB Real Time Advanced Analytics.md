@@ -210,23 +210,17 @@ The analysts at Woodgrove Bank are very interested in the recent notebook-driven
 
 ### Customer needs
 
-1.  Need to provide fraud detection services to our merchant customers, using incoming real-time payment transaction data to provide early warning of fraudulent activity.
+1.  Need to provide fraud detection services to our merchant customers, using incoming payment transaction data to provide early warning of fraudulent activity.
 
-2.  We need guidance on how to choose the right ML algorithm, periodically retrain our model, and redeploy the best version of the retrained model for real-time scoring on our web applications.
+2.  We would like to schedule offline scoring of “suspicious activity” using our trained model, and make that data globally available in regions closest to our customers through our web applications.
 
-3.  We would like to schedule batch scoring using our trained model, and make that data globally available in regions closest to our customers through our web applications.
+3.  We want to be to analyze all transactions over time, so we need to be able to store data from streaming sources into long-term storage, without interfering with jobs reading the data set.
 
-4.  Need to be able to store data from streaming sources into long-term storage, without interfering with jobs reading the data set.
-
-5.  We would like to use a standard platform that supports our near-term data pipeline needs while providing a long-term standard for data science, data engineering, and development.
+4.  We would like to use a standard platform that supports our near-term data pipeline needs while providing a long-term standard for data science, data engineering, and development.
 
 ### Customer objections
 
-1.  We've found it challenging in the past to deal with both streaming data and long-term storage in a unified way, making it difficult to perform inserts, updates, and deletes to logical tables, having to manually maintain separate transaction logs. Over time, queries became slower because of having so many small files. How do we address these issues?
-
-2.  We are worried about storing secrets, like connection strings, within a notebook anyone can access. We want a centralized way to store these secrets that are accessible across services to cut down on redundancy.
-
-3.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
+1.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
 
 ### Infographic for common scenarios
 
@@ -258,27 +252,29 @@ _High-level architecture_
 
 _Globally distributed data_
 
-1.  Which data storage service would you recommend using that can minimize access latency to globally distributed pre-scored fraud data? Be specific about how data is replicated.
+1.  Which data storage service would you recommend for storing the suspicious transactions? Remember, Woodgrove Bank wants to minimize access latency for their global customers. Be specific about how data is replicated.
 
-2.  How does your chosen service handle scaling to meet varying levels of demand across different regions?
+2.  How does your chosen service handle scaling to meet varying levels of demand across different regions? Can you set specific capacity for specific regions?
 
-3.  The customer also wants to globally distribute access to trained machine learning models used for real-time fraud detection. How would you architect your solution to meet this requirement?
+3.  Distributed databases that replicate data to multiple locations have some potential delay between when you write a record and when that record is available for reading. What options does your chosen service have to ensure the data is not "stale" when read? Are there any tradeoffs between reducing the window between writes, and if so, how do they apply to Woodgrove Bank's situation?
 
 _Data ingest_
 
 1.  What are your recommended options for ingesting payment transaction events as they occur in a scalable way that can be easily processed while maintaining event order with no data loss?
 
-2.  Given the technical and business requirements at hand, is it best to narrow your options to one platform, or would you combine services for ingesting this data?
+2.  Of the ingest options you identified previously, which would you recommend for the scenario?
 
 _Data pipeline processing_
 
 1.  Woodgrove Bank indicated that they would like a unified way to process both streaming data and batch data on a platform that can also support their data science, data engineering, and development needs. Which platform would you recommend, and why?
 
-2.  They are also concerned about difficulties they have had in the past with performing both inserts and updates to long-term storage while processing streaming and batch data. How will your chosen platform cope with this challenge while optimizing file storage, avoiding the degradation in query performance due to many small files?
+2.  The big data systems Woodgrove Bank used in the past were only able to append new data to the end of existing data sets. This meant each time they had update, they would actually create a duplicate row containing the changed data and then have to author queries to merge those rows so that they had a clean view of the current state of the data. How will your chosen platform cope with this challenge?
 
 3.  How will your chosen data processing platform connect to and process data from your chosen data ingest solution for streaming data?
 
-4.  The customer is concerned about being able to protect secrets, like service account keys and connection strings. How do you propose storing and providing access to these secrets within the selected data pipeline processing platform?
+4.  What configuration would you need to apply to your solution to allow it to restart any stream processing in the case the job is stopped?
+
+5.  What specific secrets will their processing solution might want to store? How would they securely store and access those secrets?
 
 _Long-term data storage_
 
@@ -292,13 +288,7 @@ _Model training and deployment_
 
 1.  Describe how your chosen data processing platform will support machine learning model training and deployment. The model will need to be trained on and validated against historical payment transaction data that includes known fraudulent transactions.
 
-2.  What are some processes that can be put in place to support a collaborative approach to producing and deploying the model?
-
-3.  How do you propose deploying the trained model in a way that is scalable, globally accessible, and supports redeploying new versions of the model with little to no downtime? Can these steps be performed within the same data processing platform in which the model is re-trained? How will you support model versioning?
-
-4.  How will you address Woodgrove Bank's desire to simplify the process of running and tracking model experiments through hyperparameter tuning, and selecting the best model based on those experiments?
-
-5.  How will you schedule regular batch scoring of fraud data using the trained model, and make that data available to Woodgrove Bank's web applications at a global scale?
+2.  How will you schedule regular batch scoring of fraud data using the trained model, and make that data available to Woodgrove Bank's web applications at a global scale?
 
 _Dashboards and reporting_
 
