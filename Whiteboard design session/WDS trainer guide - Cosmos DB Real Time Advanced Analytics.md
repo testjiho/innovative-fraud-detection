@@ -479,7 +479,7 @@ _Data ingest_
 
     Apart from addressing the primary decision factors above, another strong consideration for choosing Cosmos DB is the issue of data sovereignty. Since Woodgrove Bank has customers around the world, some countries in which they operate may not allow data to be written and stored in a different country. Since Cosmos DB makes it easy to distribute data on a global scale, it may be required to have separate collections per region to meet regulatory requirements. This limitation can be worked around with Event Hubs, but the level of effort to do so may not be worth it in the long run. In this case, we will recommend Azure Cosmos DB for ingest.
 
-    > Please note: for multi-master accounts, change feed based on a server-side token (which is based on aa logical timestamp) will provide a predictable change feed experience is supported. Change feed based on `IfmodifiedSince` in this scenario could result in missing versions and duplicates, and is therefore blocked.
+    > Please note: for multi-master accounts, change feed based on a server-side token (which is based on aa logical timestamp) will provide a predictable change feed experience is supported. Change feed based on If-Modified-Since in this scenario could result in missing versions and duplicates, and is therefore blocked.
 
 _Data pipeline processing_
 
