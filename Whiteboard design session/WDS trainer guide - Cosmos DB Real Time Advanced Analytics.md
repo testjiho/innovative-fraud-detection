@@ -540,9 +540,76 @@ _Long-term data storage_
 
 1.  As incoming data is processed, refined, and scored, all of the transactions need to be persisted to long-term storage for analysis, model training and validation, and reporting. This storage needs to handle long-term growth, be fast enough to rapidly ingest new data while simultaneously handling reads against the same data set without interference, and act as a reliable data source for dashboards and reports. Which is your recommended long-term data storage solution, keeping in mind its role within your selected data pipeline processing platform?
 
+    Although our proposed solution uses Databricks Delta to store data within a Delta table, we still need to select the appropriate storage service it uses under the covers. For this, use Azure Data Lake Storage Gen2 (ADLS Gen2). Azure Data Lake Storage Gen2 (ADLS Gen2) is a set of capabilities dedicated to big data analytics, built on Azure Blob storage. Data Lake Storage Gen2 is the result of converging the capabilities of Microsoft's two existing storage services, Azure Blob storage and Azure Data Lake Storage Gen1. Features from Azure Data Lake Storage Gen1, such as file system semantics, directory, and file level security and scale are combined with the low-cost, tiered storage, and high availability/disaster recovery capabilities from Azure Blob storage.
+
+    ADLS Gen2 makes Azure Storage the foundation for building enterprise data lakes on Azure. Designed from the start to service multiple petabytes of information while sustaining hundreds of gigabits of throughput, ADLS Gen2 allows you to easily manage massive amounts of data.
+
+    ADLS Gen2 allows you to manage and access data just as you would with a Hadoop Distributed File System (HDFS). The new Azure Blob Filesystem (ABFS) driver allows Azure Databricks to access data stored in ADLS Gen2. This driver is optimized specifically for big data analytics, and overcomes the inherent deficiencies of WASB.
+
+    With Databricks Delta managing the files stored within ADLS, the files will be optimized through re-indexing and combining numerous small files into fewer, read-friendly large files. Other enhancements provided by Delta allow for simultaneously handling reads and writes against the same data set without interference. The Delta table can be accessed by BI dashboard and reporting services that support reading Hive tables, such as Power BI.
+
 2.  How do you ensure your data is continuously optimized within your chosen long-term data storage solution, given the requirements to store inserts, updates, and deletes while avoiding generating very small, un-optimized files?
 
+    Historical and new data is often written in very small files and directories. This will especially be the case when dealing with real-time payment transaction data. The result is that a query on this data may be very slow due to network latency or volume of file metadata. The solution is to compact many small files into one larger file. Databricks Delta has a mechanism for compacting small files. It supports the `OPTIMIZE` operation, which performs file compaction. Small files are compacted together into new larger files up to 1GB. The 1GB size was determined by the Databricks optimization team as a trade-off between query speed and run-time performance.
+
+    `OPTIMIZE` is not run automatically because you must collect many small files first. Run `OPTIMIZE` more often if you want better end-user query performance. Since `OPTIMIZE` is a time consuming step, run it less often if you want to optimize cost of compute hours. To start with, run `OPTIMIZE` on a daily basis (preferably at night when fewer jobs are run), and determine the right frequency for your particular business case. You can use Databricks Jobs to schedule automatically running the `OPTIMIZE` operations. In the end, the frequency at which you run `OPTIMIZE` is a business decision.
+
+    In addition to the `OPTIMIZE` operation, Databricks Delta uses two mechanisms to speed up queries:
+
+    `Data Skipping` is a performance optimization that aims at speeding up queries that contain filters (WHERE clauses). For example, you have a data set that is partitioned by date. A query using `WHERE date > 2018-06-01` would not access data that resides in partitions that correspond to dates prior to `2018-06-01`.
+
+    `ZOrdering` is a technique to colocate related information in the same set of files. This optimization maps multidimensional data to one dimension while preserving locality of the data points.
+
 3.  Woodgrove Bank wants to retain all raw data (bronze), then parse that data into query tables (silver) which can be joined with dimension tables, such as account information. They also would like to have summary tables (gold) containing business-level aggregates used for their dashboards and reports. How would you support these requirements in your long-term storage solution?
+
+    To support this, you would first define the storage paths for the mounted Azure Data Lake Storage account for each layer (bronze, silver, and gold). These will be used to store files for each of the related Delta tables. In addition, define a path to your checkpoint directory (`checkpointLocation` option) for stream processing, so you can continue where you left off if your stream processing job stops for any reason. For example:
+
+    ```python
+    basePath       = "/mnt/adlsGen2/payment-transactions-streaming"
+    bronzePath     = basePath + "/transactionsRaw.delta"
+    silverPath     = basePath + "/transactions.delta"
+    goldPath       = basePath + "/transactionsSummary.delta"
+    checkpointPath = basePath + "/checkpoints"
+    ```
+
+    > Please note: the bronze path may not be needed, depending on how you configured your data ingestion layer. For instance, if you are using Event Hubs, you can configure Event Hubs Capture to store the raw data directly to ADLS. You will process the stream in Databricks, make any transformations to the data, and store the transformed data into your query (silver) tables. If you are using Azure Cosmos DB, the collection you use for ingest will act as the bronze path containing raw data. Then, just like you do for Event Hubs, you will process the stream, this time from the Cosmos change feed, in Databricks, transform the data, and store it in the silver tables.
+
+    Here is an example of creating a query table (silver) by reading a stream into a Databricks Delta query directory (`silverPath`), while also transforming the data:
+
+    ```python
+    from pyspark.sql.functions import unix_timestamp
+
+    (spark.readStream
+        .format("delta")
+        .load(str(bronzePath))
+        .select(col("transactionID"),
+                col("accountID"),
+                col("transactionAmount"),
+                col("transactionCurrencyCode"),
+                unix_timestamp(col("timestamp"), "yyyy-MM-dd'T'HH:mm:ss.SSSX").cast("timestamp").alias("timestamp"),
+                col("transactionDeviceId"),
+                col("transactionIPaddress"))
+        .writeStream
+        .format("delta")
+        .option("checkpointLocation", checkpointPath + "/silver")
+        .outputMode("append")
+        .start(silverPath)
+    )
+    ```
+
+    Now we can create a Delta table, referring to the silver path location:
+
+    ```python
+    spark.sql("DROP TABLE IF EXISTS Transactions")
+
+    spark.sql("""
+        CREATE TABLE Transactions
+        USING Delta
+        LOCATION '{}'
+    """.format(silverPath))
+    ```
+
+    All of this code can be run from within one or more Databricks notebooks, either manually or on a schedule.
 
 _Model training and deployment_
 
