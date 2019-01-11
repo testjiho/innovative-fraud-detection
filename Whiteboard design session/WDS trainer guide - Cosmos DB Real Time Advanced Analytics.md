@@ -170,7 +170,11 @@ When participants are doing activities, you can **look ahead to refresh your mem
 
 ## Abstract and learning objectives
 
-\[insert what is trying to be solved for by using this workshop. . . \]
+Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a PoC of an innovative fraud detection solution. They want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
+
+In this hands-on lab session, you will implement a PoC of the data pipeline that could support the needs of Woodgrove Bank.
+
+At the end of this workshop, you will be better able to implement solutions that leverage the strengths of Cosmos DB in support of advanced analytics solutions that require high throughput ingest, low latency serving and global scale in combination with scalable machine learning, big data and real-time processing capabilities.
 
 ## Step 1: Review the customer case study
 
@@ -190,13 +194,19 @@ Directions: With all participants in the session, the facilitator/SME presents a
 
 ### Customer situation
 
-Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a PoC of an innovative fraud detection solution. They know from experience and through contacts in the financial industry that there is a constant arms race between fraudsters and banks. Thanks to increasingly powerful and easily accessible technology, financial crime is on the rise. Payment processing companies, like Woodgrove Bank, and their merchant customers risk financial losses due to fraud. They also risk fines from failing to detect or even prevent criminal acts like money laundering or terror financing. In addition, other forms of fraud are on the rise, like ATM fraud, card transaction fraud, payment fraud, and more. In the most basic terms, online fraud is committed when an unauthorized user impersonates another user by taking over their account, using malware, or hijacking internet sessions. When dealing with millions of transactions, it is both crucial and challenging to detect and monitor fraud in real-time across all transactions. Doing so helps prevent additional losses and detect widespread attacks.
+Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a PoC of an innovative fraud detection solution. They know from experience and through contacts in the financial industry that there is a constant arms race between fraudsters and banks. Thanks to increasingly powerful and easily accessible technology, financial crime is on the rise. Payment processing companies, like Woodgrove Bank, and their merchant customers risk financial losses due to fraud.
 
-Another motive for rapidly prototyping a real-time fraud detection system is that Woodgrove forecasts reaching over USD \$10 Billion in assets over the upcoming fiscal year, placing them within the stricter regulatory purview of institutions classified by the US government as "big banks". This means that they will be subject to regulatory fines over and above the fraud loss, putting their business at greater risk. Their hope is that building a prototype will help them de-risk certain aspects of the solution they are unsure about, such as whether their streaming data can be processed rapidly enough for real-time detection. They also want to ensure that their historical data is sufficient for training a solid machine learning model and that they have a path forward to constantly retrain and redeploy the model for optimal performance. Finally, they would like to balance reducing false positives with increasing the detection of real fraud. The biggest issue with false positives is that it negatively impacts customer satisfaction. The customer's account could be suspended during investigation, including any pending transactions.
+They also risk fines from failing to detect or even prevent criminal acts like money laundering or terror financing. Woodgrove forecasts reaching over USD \$10 Billion in assets over the upcoming fiscal year, placing them within the stricter regulatory purview of institutions classified by the US government as "big banks". This means that they will be subject to regulatory fines over and above the fraud loss, putting their business at greater risk.
 
-With these challenges in mind, Woodgrove Bank wants to use AI to break the tradeoff between false positive and false negative errors. They hope a well-trained model will also reduce the chance of missing true positives, and do so in a way that is highly performant and globally available. Woodgrove's vision is to offer this capability in the form of new services to their merchant customers. As stated before, their customers are located around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
+While all forms of fraud are on the rise, like ATM fraud, card transaction fraud, payment fraud, Woodgrove Bank would like to focus on online fraud. In the most basic terms, online fraud is committed when an unauthorized user impersonates another user by taking over their account, using malware, or hijacking internet sessions and uses the impersonated credentials to make purchase transactions. When dealing with millions of transactions, it is both crucial and challenging to detect and monitor fraud in real-time across all transactions. Doing so helps prevent additional losses and detect widespread attacks.
 
-In addition to real-time fraud detection, Woodgrove Bank would like to periodically evaluate data, customer by customer, and offer a pre-scored data set to merchants on-demand that scores a customer's fraud likelihood based on their transaction history. This "trust list", as well as the real-time scoring model, needs to be made globally available and able to handle varying levels of consumer demand.
+Given this focus in online fraud, they want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service. This is the solution for which they would like to implement a PoC.
+
+In flagging fraudulent transactions, they know there are tradeoffs between being overly aggressive and mistakenly identifying innocuous transactions as fraudulent, and not being aggressive enough such that they miss transactions that represent real fraud. They would rather miss a fraudulent event in their automated system, than mistakenly identify innocuous transactions as fraudulent because the latter will frustrate both their merchant customer and the end customers and potentially lose their business. However, they want to balance this by doing as much as they can to detect fraud while minimizing the customer frustration. To address this, they believe the PoC will need to handle transactions at two "speeds". First, they want to screen transactions for fraud as they happen, only blocking a transaction if the system is very confident it is fraudulent. Second, they want to perform a more in depth, offline fraud sweep of transactions to identify any unblocked transactions and identify suspicious transactions. These are transactions which are potentially fraud, for which they will notify the merchant that they should perform additional verification with the end customer before completing the order.
+
+They have decades worth of historical transaction data (including transaction identified as fraudulent) that they believe would be helpful in the fraud detection PoC. This data is in tabular format and can be exported to CSV files if needed.
+
+The analysts at Woodgrove Bank are very interested in the recent notebook-driven approach to performing data science at data engineering tasks and would prefer a solution that features notebooks as the standard way to explore data, prepare data, model and define the logic for scheduled processing.
 
 ### Customer needs
 
@@ -209,8 +219,6 @@ In addition to real-time fraud detection, Woodgrove Bank would like to periodica
 4.  Need to be able to store data from streaming sources into long-term storage, without interfering with jobs reading the data set.
 
 5.  We would like to use a standard platform that supports our near-term data pipeline needs while providing a long-term standard for data science, data engineering, and development.
-
-6.  Need to be able to have a top-level view of fraud trends across the globe.
 
 ### Customer objections
 
@@ -412,47 +420,37 @@ _High-level architecture_
 
 _Globally distributed data_
 
-1.  Which data storage service would you recommend using that can minimize access latency to globally distributed pre-scored fraud data? Be specific about how data is replicated.
+1.  Which data storage service would you recommend for storing the suspicious transactions? Remember, Woodgrove Bank wants to minimize access latency for their global customers. Be specific about how data is replicated.
 
-    Azure Cosmos DB is well-suited for delivering large amounts of data in a fast and reliable way through data centers around the world. The fact that it supports multiple models (documents, graphs, key-value, column-family) without requiring schemas provides the flexibility of choice and changing data feature requirements. In addition, there is a connector available for reading and writing to Cosmos DB from Spark clusters, making it a good candidate for both data ingest and as a data serving layer.
+    Azure Cosmos DB is well-suited for delivering large amounts of data in a fast and reliable way through data centers around the world. The fact that it supports multiple models (documents, graphs, key-value, column-family) without requiring schemas provides the flexibility of choice and changing data feature requirements. In addition, there is a connector available for reading and writing to Cosmos DB from Spark clusters, like those in Azure Databricks, making it a good candidate for both data ingest and as a data serving layer.
 
     It is a simple process to add or remove geographical regions associated with a Cosmos DB database at any time with a few clicks, or programmatically through a single API call. Because Cosmos DB automatically indexes the data stored within a Cosmos container (database) upon ingestion, users can query the data without having to deal with a schema or the complications of index management in a globally distributed setup.
 
     When Woodgrove Bank configures Cosmos DB, they should take good care to select an appropriate partition key for their data. They should select a partition key which provides even distribution of storage and throughput (req/sec) at any given time to avoid storage and performance bottlenecks (for instance, account number or region). This key should be present in the bulk of queries for read-heavy scenarios to avoid excessive fan-out, since each document with a specific partition key value belongs to the same logical partition, and is therefore transparently placed in the same physical partition. Each physical partition is replicated across geographical regions, resulting in global distribution.
 
-2.  How does your chosen service handle scaling to meet varying levels of demand across different regions?
+2.  How does your chosen service handle scaling to meet varying levels of demand across different regions? Can you set specific capacity for specific regions?
 
     In Azure Cosmos DB, provisioned throughput is represented as request units/second (RUs). RUs measure the cost of both read and write operations against your Cosmos container. Because Cosmos DB is designed with transparent horizontal scaling and multi-master replication, you can very quickly and easily increase or decrease the number of RUs to handle thousands to hundreds of millions of requests per second around the globe with a single API call.
 
-    When you set a number of RUs for a container, Cosmos DB ensures that those RUs are available in each region associated with your Cosmos DB account. When you scale out the number of regions by adding a new one, Cosmos will automatically provision the 'R' RUs in the newly added region. You cannot selectively assign different RUs to a specific region. These RUs are provisioned for a container (or database) for all associated regions.
+    When you set a number of RUs for a container, Cosmos DB ensures that those RUs are available in each region associated with your Cosmos DB account. When you scale out the number of regions by adding a new one, Cosmos will automatically provision the RUs in the newly added region. You cannot selectively assign different RUs to a specific region. These RUs are provisioned for a container (or database) for all associated regions.
 
-    Woodgrove Bank should be aware of the available consistency levels of Azure Cosmos DB, and the potential tradeoffs between read consistency, availability, latency, and throughput. As a general rule of thumb, you can get about 2x read throughput for session, consistent prefix, and eventual consistency models compared to bounded staleness or strong consistency.
+3.  Distributed databases that replicate data to multiple locations have some potential delay between when you write a record and when that record is available for reading. What options does your chosen service have to ensure the data is not "stale" when read? Are there any tradeoffs between reducing the window between writes, and if so, how do they apply to Woodgrove Bank's situation?
 
-3.  The customer also wants to globally distribute access to trained machine learning models used for real-time fraud detection. How would you architect your solution to meet this requirement?
+    Most distributed databases offer two consistency levels: strong and eventual. These live at both ends of the spectrum, where strong consistency often results in slower transactions because it synchronously writes data to each replica set. This guarantees that the reader will always see the most recent committed version of the data. Eventual consistency, on the other hand, asynchronously writes to each replica set with no ordering guarantee for reads. The replicas eventually converge, but the risk is that it can take several reads to retrieve the most up-to-date data.
 
-    Use Azure Machine Learning service and the Azure Machine Learning SDK to host a trained machine learning model and automatically deploy the model to an Azure Kubernetes Service (AKS) cluster. Creating the AKS cluster is a one-time process for your workspace, whereafter you can reuse it for multiple deployments as the model gets updated through re-training. The basic steps are as follows:
+    Azure Cosmos DB was designed with tradeoffs between read consistency, availability, latency, and throughput in mind. This is why Cosmos DB offers five consistency levels: strong, bounded staleness, session, consistent prefix, and eventual. As a general rule of thumb, you can get about 2x read throughput for session, consistent prefix, and eventual consistency models compared to bounded staleness or strong consistency.
 
-    1.  Register the model in the workspace model registry.
+    The Session consistency level is the default, and is suitable for most operations. One thing to consider in your design is, when set to lower consistency level, any arbitrary set of operations can be executed in an ACID-compliant (Atomicity, Consistency, Isolation, Durability) transaction by performing those operations from within a stored procedure. Another thing to consider is that you may get stronger consistency guarantees in practice. Read-consistency is tied to the ordering and propagation of the write/update operations. If there are no writes being made to the data set, then the consistency level is not a factor.
 
-    2.  Build a Docker image, including:
+    In Woodgrove's case, Cosmos DB is being used for storing suspicious transactions that they identify by performing scheduled batch processing against all transactions. In this case, there are very little writes compared to the number of reads. Therefore, a consistency level of Session will suffice for these documents, resulting in higher read throughput (approximately 2x faster) compared to strong and bounded staleness.
 
-        - Download the registered model from the registry.
-        - Create a dockerfile, with a Python environment based on the dependencies you specify in the environment yaml file.
-        - Add your model files and the scoring script you supply in the dockerfile.
-        - Build a new Docker image using the dockerfile.
-        - Register the Docker image with the Azure Container Registry associated with the workspace.
-
-    3.  Deploy the Docker image to Azure Kubernetes Service (AKS).
-
-    4.  Start up a new container (or containers) in AKS.
-
-    The above can be done through a series of scripts for automation. To deploy globally, modify the script to deploy to AKS clusters hosted within different regions.
+    If Cosmos DB is also being used for data ingest for real-time payment transactions, you can guarantee ACID-compliant transactions by performing the transactions in a stored procedure, if they have multiple, related transactions they write at once. Another option is to monitor the Probabilistically Bounded Staleness (PBS) metric of Cosmos DB transactions, which shows how often each transaction actually achieves a stronger consistency level than what is set. This will provide them with the information they need to select the most appropriate consistency level for those transactions.
 
 _Data ingest_
 
 1.  What are your recommended options for ingesting payment transaction events as they occur in a scalable way that can be easily processed while maintaining event order with no data loss?
 
-    There are a couple of options in Azure for ingesting real-time streaming payment transactions. Which one you choose will depend on various factors, including the rate of flow (how many transactions/second), data source and compatibility, and long-term storage needs:
+    There are a couple of options in Azure for ingesting real-time streaming payment transactions. Which one you choose will depend on various factors, including the rate of flow (how many transactions/second), data source and compatibility, level of effort to implement, and long-term storage needs:
 
     1.  **Event Hubs** is a Big Data streaming platform and event ingestion service, capable of ingesting millions of events per second. It supports multiple consumers (event processors), and is automatically scalable. Event Hubs is a good candidate for this architecture for the following reasons:
 
@@ -473,7 +471,7 @@ _Data ingest_
         - Cosmos DB is highly scalable, and is already being used to store pre-scored fraud data.
         - An Apache Spark connector is available, allowing Azure Databricks clusters to directly access the change feed with very little code.
         - Cosmos DB with change feed enabled acts as both a raw data store for batch processing and stream processing.
-        - Event publishers can publish events to Cosmos DB using .NET, Java, Node.js, and Python, using a number of APIs, such as SQL, Cassandra, MongoDB, Gremlin, and Azure Table Storage. However, please note that change feed is currently only supported by the SQL and Gremlin APIs.
+        - Event publishers can publish events to Cosmos DB using .NET, Java, Node.js, and Python, using a number of APIs, such as SQL, Cassandra, MongoDB, Gremlin, and Azure Table Storage. However, please note that the change feed feature can only be used by the SQL and Gremlin APIs. Woodgrove will be using the SQL API, so they will be able to use the change feed feature.
         - Cosmos DB is globally accessible across many Azure regions, bringing it closer to distributed event publishers and consumers.
         - In a multi-region Azure Cosmos account, if a write-region fails over, change feed will work across the manual failover operation and it will be contiguous.
 
@@ -481,30 +479,32 @@ _Data ingest_
 
         - Similar to Event Hubs, feed item ordering is guaranteed per logical partition key. There is no guaranteed order across the partition key values. Also similar to Event Hubs, changes are available in parallel across all logical partition keys of a container, allowing for parallel processing by multiple consumers. As discussed in the previous section (globally distributed data), choosing an appropriate partition key for Cosmos DB is a critical step for ensuring balanced reads and writes, scaling, and, in this case, in-order change feed processing per partition. While there are no limits, per se, on the number of logical partitions, a single logical partition is allowed an upper limit of 10 GB of storage. Logical partitions cannot be split across physical partitions. For the same reason, if the partition key chosen is of bad cardinality, we could potentially have skewed storage distribution. For instance, if one logical partition becomes fatter faster than the others and hits the maximum limit of 10 GB, while the others are nearly empty, the physical partition housing the maxed out logical partition cannot split and could cause an application downtime.
 
-2.  Given the technical and business requirements at hand, is it best to narrow your options to one platform, or would you combine services for ingesting this data?
+2.  Of the ingest options you identified previously, which would you recommend for the scenario?
 
-    While it is certainly possible to combine Azure Cosmos DB and Event Hubs for data ingest, this may result in unnecessary complexity, especially considering how closely their features (and challenges) align. For instance, it is possible to ingest all data into Cosmos DB and send events to Event Hubs through an intermediary event processor, such as Azure functions, in order to further process the event hub data downstream by consumers that have no way to use Cosmos DB's change feed. However, this additional layer of abstraction is not necessary for Woodgrove Bank's scenario. All things considered, the best approach is to select one after weighing the pros and cons of each. Remember, you decision should be based on the following factors: the rate of flow (how many transactions/second), data source and compatibility, and long-term storage needs. If the payment processors sending the transaction data can be more easily adapted to send to one service over the other, then the more compatible service may garner higher preference.
+    While it is certainly possible to combine Azure Cosmos DB and Event Hubs for data ingest, this may result in unnecessary complexity, especially considering how closely their features (and challenges) align. For instance, it is possible to ingest all data into Cosmos DB and send events to Event Hubs through an intermediary event processor, such as Azure functions, in order to further process the event hub data downstream by consumers that can integrate with Event Hubs, but have no way to use Cosmos DB's change feed. However, this additional layer of abstraction is not necessary for Woodgrove Bank's scenario. All things considered, the best approach is to select one after weighing the pros and cons of each. Remember, your decision should be based on the following factors: the rate of flow (how many transactions/second), data source and compatibility, level of effort to implement, and long-term storage needs.
 
-    Both services are certainly capable of acting as the ingestion service. Since ordering of transactions is of such high importance, the restrictions on the number of partitions Event Hubs can have tilts the scale toward Cosmos DB change feed. This limitation can be worked around with Event Hubs, but the level of effort to do so may not be worth it in the long run. In this case, we will recommend Azure Cosmos DB for ingest.
+    Both services are certainly capable of acting as the ingestion service. They both support a high rate of flow, and both have options for long-term storage needs. However, Event Hubs requires an extra step for long-term storage, which is handled through Event Hubs Capture, whereas Cosmos DB already acts as this storage for raw data. Level of effort to implement tilts the scale toward Cosmos DB since transactional data is already being written to a database, those payment processors can be updated to also write to Cosmos DB, or switch over to Cosmos entirely if it makes sense. Event Hubs requires adding an event service to their architecture and learning how to use it from their current systems.
+
+    Apart from addressing the primary decision factors above, another strong consideration for choosing Cosmos DB is the issue of data sovereignty. Since Woodgrove Bank has customers around the world, some countries in which they operate may not allow data to be written and stored in a different country. Since Cosmos DB makes it easy to distribute data on a global scale, it may be required to have separate collections per region to meet regulatory requirements. This limitation can be worked around with Event Hubs, but the level of effort to do so may not be worth it in the long run. In this case, we will recommend Azure Cosmos DB for ingest.
 
 _Data pipeline processing_
 
 1.  Woodgrove Bank indicated that they would like a unified way to process both streaming data and batch data on a platform that can also support their data science, data engineering, and development needs. Which platform would you recommend, and why?
 
-    The recommended platform that meets these needs for this solution is Azure Databricks. When it comes to working with big data in a unified way, whether you process it real-time as it arrives or in batches, Apache Spark provides an incredibly fast and capable engine that also supports data science processes, like machine learning and advanced analytics. Built as a joint effort by the team that started Apache Spark and Microsoft, Azure Databricks provides data science and engineering teams with a single platform for Big Data processing and Machine Learning.
+    The recommended platform that meets these needs for this solution is Azure Databricks. When it comes to working with big data in a unified way, whether you process it real-time as it arrives or in batches, Apache Spark provides a fast and capable engine that also supports data science processes, like machine learning and advanced analytics. Built as a joint effort by the team that started Apache Spark and Microsoft, Azure Databricks provides data science and engineering teams with a single platform for Big Data processing and Machine Learning.
 
     There are a lot of features Azure Databricks offers over top of standard Spark installations. The key features that make this a good choice for Woodgrove Bank are:
 
     - Integrates with Azure Active Directory for single sign-on and RBAC in certain scenarios.
     - Contains collaborative features such as the workspace that contains both private and shared folders, integrated change tracking of notebooks and integration with git source control systems like GitHub, and granular user and role-based permissions.
-    - It is possible to start and stop containers either manually or automatically, based on usage.
+    - It is possible to start and stop clusters either manually or automatically, based on usage.
     - Supports running scheduled jobs for executing notebooks and libraries on a schedule.
     - Integrates with Azure Key Vault, which serves as a backing store for secrets within Azure Databricks, including automatic redaction of those secrets when users attempt to output them in a notebook.
     - Includes Databricks Delta, which supports features Woodgrove Bank is looking for, such as the ability to upsert data into tables, optimize data storage, and simultaneously read data from tables which are being written to by streaming and batch processes.
     - Join disparate data sets found in data lakes.
-    - Train and evaluate machine learning models.
+    - Train and evaluate machine learning models at scale.
 
-2.  They are also concerned about difficulties they have had in the past with performing both inserts and updates to long-term storage while processing streaming and batch data. How will your chosen platform cope with this challenge while optimizing file storage, avoiding the degradation in query performance due to many small files?
+2.  The big data systems Woodgrove Bank used in the past were only able to append new data to the end of existing data sets. This meant each time they had update, they would actually create a duplicate row containing the changed data and then have to author queries to merge those rows so that they had a clean view of the current state of the data. How will your chosen platform cope with this challenge?
 
     Use Databricks Delta. Databricks Delta is a Spark table with built-in reliability and performance optimizations.
 
@@ -519,20 +519,24 @@ _Data pipeline processing_
 
     Whether you have chosen to ingest your data using Azure Cosmos DB with change feed, or Event Hubs, you can connect to either of these directly from Spark. For Cosmos DB, use the `azure-cosmosdb-spark` connector, which lets you easily read to and write from Azure Cosmos DB via Spark DataFrames in either Python or Scala. For Event Hubs, either use the `azure-eventhubs-spark` library, or enable Kafka on your event hub and use the Spark-Kafka adapter (supports Kafka v2.0+), available as of Spark v2.4.
 
-    Because the payment transactions will be arriving in real time, you will want to use Structured Streaming to process the data. Think of a stream of data as a table to which data is continously appended. In streaming, the problems of traditional data pipelines are exacerbated. Specifically, with frequent meta data refreshes, table repairs and accumulation of small files on a secondly- or minutely-basis. Many small files result because data (may be) streamed in at low volumes with short triggers. Databricks Delta is uniquely designed to address these needs.
+    Because the payment transactions will be arriving in real time, you will want to use Spark Structured Streaming to process the data. Think of a stream of data as a table to which data is continously appended. In streaming, the problems of traditional data pipelines are exacerbated. Specifically, with frequent meta data refreshes, table repairs and accumulation of small files in intervals measured in seconds or minutes. Many small files result because data may be streamed in at low volumes with short triggers. Databricks Delta is uniquely designed to address these needs.
+
+4.  What configuration would you need to apply to your solution to allow it to restart any stream processing in the case the job is stopped?
 
     When defining a Delta streaming query, one of the options that you need to specify is the location of a checkpoint directory.
 
     `.writeStream.format("delta").option("checkpointLocation", <path-to-checkpoint-directory>) ...`
 
-    This is actually a structured streaming feature. It stores the current state of your streaming job.
+    This is a structured streaming feature. It stores the current state of your streaming job.
     Should your streaming job stop for some reason and you restart it, it will continue from where it left off.
 
     Please note, if you do not have a checkpoint directory, when the streaming job stops, you lose all state around your streaming job and upon restart, you start from scratch.
 
-4.  The customer is concerned about being able to protect secrets, like service account keys and connection strings. How do you propose storing and providing access to these secrets within the selected data pipeline processing platform?
+5.  What specific secrets will their processing solution might want to store? How would they securely store and access those secrets?
 
-    Use Azure Key Vault, in addition to Key Vault-backed secret scopes within Azure Databricks. Azure Key Vault provides a service that allows you to securely centralize application secrets. The benefit of it being a centralized store of secrets, is that you only need to define those secrets, like connection strings or account keys, in one place which can be accessed by several Azure services as well as custom applications.
+    Specific secrets that they may need to be accessed by Azure Databricks are account names and keys for Azure Data Lake Storage, Cosmos DB connection strings or access keys, and Azure Machine Learning account keys.
+
+    To securely store these secrets, use Azure Key Vault, in addition to Key Vault-backed secret scopes within Azure Databricks. Azure Key Vault provides a service that allows you to securely centralize application secrets. The benefit of it being a centralized store of secrets, is that you only need to define those secrets, like connection strings or account keys, in one place which can be accessed by several Azure services as well as custom applications.
 
     Azure Databricks has two types of secret scopes: Key Vault-backed and Databricks-backed. These secret scopes allow you to store secrets, such as database connection strings, securely. If someone tries to output a secret to a notebook, it is replaced by `[REDACTED]`. This helps prevent someone from viewing the secret or accidentally leaking it when displaying or sharing the notebook.
 
@@ -553,12 +557,6 @@ _Long-term data storage_
     Historical and new data is often written in very small files and directories. This will especially be the case when dealing with real-time payment transaction data. The result is that a query on this data may be very slow due to network latency or volume of file metadata. The solution is to compact many small files into one larger file. Databricks Delta has a mechanism for compacting small files. It supports the `OPTIMIZE` operation, which performs file compaction. Small files are compacted together into new larger files up to 1GB. The 1GB size was determined by the Databricks optimization team as a trade-off between query speed and run-time performance.
 
     `OPTIMIZE` is not run automatically because you must collect many small files first. Run `OPTIMIZE` more often if you want better end-user query performance. Since `OPTIMIZE` is a time consuming step, run it less often if you want to optimize cost of compute hours. To start with, run `OPTIMIZE` on a daily basis (preferably at night when fewer jobs are run), and determine the right frequency for your particular business case. You can use Databricks Jobs to schedule automatically running the `OPTIMIZE` operations. In the end, the frequency at which you run `OPTIMIZE` is a business decision.
-
-    In addition to the `OPTIMIZE` operation, Databricks Delta uses two mechanisms to speed up queries:
-
-    `Data Skipping` is a performance optimization that aims at speeding up queries that contain filters (WHERE clauses). For example, you have a data set that is partitioned by date. A query using `WHERE date > 2018-06-01` would not access data that resides in partitions that correspond to dates prior to `2018-06-01`.
-
-    `ZOrdering` is a technique to colocate related information in the same set of files. This optimization maps multidimensional data to one dimension while preserving locality of the data points.
 
 3.  Woodgrove Bank wants to retain all raw data (bronze), then parse that data into query tables (silver) which can be joined with dimension tables, such as account information. They also would like to have summary tables (gold) containing business-level aggregates used for their dashboards and reports. How would you support these requirements in your long-term storage solution?
 
@@ -615,34 +613,48 @@ _Model training and deployment_
 
 1.  Describe how your chosen data processing platform will support machine learning model training and deployment. The model will need to be trained on and validated against historical payment transaction data that includes known fraudulent transactions.
 
-2.  What are some processes that can be put in place to support a collaborative approach to producing and deploying the model?
+    Azure Databricks supports machine learning training at scale. This means that it can handle the historical payment transaction data, which Woodgrove Bank said it can provide as a series of CSV files, and transform that data as needed for cleanup and feature selection. A large portion of that data will be used for training, and the rest can be used to validate the performance of the trained model.
 
-3.  How do you propose deploying the trained model in a way that is scalable, globally accessible, and supports redeploying new versions of the model with little to no downtime? Can these steps be performed within the same data processing platform in which the model is re-trained? How will you support model versioning?
+    For model deployment, use Azure Machine Learning service and the Azure Machine Learning SDK to host a trained machine learning model and automatically deploy the model to an Azure Kubernetes Service (AKS) cluster. Creating the AKS cluster is a one-time process for your workspace, whereafter you can reuse it for multiple deployments as the model gets updated through re-training. The basic steps are as follows:
 
-4.  How will you address Woodgrove Bank's desire to simplify the process of running and tracking model experiments through hyperparameter tuning, and selecting the best model based on those experiments?
+    1.  Register the model in the workspace model registry.
 
-5.  How will you schedule regular batch scoring of fraud data using the trained model, and make that data available to Woodgrove Bank's web applications at a global scale?
+    2.  Build a Docker image, including:
+
+        - Download the registered model from the registry.
+        - Create a dockerfile, with a Python environment based on the dependencies you specify in the environment yaml file.
+        - Add your model files and the scoring script you supply in the dockerfile.
+        - Build a new Docker image using the dockerfile.
+        - Register the Docker image with the Azure Container Registry associated with the workspace.
+
+    3.  Deploy the Docker image to Azure Kubernetes Service (AKS).
+
+    4.  Start up a new container (or containers) in AKS.
+
+    The above can be done through a series of scripts for automation. To deploy globally, modify the script to deploy to AKS clusters hosted within different regions.
+
+2.  How will you schedule regular batch scoring of fraud data using the trained model, and make that data available to Woodgrove Bank's web applications at a global scale?
+
+    The models that they have trained within Azure Databricks notebooks can be saved to ADLS or to Azure Machine Learning service. These saved models can then be re-loaded by a notebook or a job that executes a notebook to batch score the “suspicious transactions” on a scheduled basis. The notebook logic would use the Cosmos DB Spark connector to push the scored results out to the globally distributed set of collections, making the suspicious transactions “locally” available to authorized consuming applications.
 
 _Dashboards and reporting_
 
 1.  Woodgrove Bank's business analysts would like to have a set of dashboards they can monitor that provide real-time views of fraud trends at a global scale. Thinking back to how your proposed solution provides a set of summary (gold) tables containing business-level aggregates, what do you propose using to meet this requirement? Be specific about how this solution will be put in place and which features it supports.
 
+    PowerBI can query any tables created in Azure Databricks. This connection is facilitated via a JDBC connector, whose connection information is provided in the Get Data UI of Power BI by selecting the Spark connector. While the data for these tables may be stored in ADLS, the experience to the analysts is similar to them querying a table from a more traditional relational database. With the table connection in place, analysts can build reports and dashboards using Power BI.
+
 2.  How do you propose giving access to this same data to Woodgrove Bank's data scientists and data engineers within the data processing environment wherein they can craft complex queries and data visualizations?
+
+    Data scientists and data engineers would use Azure Databricks notebooks to craft complex queries and data visualizations.
 
 ## Checklist of preferred objection handling
 
-1.  We've found it challenging in the past to deal with both streaming data and long-term storage in a unified way, making it difficult to perform inserts, updates, and deletes to logical tables, having to manually maintain separate transaction logs. Over time, queries became slower because of having so many small files. How do we address these issues?
+1.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
 
-    THIS HAS ALREADY BEEN ANSWERED. REMOVE REDUNDANT QUESTION OR CHANGE THIS OBJECTION.
-
-2.  We are worried about storing secrets, like connection strings, within a notebook anyone can access. We want a centralized way to store these secrets that are accessible across services to cut down on redundancy.
-
-    THIS HAS ALREADY BEEN ANSWERED. REMOVE REDUNDANT QUESTION OR CHANGE THIS OBJECTION.
-
-3.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
-
-    Use Azure Machine Learning to support model experimentation and deployment, and reduce training time by using AutoML features. MORE DETAILS TO FOLLOW...
+    The typical approach to model training involves a time-consuming process trying dozens or even hundreds of combinations. Data scientists often try different ways of normalizing the data, different algorithms and different settings for those algorithms (hyperparameters). Data scientists will often setup a grid-search approach that will run multiple independent tests using differing combinations, measuring the performance of each and choosing the combination that provides the best results according to some performance metrics they select. With Azure Machine Learning AutoML, this search process is automated, and greatly simplifies the setup to try the typical combinations and quickly identify the best performing model against a user-selected performance metric. AutoML is used via the Azure Machine Learning Python SDK and can be utilized within Azure Databricks notebooks.
 
 ## Customer quote (to be read back to the attendees at the end)
 
-\[insert your custom workshop content here . . . \]
+"As a bank who is entrusted by customers all around the world with processing online payments, we have to be pro-active in detecting online fraud and protecting those customers. If we do not detect such activity quickly enough, things can spiral out of control, causing losses and in both monetary terms and our customers' trust. Azure has really enabled us to add that layer of security and peace of mind at a grand scale."
+
+--- Mari Stephens, CIO, Woodgrove Bank
