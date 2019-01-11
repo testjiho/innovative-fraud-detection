@@ -496,7 +496,7 @@ _Data pipeline processing_
     There are a lot of features Azure Databricks offers over top of standard Spark installations. The key features that make this a good choice for Woodgrove Bank are:
 
     - Integrates with Azure Active Directory for single sign-on and RBAC in certain scenarios.
-    - Contains collaborative features such as the workspace that contains both private and shared folders, integrated change tracking of notebooks and integration with git source control systems like GitHub, and granular user and rol-based permissions.
+    - Contains collaborative features such as the workspace that contains both private and shared folders, integrated change tracking of notebooks and integration with git source control systems like GitHub, and granular user and role-based permissions.
     - It is possible to start and stop containers either manually or automatically, based on usage.
     - Supports running scheduled jobs for executing notebooks and libraries on a schedule.
     - Integrates with Azure Key Vault, which serves as a backing store for secrets within Azure Databricks, including automatic redaction of those secrets when users attempt to output them in a notebook.
