@@ -220,17 +220,17 @@ Directions: Tables reconvene with the larger group to hear the facilitator/SME s
 
 ## Additional references
 
-| --------------- | :-------: |
-| **Description** | **Links** |
-| Introduction to Cosmos DB | <https://docs.microsoft.com/azure/cosmos-db/introduction> |
-| About Event Hubs | <https://docs.microsoft.com/azure/event-hubs/event-hubs-about> |
-| What is Azure Databricks? | <https://docs.microsoft.com/azure/azure-databricks/what-is-azure-databricks> |
-| Azure Databricks Delta | <https://docs.azuredatabricks.net/delta/index.html> |
-| Introduction to Azure Data Lake Storage | <https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-introduction> |
-| What is Azure Machine Learning service? | <https://docs.microsoft.com/azure/machine-learning/service/overview-what-is-azure-ml> |
-| Access ADLS with Azure Databricks using Spark | <https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-use-databricks-spark?toc=%2fazure%2fstorage%2fblobs%2ftoc.json> |
-| What is Azure Key Vault? | <https://docs.microsoft.com/azure/key-vault/key-vault-overview> |
-| Scaling throughput in Azure Cosmos DB | <https://docs.microsoft.com/azure/cosmos-db/scaling-throughput> |
-| Partitioning and horizontal scaling in Azure Cosmos DB | <https://docs.microsoft.com/azure/cosmos-db/partition-data> |
-| Consistency levels in Azure Cosmos DB | <https://docs.microsoft.com/azure/cosmos-db/consistency-levels> |
-| Azure Machine Learning SDK for Python | <https://docs.microsoft.com/python/api/overview/azure/ml/intro?view=azure-ml-py> |
+| **Description**                                        | **Links**                                                                                                                         |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| Introduction to Cosmos DB                              | <https://docs.microsoft.com/azure/cosmos-db/introduction>                                                                         |
+| About Event Hubs                                       | <https://docs.microsoft.com/azure/event-hubs/event-hubs-about>                                                                    |
+| What is Azure Databricks?                              | <https://docs.microsoft.com/azure/azure-databricks/what-is-azure-databricks>                                                      |
+| Azure Databricks Delta                                 | <https://docs.azuredatabricks.net/delta/index.html>                                                                               |
+| Introduction to Azure Data Lake Storage                | <https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-introduction>                                                   |
+| What is Azure Machine Learning service?                | <https://docs.microsoft.com/azure/machine-learning/service/overview-what-is-azure-ml>                                             |
+| Access ADLS with Azure Databricks using Spark          | <https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-use-databricks-spark?toc=%2fazure%2fstorage%2fblobs%2ftoc.json> |
+| What is Azure Key Vault?                               | <https://docs.microsoft.com/azure/key-vault/key-vault-overview>                                                                   |
+| Scaling throughput in Azure Cosmos DB                  | <https://docs.microsoft.com/azure/cosmos-db/scaling-throughput>                                                                   |
+| Partitioning and horizontal scaling in Azure Cosmos DB | <https://docs.microsoft.com/azure/cosmos-db/partition-data>                                                                       |
+| Consistency levels in Azure Cosmos DB                  | <https://docs.microsoft.com/azure/cosmos-db/consistency-levels>                                                                   |
+| Azure Machine Learning SDK for Python                  | <https://docs.microsoft.com/python/api/overview/azure/ml/intro?view=azure-ml-py>                                                  |
