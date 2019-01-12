@@ -220,7 +220,11 @@ The analysts at Woodgrove Bank are very interested in the recent notebook-driven
 
 ### Customer objections
 
-1.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
+1.  It's not clear to us if we can only use Cosmos DB as our web app's database, or if we should consider using it in other parts of our advanced analytics data pipeline such as for real-time transaction ingest or for serving of offline processed data.
+
+2.  Does Cosmos DB integrate with open source big data analytics like Apache Spark?
+
+3.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
 
 ### Infographic for common scenarios
 
@@ -643,7 +647,15 @@ _Dashboards and reporting_
 
 ## Checklist of preferred objection handling
 
-1.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
+1.  It's not clear to us if we can only use Cosmos DB as our web app's database, or if we should consider using it in other parts of our advanced analytics data pipeline such as for real-time transaction ingest or for serving of offline processed data.
+
+    Cosmos DB was created from the ground-up as a multi-model distributed database service that transparently handles the complexity of running within multiple regions around the world. Because providing data to customers around the globe is a key requirement, Cosmos DB is an ideal choice for ingesting data where it arrives, and serving the data where it is requested. The change feed feature of Cosmos DB makes it useful for both storing raw transaction data as it is written, and notifying consumers, like Azure Databricks, of changes as they occur for real-time processing.
+
+2.  Does Cosmos DB integrate with open source big data analytics like Apache Spark?
+
+    Yes, the `azure-cosmosdb-spark` connector can be used to read and write to Cosmos DB, and is also capable of using the change feed to react to events as they occur. Visit <https://github.com/Azure/azure-cosmosdb-spark> to learn how to use the connector and to access sample code.
+
+3.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
 
     The typical approach to model training involves a time-consuming process trying dozens or even hundreds of combinations. Data scientists often try different ways of normalizing the data, different algorithms and different settings for those algorithms (hyperparameters). Data scientists will often setup a grid-search approach that will run multiple independent tests using differing combinations, measuring the performance of each and choosing the combination that provides the best results according to some performance metrics they select. With Azure Machine Learning AutoML, this search process is automated, and greatly simplifies the setup to try the typical combinations and quickly identify the best performing model against a user-selected performance metric. AutoML is used via the Azure Machine Learning Python SDK and can be utilized within Azure Databricks notebooks.
 
