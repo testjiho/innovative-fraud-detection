@@ -102,7 +102,7 @@ The analysts at Woodgrove Bank are very interested in the recent notebook-driven
 
 ### Infographic for common scenarios
 
-\[insert your custom workshop content here . . . \]
+![Infographic for common scenarios](media/common-scenarios.png 'Common scenarios diagram')
 
 ## Step 2: Design a proof of concept solution
 
