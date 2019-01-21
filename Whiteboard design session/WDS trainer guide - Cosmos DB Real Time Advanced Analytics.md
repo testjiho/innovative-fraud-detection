@@ -31,7 +31,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/legal/intellec
   - [Whiteboard design session flow](#whiteboard-design-session-flow)
   - [Before the whiteboard design session: How to prepare](#before-the-whiteboard-design-session-how-to-prepare)
   - [During the whiteboard design session: Tips for an effective whiteboard design session](#during-the-whiteboard-design-session-tips-for-an-effective-whiteboard-design-session)
-- [Cosmos DB Real Time Advanced Analytics whiteboard design session student guide](#\insert-workshop-name-here-whiteboard-design-session-student-guide)
+- [Cosmos DB real-time advanced analytics whiteboard design session student guide](#\insert-workshop-name-here-whiteboard-design-session-student-guide)
   - [Abstract and learning objectives](#abstract-and-learning-objectives)
   - [Step 1: Review the customer case study](#step-1-review-the-customer-case-study)
     - [Customer situation](#customer-situation)
@@ -42,7 +42,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/legal/intellec
   - [Step 3: Present the solution](#step-3-present-the-solution)
   - [Wrap-up](#wrap-up)
   - [Additional references](#additional-references)
-- [Cosmos DB Real Time Advanced Analytics whiteboard design session trainer guide](#\insert-workshop-name-here-whiteboard-design-session-trainer-guide)
+- [Cosmos DB real-time advanced analytics whiteboard design session trainer guide](#\insert-workshop-name-here-whiteboard-design-session-trainer-guide)
   - [Step 1: Review the customer case study](#step-1-review-the-customer-case-study-1)
   - [Step 2: Design a proof of concept solution](#step-2-design-a-proof-of-concept-solution-1)
   - [Step 3: Present the solution](#step-3-present-the-solution-1)
@@ -166,14 +166,13 @@ When participants are doing activities, you can **look ahead to refresh your mem
 
 **Wait for responses**. If you ask a question such as, "What's your experience with (fill in the blank)?" then wait. Do not be afraid of a little silence. If you leap into the silence, your participants will feel you are not serious about involving them and will become passive. Give participants a chance to think, and if no one answers, patiently ask again. You will usually get a response.
 
-# Cosmos DB Real Time Advanced Analytics whiteboard design session student guide
+# Cosmos DB real-time advanced analytics whiteboard design session student guide
 
 ## Abstract and learning objectives
 
-Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a PoC of an innovative fraud detection solution. They want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
+Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a proof-of-concept (PoC) of an innovative fraud detection solution. They want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
 
 At the end of this workshop, you will be better able to design solutions that leverage the strengths of Cosmos DB in support of advanced analytics solutions that require high throughput ingest, low latency serving and global scale in combination with scalable machine learning, big data and real-time processing capabilities.
-
 
 ## Step 1: Review the customer case study
 
@@ -199,7 +198,7 @@ They also risk fines from failing to detect or even prevent criminal acts like m
 
 While all forms of fraud are on the rise, like ATM fraud, card transaction fraud, payment fraud, Woodgrove Bank would like to focus on online fraud. In the most basic terms, online fraud is committed when an unauthorized user impersonates another user by taking over their account, using malware, or hijacking internet sessions and uses the impersonated credentials to make purchase transactions. When dealing with millions of transactions, it is both crucial and challenging to detect and monitor fraud in real-time across all transactions. Doing so helps prevent additional losses and detect widespread attacks.
 
-Given this focus in online fraud, they want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service. This is the solution for which they would like to implement a PoC.
+Given this focus on online fraud, they want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service. This is the solution for which they would like to implement a PoC.
 
 In flagging fraudulent transactions, they know there are tradeoffs between being overly aggressive and mistakenly identifying innocuous transactions as fraudulent, and not being aggressive enough such that they miss transactions that represent real fraud. According to Mari Stephens, Chief Information Officer (CIO), Woodgrove Bank, they would rather miss a fraudulent event in their automated system, than mistakenly identify innocuous transactions as fraudulent because the latter will frustrate both their merchant customer and the end customers and potentially lose their business. However, they want to balance this by doing as much as they can to detect fraud while minimizing the customer frustration. To address this, they believe the PoC will need to handle transactions at two "speeds". First, they want to screen transactions for fraud as they happen, only blocking a transaction if the system is very confident it is fraudulent. Second, they want to perform a more in depth, offline fraud sweep of transactions to identify suspicious transactions. These are transactions which are potentially fraud, for which they will notify the merchant that they should perform additional verification with the end customer before completing the order.
 
@@ -213,7 +212,7 @@ The analysts at Woodgrove Bank are very interested in the recent notebook-driven
 
 2.  We would like to schedule offline scoring of “suspicious activity” using our trained model, and make that data globally available in regions closest to our customers through our web applications.
 
-3.  We want to be to analyze all transactions over time, so we need to be able to store data from transaction sources into long-term storage, without interfering with jobs reading the data set.
+3.  We want the ability to analyze all transactions over time, so we need to be able to store data from transaction sources into long-term storage, without interfering with jobs reading the data set.
 
 4.  We would like to use a standard platform that supports our near-term data pipeline needs while providing a long-term standard for data science, data engineering, and development.
 
@@ -277,7 +276,7 @@ _Data pipeline processing_
 
 4.  What configuration would you need to apply to your solution to allow it to restart any stream processing in the case the job is stopped?
 
-5.  What specific secrets will their processing solution might want to store? How would they securely store and access those secrets?
+5.  What specific secrets might their processing solution want to store? How would they securely store and access those secrets?
 
 _Long-term data storage_
 
@@ -362,7 +361,7 @@ Directions: Tables reconvene with the larger group to hear the facilitator/SME s
 | Apache Spark Connector to Cosmos DB                    | <https://docs.microsoft.com/en-us/azure/cosmos-db/spark-connector>                                                                   |
 | Azure Machine Learning SDK for Python                  | <https://docs.microsoft.com/python/api/overview/azure/ml/intro?view=azure-ml-py>                                                  |
 
-# Cosmos DB Real Time Advanced Analytics whiteboard design session trainer guide
+# Cosmos DB real-time advanced analytics whiteboard design session trainer guide
 
 ## Step 1: Review the customer case study
 
@@ -490,7 +489,7 @@ _Data ingest_
 
     Both services are capable of acting as the ingestion service. They both support a high rate of flow, and both have options for long-term storage needs. However, Event Hubs requires an extra step for long-term storage, which is handled through Event Hubs Capture, whereas Cosmos DB already provides this storage for raw data. Considering the level of effort to implement, this favors Cosmos DB since transactional data is already being written to a database, those applications or API's can be updated to also write to Cosmos DB, or switch over to Cosmos DB entirely as the single database. Event Hubs requires adding an event service to their architecture and learning how to use it from their current systems.
 
-    > Note: for multi-master accounts, change feed based on a server-side token (which is based on aa logical timestamp) will provide a predictable change feed experience is supported. Change feed based on If-Modified-Since in this scenario could result in missing versions and duplicates, and is therefore blocked.
+    > Note: for multi-master accounts, change feed based on a server-side token (which is based on a logical timestamp) will provide a predictable change feed experience is supported. Change feed based on If-Modified-Since in this scenario could result in missing versions and duplicates, and is therefore blocked.
 
 _Data pipeline processing_
 
@@ -537,7 +536,7 @@ _Data pipeline processing_
 
     Please note, if you do not have a checkpoint directory, when the streaming job stops, you lose all state around your streaming job and upon restart, you start from scratch.
 
-5.  What specific secrets will their processing solution might want to store? How would they securely store and access those secrets?
+5.  What specific secrets might their processing solution want to store? How would they securely store and access those secrets?
 
     Specific secrets that they may need to be accessed by Azure Databricks are account names and keys for Azure Data Lake Storage, Cosmos DB connection strings or access keys, and Azure Machine Learning service account keys.
 
@@ -549,7 +548,7 @@ _Long-term data storage_
 
 1.  As incoming data is processed, refined, and scored, all of the transactions need to be persisted to long-term storage for analysis, model training and validation, and reporting. This storage needs to handle long-term growth, be fast enough to rapidly ingest new data while simultaneously handling reads against the same data set without interference, and act as a reliable data source for dashboards and reports. Which is your recommended long-term data storage solution, keeping in mind its role within your selected data pipeline processing platform?
 
-    Although our proposed solution uses Databricks Delta to store data within a Delta table, we still need to select the appropriate storage service it uses under the covers. For this, use Azure Data Lake Storage Gen2 (ADLS Gen2). Azure Data Lake Storage Gen2 (ADLS Gen2) is a set of capabilities dedicated to big data analytics, built on Azure Blob storage. Data Lake Storage Gen2 is the result of converging the capabilities of Microsoft's two existing storage services, Azure Blob storage and Azure Data Lake Storage Gen1. Features from Azure Data Lake Storage Gen1, such as file system semantics, directory, and file level security and scale are combined with the low-cost, tiered storage, and high availability/disaster recovery capabilities from Azure Blob storage.
+    Although our proposed solution uses Databricks Delta to store data within a Delta table, we still need to select the appropriate storage service it uses under the covers. For this, use Azure Data Lake Storage Gen2 (ADLS Gen2). ADLS Gen2 is a set of capabilities dedicated to big data analytics, built on Azure Blob storage. Data Lake Storage Gen2 is the result of converging the capabilities of Microsoft's two existing storage services, Azure Blob storage and Azure Data Lake Storage Gen1. Features from Azure Data Lake Storage Gen1, such as file system semantics, directory, and file level security and scale are combined with the low-cost, tiered storage, and high availability/disaster recovery capabilities from Azure Blob storage.
 
     ADLS Gen2 makes Azure Storage the foundation for building enterprise data lakes on Azure. Designed from the start to service multiple petabytes of information while sustaining hundreds of gigabits of throughput, ADLS Gen2 allows you to easily manage massive amounts of data.
 
