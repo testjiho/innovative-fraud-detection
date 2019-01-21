@@ -32,10 +32,10 @@ At the end of this workshop, you will be better able to design solutions that le
 
 #### Outline: Key Concerns for Customer situation
 
-- Globally distributed solution dealing with financial data (purchase transacations)
+- Globally distributed solution dealing with financial data (purchase transactions)
 - Minimizing access latency to globally distributed .data.
 - Supporting both real-time and batch fraud scoring
-- Providing a unified platform that can support their near term data pipeline needs and provides a long term to standard for their data science, data engineering and developement needs.
+- Providing a unified platform that can support their near term data pipeline needs and provides a long term to standard for their data science, data engineering and development needs.
 - Understanding the components of a data pipeline, when to choose which Azure services for ingest, processing, storage and serving.
 - Understanding how to implement a modern data analytics solution using data collected from Event Hubs and Cosmos DB.
 - Understanding how to properly leverage Cosmos DB in data pipelines for ingest, supporting analytics, and serving processed data.
