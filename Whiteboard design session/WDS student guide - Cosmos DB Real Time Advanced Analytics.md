@@ -26,7 +26,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 <!-- TOC -->
 
-- Cosmos DB Real Time Advanced Analytics whiteboard design session student guide](#\insert-workshop-name-here\-whiteboard-design-session-student-guide)
+- Cosmos DB real-time advanced analytics whiteboard design session student guide](#\insert-workshop-name-here\-whiteboard-design-session-student-guide)
   - [Abstract and learning objectives](#abstract-and-learning-objectives)
   - [Step 1: Review the customer case study](#step-1-review-the-customer-case-study)
     - [Customer situation](#customer-situation)
@@ -40,11 +40,11 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 <!-- /TOC -->
 
-# Cosmos DB Real Time Advanced Analytics whiteboard design session student guide
+# Cosmos DB real-time advanced analytics whiteboard design session student guide
 
 ## Abstract and learning objectives
 
-Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a PoC of an innovative fraud detection solution. They want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
+Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a proof-of-concept (PoC) of an innovative fraud detection solution. They want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
 
 In this hands-on lab session, you will implement a PoC of the data pipeline that could support the needs of Woodgrove Bank.
 
@@ -74,7 +74,7 @@ They also risk fines from failing to detect or even prevent criminal acts like m
 
 While all forms of fraud are on the rise, like ATM fraud, card transaction fraud, payment fraud, Woodgrove Bank would like to focus on online fraud. In the most basic terms, online fraud is committed when an unauthorized user impersonates another user by taking over their account, using malware, or hijacking internet sessions and uses the impersonated credentials to make purchase transactions. When dealing with millions of transactions, it is both crucial and challenging to detect and monitor fraud in real-time across all transactions. Doing so helps prevent additional losses and detect widespread attacks.
 
-Given this focus in online fraud, they want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service. This is the solution for which they would like to implement a PoC.
+Given this focus on online fraud, they want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service. This is the solution for which they would like to implement a PoC.
 
 In flagging fraudulent transactions, they know there are tradeoffs between being overly aggressive and mistakenly identifying innocuous transactions as fraudulent, and not being aggressive enough such that they miss transactions that represent real fraud. They would rather miss a fraudulent event in their automated system, than mistakenly identify innocuous transactions as fraudulent because the latter will frustrate both their merchant customer and the end customers and potentially lose their business. However, they want to balance this by doing as much as they can to detect fraud while minimizing the customer frustration. To address this, they believe the PoC will need to handle transactions at two "speeds". First, they want to screen transactions for fraud as they happen, only blocking a transaction if the system is very confident it is fraudulent. Second, they want to perform a more in depth, offline fraud sweep of transactions to identify any unblocked transactions and identify suspicious transactions. These are transactions which are potentially fraud, for which they will notify the merchant that they should perform additional verification with the end customer before completing the order.
 
@@ -88,7 +88,7 @@ The analysts at Woodgrove Bank are very interested in the recent notebook-driven
 
 2.  We would like to schedule offline scoring of “suspicious activity” using our trained model, and make that data globally available in regions closest to our customers through our web applications.
 
-3.  We want to be to analyze all transactions over time, so we need to be able to store data from streaming sources into long-term storage, without interfering with jobs reading the data set.
+3.  We want the ability to analyze all transactions over time, so we need to be able to store data from streaming sources into long-term storage, without interfering with jobs reading the data set.
 
 4.  We would like to use a standard platform that supports our near-term data pipeline needs while providing a long-term standard for data science, data engineering, and development.
 
@@ -152,7 +152,7 @@ _Data pipeline processing_
 
 4.  What configuration would you need to apply to your solution to allow it to restart any stream processing in the case the job is stopped?
 
-5.  What specific secrets will their processing solution might want to store? How would they securely store and access those secrets?
+5.  What specific secrets might their processing solution want to store? How would they securely store and access those secrets?
 
 _Long-term data storage_
 
