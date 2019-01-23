@@ -35,6 +35,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 4: Create an Azure Data Lake Storage Gen2 account](#task-4-create-an-azure-data-lake-storage-gen2-account)
     - [Task 5: Provision an Azure Machine Learning Service](#task-5-provision-an-azure-machine-learning-service)
     - [Task 6: Set up Azure Key Vault](#task-6-set-up-azure-key-vault)
+    - [Task 7: Create an Azure Databricks cluster](#task-7-create-an-azure-databricks-cluster)
 
 <!-- /TOC -->
 
@@ -141,3 +142,37 @@ TODO: Enter steps for this.
 TODO: Enter steps for this.
 
 You should follow all steps provided *before* performing the Hands-on lab.
+
+### Task 7: Create an Azure Databricks cluster
+
+In this task, you will connect to your Azure Databricks workspace and create a cluster to use for this hands-on lab.
+
+1. Return to the [Azure portal](https://portal.azure.com), navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+
+    ![The Lauch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png "Lauch Workspace")
+
+2. Select **Clusters** from the left-hand navigation menu, and then select **+ Create Cluster**.
+
+    ![The Clusters option in the left-hand menu is selected and highlighted, and the Create Cluster button is highlighted on the clusters page.](media/databricks-clusters.png "Databricks Clusters")
+
+3. On the Create Cluster screen, enter the following:
+
+    - **Cluster Name**: Enter a name for your cluster, such as lab-cluster.
+    - **Cluster Mode**: Select Standard.
+    - **Databricks Runtime Version**: Select Runtime: 5.1 (Scala 2.11, Spark 2.4.0).
+    - **Python Version**: Select 3.
+    - **Enable autoscaling**: Ensure this is checked.
+    - **Terminate after XX minutes of inactivity**: Leave this checked, and the number of minutes set to 120.
+    - **Worker Type**: Select Standard_DS3_v2.
+        - **Min Workers**: Leave set to 2.
+        - **Max Workers**: Leave set to 8.
+    - **Driver Type**: Set to Same as worker.
+    - Expand Advanced Options and enter the following into the Spark Config box:
+
+    ```bash
+    spark.databricks.delta.preview.enabled true
+    ```
+
+    ![The Create Cluster screen is displayed, with the values specified above entered into the appropriate fields.](media/databricks-create-new-cluster.png "Create a new Databricks cluster")
+
+4. Select **Create Cluster**. It will take 3-5 minutes for the cluster to be created and started.
