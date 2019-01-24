@@ -176,3 +176,23 @@ In this task, you will connect to your Azure Databricks workspace and create a c
     ![The Create Cluster screen is displayed, with the values specified above entered into the appropriate fields.](media/databricks-create-new-cluster.png "Create a new Databricks cluster")
 
 4. Select **Create Cluster**. It will take 3-5 minutes for the cluster to be created and started.
+
+### Task X: Open Azure Databricks and load lab notebooks
+
+> TODO: Set the link to the GitHub repo below.
+
+In this task, you will download the notebooks contained in the [GitHub repo](https://github.com) and upload them to your Azure Databricks workspace.
+
+1. Download the lab notebooks from the following link:
+
+    - [CosmosDbRealTimeAnalytics.dbc](https://github.com/Microsoft/MCW-Cosmos-DB-real-time-advanced-analytics/blob/master/Hands-on%20lab/lab-files/CosmosDbRealTimeAnalytics.dbc)
+
+2. Within your Azure Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and select your user account (email address), and then select the down arrow on top of your user workspace and select **Import** from the context menu.
+
+    TODO: Insert image
+
+3. Within the Import Notebooks dialog, select **File** for Import from, and then drag-and-drop the downloaded `dbc` file into the box, or browse to upload it.
+
+    TODO: Insert image
+
+4. Select **Import**.
