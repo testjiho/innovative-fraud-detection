@@ -74,7 +74,8 @@ Below is a diagram of the solution architecture you will build in this lab. Plea
 
 ## Requirements
 
-1. An Azure Databricks cluster running Databricks Runtime 5.1 or above. Azure Databricks integration with Azure Data Lake Storage Gen2 is **fully supported in Databricks Runtime 5.1**.
+1. Microsoft Azure subscription (non-Microsoft subscription, must be a pay-as-you subscription).
+2. An Azure Databricks cluster running Databricks Runtime 5.1 or above. Azure Databricks integration with Azure Data Lake Storage Gen2 is **fully supported in Databricks Runtime 5.1**.
     - **IMPORTANT**: To complete the OAuth 2.0 access components of this hands-on lab you must:
         - Have a cluster running Databricks Runtime 5.1 and above.
         - Have permissions within your Azure subscription to create an App Registration and service principal within Azure Active Directory.
