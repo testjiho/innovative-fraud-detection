@@ -52,7 +52,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 ## Before the hands-on lab
 
-Duration: 30 minutes
+Duration: 60 minutes
 
 In the Before the hands-on lab exercise, you will set up your environment for use in the rest of the hands-on lab. You should follow all the steps provided in the Before the hands-on lab section to prepare your environment **before attending** the hands-on lab. Failure to do so will significantly impact your ability to complete the lab within the time allowed.
 
@@ -393,22 +393,22 @@ In this task, you will connect to your Azure Databricks workspace and create a c
 
 ### Task 11: Open Azure Databricks and load lab notebooks
 
-> TODO: Set the link to the GitHub repo below.
-
-In this task, you will download the notebooks contained in the [GitHub repo](https://github.com) and upload them to your Azure Databricks workspace.
+In this task, you will download the notebooks contained in the [Cosmos DB real-time advanced analytics MCW GitHub repo](https://github.com/Microsoft/MCW-Cosmos-DB-Real-Time-Advanced-Analytics) and upload them to your Azure Databricks workspace.
 
 1. Download the lab notebooks from the following link:
 
-    - [CosmosDbRealTimeAnalytics.dbc](https://github.com/Microsoft/MCW-Cosmos-DB-real-time-advanced-analytics/blob/master/Hands-on%20lab/lab-files/CosmosDbRealTimeAnalytics.dbc)
+    - [CosmosDbAdvancedAnalytics.dbc](https://github.com/Microsoft/MCW-Cosmos-DB-real-time-advanced-analytics/blob/master/Hands-on%20lab/lab-files/CosmosDbAdvancedAnalytics.dbc)
 
 2. Within your Azure Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and select your user account (email address), and then select the down arrow on top of your user workspace and select **Import** from the context menu.
 
-    TODO: Insert image
+    ![The Workspace menu is highlighted in the Azure Databricks workspace, and Users is selected with the current user's account selected and highlighted. Import is selected in the user's context menu.](media/databricks-workspace-import.png "Import files into user workspace")
 
 3. Within the Import Notebooks dialog, select **File** for Import from, and then drag-and-drop the downloaded `dbc` file into the box, or browse to upload it.
 
-    TODO: Insert image
+    ![The Import Notebooks dialog is displayed](media/databricks-import-notebooks.png "Import Notebooks dialog")
 
 4. Select **Import**.
+
+5. You should now see a folder named **CosmosDbAdvancedAnalytics** in your user workspace. This folder contains all of the notebooks you will use throughout this hands-on lab.
 
 > You should follow all steps provided _before_ performing the Hands-on lab.
