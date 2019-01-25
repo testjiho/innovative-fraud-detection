@@ -1,4 +1,4 @@
-![](https://github.com/Microsoft/MCW-Template-Cloud-Workshop/raw/master/Media/ms-cloud-workshop.png "Microsoft Cloud Workshops")
+![](https://github.com/Microsoft/MCW-Template-Cloud-Workshop/raw/master/Media/ms-cloud-workshop.png 'Microsoft Cloud Workshops')
 
 <div class="MCWHeader1">
 Cosmos DB real-time advanced analytics
@@ -22,7 +22,7 @@ The names of manufacturers, products, or URLs are provided for informational pur
 
 Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/Usage/General.aspx> are trademarks of the Microsoft group of companies. All other trademarks are property of their respective owners.
 
-**Contents** 
+**Contents**
 
 <!-- TOC -->
 
@@ -66,9 +66,9 @@ Woodgrove Bank, who provides payment processing services for commerce, is lookin
 
 Below is a diagram of the solution architecture you will build in this lab. Please study this carefully, so you understand the whole of the solution as you are working on the various components.
 
-![](../media/outline-architecture.png "Preferred Solution diagram")
+![](../media/outline-architecture.png 'Preferred Solution diagram')
 
- The solution begins with the payment transaction systems writing transactions to Azure Cosmos DB. With change feed enabled in Cosmos DB, the transactions can be read as a stream of incoming data within an Azure Databricks notebook, using the `azure-cosmosdb-spark` connector, and stored long-term within an Azure Databricks Delta table backed by Azure Data Lake Storage. The Delta tables efficiently manage inserts and updates (e.g., upserts) to the transaction data. Tables created in Databricks over this data can be accessed by business analysts using dashboards and reports in Power BI, by using Power BI's Spark connector. Data scientists and engineers can create their own reports against this data, using Azure Databricks notebooks. Azure Databricks also supports training and validating the machine learning model, using historical data stored in Azure Data Lake Storage. The model can be periodically re-trained using the data stored in Delta tables or other historical tables. The Azure Machine Learning service is used to deploy the trained model as a real-time scoring web service running on a highly available Azure Kubernetes Service cluster (AKS cluster). The trained model is also used in scheduled offline scoring through Databricks jobs, and the "suspicious activity" output is stored in Azure Cosmos DB so it is globally available in regions closest to Woodgrove Bank's customers through their web applications. Finally, Azure Key Vault is used to securely store secrets, such as account keys and connection strings, and serves as a backing for Azure Databricks secret scopes.
+The solution begins with the payment transaction systems writing transactions to Azure Cosmos DB. With change feed enabled in Cosmos DB, the transactions can be read as a stream of incoming data within an Azure Databricks notebook, using the `azure-cosmosdb-spark` connector, and stored long-term within an Azure Databricks Delta table backed by Azure Data Lake Storage. The Delta tables efficiently manage inserts and updates (e.g., upserts) to the transaction data. Tables created in Databricks over this data can be accessed by business analysts using dashboards and reports in Power BI, by using Power BI's Spark connector. Data scientists and engineers can create their own reports against this data, using Azure Databricks notebooks. Azure Databricks also supports training and validating the machine learning model, using historical data stored in Azure Data Lake Storage. The model can be periodically re-trained using the data stored in Delta tables or other historical tables. The Azure Machine Learning service is used to deploy the trained model as a real-time scoring web service running on a highly available Azure Kubernetes Service cluster (AKS cluster). The trained model is also used in scheduled offline scoring through Databricks jobs, and the "suspicious activity" output is stored in Azure Cosmos DB so it is globally available in regions closest to Woodgrove Bank's customers through their web applications. Finally, Azure Key Vault is used to securely store secrets, such as account keys and connection strings, and serves as a backing for Azure Databricks secret scopes.
 
 > **Note**: The preferred solution is only one of many possible, viable approaches.
 
@@ -78,25 +78,43 @@ Below is a diagram of the solution architecture you will build in this lab. Plea
 
 ## Exercise 1: Collecting streaming transaction data
 
-Duration: X minutes
+Duration: 30 minutes
 
-\[insert your custom Hands-on lab content here . . . \]
+In this exercise, you will configure a payment transaction generator to write real-time streaming online payments to both Event Hubs and Azure Cosmos DB. By the end, you will have selected the best ingest option before continuing to the following exercise where you will process the generated data.
 
-### Task 1: Task name
+### Task 1: Configuring Event Hubs and the transaction generator
 
-1. Number and insert your custom workshop content here . . . 
+1.  Number and insert your custom workshop content here . . .
 
-    a.  Insert content here
+    a. Insert content here
 
-        i.  
+        i.
 
-### Task 2: Task name
+### Task 2: Ingesting streaming data to Cosmos DB
 
-1. Number and insert your custom workshop content here . . . 
+In this task, you will configure Cosmos DB's time-to-live (TTL) settings to On with no default. This will allow the data generator to expire ingested messages after 24 hours by setting the TTL value on individual messages as they are sent. This optimization helps save in storage costs while providing an ample window in which messages can be processed in Azure Databricks.
 
-    a.  Insert content here
+Next you will pass in the Azure Cosmos DB URI and Key values to the data generator so it can connect to and send events to your collection.
 
-        i.  
+1.  Navigate to your Azure Cosmos DB account in the Azure portal, then select **Data Explorer** on the left-hand menu.
+
+    ![Data Explorer is selected within the left-hand menu](media/cosmos-db-data-explorer-link.png 'Select Data Explorer')
+
+2.  Expand your **Woodgrove** database and your **transactions** collection, then select **Scale & Settings**.
+
+3.  Under Settings within the Scale & Settings blade, select the **On (no default)** option for Time to Live. This setting is required to allow documents added to the collection to be configured with their own TTL values.
+
+    ![The Scale & Settings blade is shown with the On (no default) Time to Live option selected.](media/cosmos-db-ttl-settings.png 'Scale & Settings blade')
+
+4.  Select **Save** to apply your settings.
+
+### Task 3: Choosing between Cosmos DB and Event Hubs for ingestion
+
+1.  Number and insert your custom workshop content here . . .
+
+    a. Insert content here
+
+        i.
 
 ## Exercise 2: Understanding and preparing the transaction data at scale
 
@@ -124,19 +142,19 @@ Duration: X minutes
 
 ### Task 1: Task name
 
-1. Number and insert your custom workshop content here . . .
+1.  Number and insert your custom workshop content here . . .
 
-    a.  Insert content here
+    a. Insert content here
 
-        i.  
+        i.
 
 ### Task 2: Task name
 
-1. Number and insert your custom workshop content here . . .
+1.  Number and insert your custom workshop content here . . .
 
-    a.  Insert content here
+    a. Insert content here
 
-        i.  
+        i.
 
 ## After the hands-on lab
 
@@ -150,4 +168,4 @@ In this exercise, you will delete any Azure resources that were created in suppo
 2. Search for the name of your research group, and select it from the list.
 3. Select Delete in the command bar, and confirm the deletion by re-typing the Resource group name, and selecting Delete.
 
-You should follow all steps provided *after* attending the Hands-on lab.
+You should follow all steps provided _after_ attending the Hands-on lab.
