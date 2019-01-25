@@ -66,7 +66,7 @@ Woodgrove Bank, who provides payment processing services for commerce, is lookin
 
 Below is a diagram of the solution architecture you will build in this lab. Please study this carefully, so you understand the whole of the solution as you are working on the various components.
 
-![](../media/outline-architecture.png 'Preferred Solution diagram')
+![Preferred solution diagram outlining the ingestion of streaming payment transactions into Cosmos DB, and fed into Azure Databricks. Azure Databricks will process the data and insert it into Azure Data Lake Storage Gen2 for long-term storage. Databricks is also used for training machine learning models for batch and real-time fraud detection. Power BI is used for dashboards and reporting.](../media/outline-architecture.png "Preferred Solution diagram")
 
 The solution begins with the payment transaction systems writing transactions to Azure Cosmos DB. With change feed enabled in Cosmos DB, the transactions can be read as a stream of incoming data within an Azure Databricks notebook, using the `azure-cosmosdb-spark` connector, and stored long-term within an Azure Databricks Delta table backed by Azure Data Lake Storage. The Delta tables efficiently manage inserts and updates (e.g., upserts) to the transaction data. Tables created in Databricks over this data can be accessed by business analysts using dashboards and reports in Power BI, by using Power BI's Spark connector. Data scientists and engineers can create their own reports against this data, using Azure Databricks notebooks. Azure Databricks also supports training and validating the machine learning model, using historical data stored in Azure Data Lake Storage. The model can be periodically re-trained using the data stored in Delta tables or other historical tables. The Azure Machine Learning service is used to deploy the trained model as a real-time scoring web service running on a highly available Azure Kubernetes Service cluster (AKS cluster). The trained model is also used in scheduled offline scoring through Databricks jobs, and the "suspicious activity" output is stored in Azure Cosmos DB so it is globally available in regions closest to Woodgrove Bank's customers through their web applications. Finally, Azure Key Vault is used to securely store secrets, such as account keys and connection strings, and serves as a backing for Azure Databricks secret scopes.
 
@@ -74,7 +74,11 @@ The solution begins with the payment transaction systems writing transactions to
 
 ## Requirements
 
-1. Number and insert your custom workshop content here
+1. Microsoft Azure subscription (non-Microsoft subscription, must be a pay-as-you subscription).
+2. An Azure Databricks cluster running Databricks Runtime 5.1 or above. Azure Databricks integration with Azure Data Lake Storage Gen2 is **fully supported in Databricks Runtime 5.1**.
+    - **IMPORTANT**: To complete the OAuth 2.0 access components of this hands-on lab you must:
+        - Have a cluster running Databricks Runtime 5.1 and above.
+        - Have permissions within your Azure subscription to create an App Registration and service principal within Azure Active Directory.
 
 ## Exercise 1: Collecting streaming transaction data
 
@@ -120,13 +124,108 @@ Next you will pass in the Azure Cosmos DB URI and Key values to the data generat
 
 Duration: X minutes
 
-In this exercise, you will use Azure Databricks to explore the incoming streaming data, connect to Cosmos DB, and respond to transactions directly from the Cosmos DB Change Feed, and write the incoming data into Azure Databricks Delta tables.
+In this exercise, you will use Azure Databricks to explore the transaction data stored in Cosmos DB and respond to transactions directly from the Cosmos DB Change Feed. You will also mount Azure Data Lake Storage Gen2 (ADLS Gen2) in Databricks, and write the incoming streaming transaction data into Azure Databricks Delta tables stored in your data lake.
 
-### Task 1: Querying streaming transactions with Azure Databricks and Spark Structured Streaming
+### Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem
 
-1. Number and insert your custom workshop content here
+Mounting an ADLS Gen2 filesystem using Databricks requires that you use OAuth 2.0 for authentication. In this task, you will create an identity in Azure Active Directory (Azure AD) known as a service principal to facilitate the use of OAuth authentication.
+
+> **IMPORTANT**: You must have permissions within your Azure subscription to create an App registration and service principal within Azure Active Directory to complete this task.
+
+1. In the [Azure portal](https://portal.azure.com), select **Azure Active Directory** from the left-hand navigation menu, select **App registrations**, and then select **+ New application registration**.
+
+    ![Register new app in Azure Active Directory](media/aad-app-registration.png "Register new app in Azure Active Directory")
+
+2. On the Create blade, enter the following:
+
+    - **Name**: Enter a unique name, such as woodgrove-sp (this name must be unique, as indicated by a green check mark).
+    - **Application type**: Select Web app / API.
+    - **Sign-on URL**: Enter <https://woodgrove.com>.
+
+    ![Create a new app registration](media/aad-app-create.png "Create a new app registration")
+
+3. Select **Create**.
+
+4. To access your ADLS Gen2 account from Azure Databricks you will need to provide the credentials of your newly created service principal within Databricks. On the Registered app blade that appears, copy the **Application ID** and paste it into a text editor, such as Notepad, for use in the Databricks notebook in an upcoming task.
+
+   ![Copy the Registered App Application ID](media/registered-app-id.png "Copy the Registered App Application ID")
+
+5. Next, select **Settings** on the Registered app blade, and then select **Keys**.
+
+   ![Open Keys blade for the Registered App](media/registered-app-settings-keys.png "Open Keys blade for the Registered App")
+
+6. On the Keys blade, you will create a new password by doing the following under Passwords:
+
+    - **Description**: Enter a description, such as Databricks-ADLS.
+    - **Expires**: Select a duration, such as **In 1 year**.
+
+    ![Create new password](media/registered-app-create-key.png "Create new password")
+
+7. Select **Save**, and then copy the key displayed under **Value**, and paste it into a text editor, such as Notepad, for use in the Databricks notebook in an upcoming task. **Note**: This value will not be accessible once you navigate away from this screen, so make sure you copy it before leaving the Keys blade.
+
+    ![Copy key value](media/registered-app-key-value.png "Copy key value")
+
+### Task 2: Grant ADLS Gen2 permissions to the service principal
+
+In this task, you will assign the required permissions to the service principal in your ADLS Gen2 account.
+
+1. In the [Azure portal](https://portal.azure.com), navigate to the ADLS Gen2 account you created above, select **Access control (IAM)** from the left-hand menu, and then select **+ Add role assignment**.
+
+   ![ADLS Gen2 Access Control blade](media/access-control.png "ADLS Gen2 Access Control blade")
+
+2. On the Add role assignment blade, set the following:
+
+    - **Role**: Select **Storage Blob Data Contributor (Preview)** from the list.
+    - **Assign access to**: Choose **Azure AD user, group, or service principal**.
+    - **Select**: Enter the name of the service principal you created above, and then select it from the list.
+  
+    ![ADLS Gen2 Add role assignment](media/add-role-assignment.png "ADLS Gen2 Add role assignment")
+
+3. Select **Save**
+
+4. You will now see the service principal listed under **Role assignments** on the Access control (IAM) blade.
+
+### Task 3: Retrieve your Azure AD tenant ID
+
+To perform authentication using the service principal account in Databricks you will also need to provide your Azure AD Tenant ID.
+
+1. To retrieve your tenant ID, select **Azure Active Directory** from the left-hand navigation menu in the Azure portal, then select **Properties**, and select the copy button next to **Directory ID** on the Directory Properties blade.
+
+   ![Azure Active Directory is selected in the left-hand menu on the Azure portal, and the properties menu is selected. The Directory ID field is highlighted.](media/aad-tenant-id.png "Retrieve Tenant ID")
+
+2. Paste the copied value into a text editor, such as Notepad, for use in the Databricks notebook in an upcoming task.
+
+### Task 5: Mount ADLS Gen2 filesystem with Databricks
+
+To connect Azure Databricks to ADLS Gen2, you can either create a direct connection, or mount it. Mounting makes the access point available to all clusters in your Databricks workspace, so for this hands-on lab, you will mount ADLS Gen2 in DBFS.
+
+1. In the [Azure portal](https://portal.azure.com), navigate to your Databricks workspace and select **Launch workspace**.
+
+    ![Launch Databricks workspace](media/databricks-launch-workspace.png "Launch Databricks workspace")
+
+2. Select **Workspace** from the left-hand menu, and 
+
+### Task 6: Install the Azure Cosmos DB Spark Connector in Databricks
+
+In this task, you will install the [Azure Cosmos DB Spark Connector](https://github.com/Azure/azure-cosmosdb-spark) on your Databricks cluster. The connector allows you to easily read to and write from Azure Cosmos DB via Apache Spark DataFrames in `python` and `scala`. It also allows you to easily create a lambda architecture for batch-processing, stream-processing, and a serving layer while being globally replicated and minimizing the latency involved in working with big data.
+
+1. In a web browser, download the latest [azure-cosmosdb-spark library](https://search.maven.org/remotecontent?filepath=com/microsoft/azure/azure-cosmosdb-spark_2.3.0_2.11/1.2.2/azure-cosmosdb-spark_2.3.0_2.11-1.2.2-uber.jar) from here: <https://search.maven.org/remotecontent?filepath=com/microsoft/azure/azure-cosmosdb-spark_2.3.0_2.11/1.2.2/azure-cosmosdb-spark_2.3.0_2.11-1.2.2-uber.jar>.
+
+2. Upload the download JAR file to Databricks...
+
+3. Install the uploaded library into your Databricks cluster.
+
+### Task 2: Querying streaming transactions with Azure Databricks and Spark Structured Streaming
+
+1. Within your databricks workspace...
+2. Import the DBC file into Databricks from the GitHub repo
+    - Add steps for this
+3. The DBC file contains multiple notebooks. Open the Exercise 2 notebook...
+4. Follow the instructions within the notebook to complete this task. You will return here to move on to the next task when you are done with the notebook...
 
 ### Task 2: Querying transactions directly from Cosmos DB with Azure Databricks and Spark
+
+In this task, you will create a connection to your Cosmos DB instance from an Azure Databricks notebook, and write queries to retrieve transaction data directly from Cosmos DB and Spark SQL.
 
 1. Number and insert your custom workshop content here
 

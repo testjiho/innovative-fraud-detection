@@ -29,15 +29,17 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 - [Cosmos DB real-time advanced analytics before the hands-on lab setup guide](#cosmos-db-real-time-advanced-analytics-before-the-hands-on-lab-setup-guide)
   - [Requirements](#requirements)
   - [Before the hands-on lab](#before-the-hands-on-lab)
-    - [Task 1: Provision a resource group](#task-1-provision-a-resource-group)
-    - [Task 2: Create an Azure Databricks workspace](#task-2-create-an-azure-databricks-workspace)
-    - [Task 3: Provision Cosmos DB](#task-3-provision-cosmos-db)
-    - [Task 4: Provision Event Hubs](#task-4-provision-event-hubs)
-    - [Task 5: Create an Azure Data Lake Storage Gen2 account](#task-5-create-an-azure-data-lake-storage-gen2-account)
-    - [Task 6: Provision an Azure Machine Learning Service](#task-6-provision-an-azure-machine-learning-service)
-    - [Task 7: Set up Azure Key Vault](#task-7-set-up-azure-key-vault)
-    - [Task 8: Configure Azure Databricks Key Vault-backed secrets](#task-8-configure-azure-databricks-key-vault-backed-secrets)
-    - [Task 9: Create an Azure Databricks cluster](#task-9-create-an-azure-databricks-cluster)
+    - [Task 1: Install Docker](#task-1-install-docker)
+    - [Task 2: Provision a resource group](#task-2-provision-a-resource-group)
+    - [Task 3: Create an Azure Databricks workspace](#task-3-create-an-azure-databricks-workspace)
+    - [Task 4: Provision Cosmos DB](#task-4-provision-cosmos-db)
+    - [Task 5: Provision Event Hubs](#task-5-provision-event-hubs)
+    - [Task 6: Create an Azure Data Lake Storage Gen2 account](#task-6-create-an-azure-data-lake-storage-gen2-account)
+    - [Task 7: Provision an Azure Machine Learning Service](#task-7-provision-an-azure-machine-learning-service)
+    - [Task 8: Set up Azure Key Vault](#task-8-set-up-azure-key-vault)
+    - [Task 9: Configure Azure Databricks Key Vault-backed secrets](#task-9-configure-azure-databricks-key-vault-backed-secrets)
+    - [Task 10: Create an Azure Databricks cluster](#task-10-create-an-azure-databricks-cluster)
+    - [Task 11: Open Azure Databricks and load lab notebooks](#task-11-open-azure-databricks-and-load-lab-notebooks)
 
 <!-- /TOC -->
 
@@ -45,17 +47,24 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 ## Requirements
 
-1. You must have Docker installed on your machine. Navigate to <https://www.docker.com/> and follow the installation instructions for your OS.
+1. Microsoft Azure subscription (non-Microsoft subscription, must be a pay-as-you subscription).
+2. **IMPORTANT**: To complete the OAuth 2.0 access components of this hands-on lab you must have permissions within your Azure subscription to create an App Registration and service principal within Azure Active Directory.
 
 ## Before the hands-on lab
 
-Duration: 30 minutes
+Duration: 60 minutes
 
 In the Before the hands-on lab exercise, you will set up your environment for use in the rest of the hands-on lab. You should follow all the steps provided in the Before the hands-on lab section to prepare your environment **before attending** the hands-on lab. Failure to do so will significantly impact your ability to complete the lab within the time allowed.
 
 > **Important**: Most Azure resources require unique names. Throughout this lab you will see the word “SUFFIX” as part of resource names. You should replace this with your Microsoft alias, initials, or another value to ensure the resource is uniquely named.
 
-### Task 1: Provision a resource group
+### Task 1: Install Docker
+
+In this task, you will install Docker on your machine.
+
+1. Navigate to <https://www.docker.com/> and follow the installation instructions for your OS.
+
+### Task 2: Provision a resource group
 
 In this task, you will create an Azure resource group for the resources used throughout this lab.
 
@@ -73,7 +82,7 @@ In this task, you will create an Azure resource group for the resources used thr
 
 3. On the Summary blade, select **Create** to provision your resource group.
 
-### Task 2: Create an Azure Databricks workspace
+### Task 3: Create an Azure Databricks workspace
 
 1. In the [Azure portal](https://portal.azure.com), select **+ Create a resource** from the left-hand navigation menu, enter "databricks" into the Search the Marketplace box, select **Azure Databricks** from the results, and then select **Create**.
 
@@ -92,15 +101,15 @@ In this task, you will create an Azure resource group for the resources used thr
 
 3. Select **Create**. It can take 5 - 10 minutes to provision your Azure Databricks workspace. You can move on to the next task while provisioning completes.
 
-### Task 3: Provision Cosmos DB
+### Task 4: Provision Cosmos DB
 
 In this task, you will create an Azure Cosmos DB account, database, and container for ingesting streaming payment data and for serving batch processed data.
 
-1.  In the [Azure portal](https://portal.azure.com), select **+ Create a resource**, enter "cosmos db" into the Search the Marketplace box, select **Azure Cosmos DB** from the results, and then select **Create**.
+1. In the [Azure portal](https://portal.azure.com), select **+ Create a resource**, enter "cosmos db" into the Search the Marketplace box, select **Azure Cosmos DB** from the results, and then select **Create**.
 
     ![Create a resource is highlighted in the left-hand navigation menu of the Azure portal, cosmos db is entered into the Search the Marketplace box, and Azure Cosmos DB is highlighted in the results.](media/create-resource-cosmos-db.png 'Create an Azure Cosmos DB account')
 
-2.  On the Create Cosmos DB blade's basics tab, enter the following:
+2. On the Create Cosmos DB blade's basics tab, enter the following:
 
     - **Subscription**: Select the subscription you are using for this hands-on lab.
     - **Resource Group**: Choose the hands-on-lab-SUFFIX resource group.
@@ -112,17 +121,17 @@ In this task, you will create an Azure Cosmos DB account, database, and containe
 
     ![The Create Cosmos DB blade's basics tab is displayed, with the previously mentioned settings entered into the appropriate fields.](media/create-cosmos-db-blade.png 'Create Cosmos DB')
 
-3.  On the Review blade, select **Create**.
+3. On the Review blade, select **Create**.
 
-4.  Navigate to the newly provisioned Azure Cosmos DB account in the Azure portal, then select **Data Explorer** on the left-hand menu.
+4. Navigate to the newly provisioned Azure Cosmos DB account in the Azure portal, then select **Data Explorer** on the left-hand menu.
 
     ![Data Explorer is selected within the left-hand menu](media/cosmos-db-data-explorer-link.png 'Select Data Explorer')
 
-5.  Select **New Collection** in the top toolbar.
+5. Select **New Collection** in the top toolbar.
 
     ![The New Collection button is highlighted on the top toolbar](media/new-collection-button.png 'New Collection')
 
-6.  In the **Add Collection** blade, configure the following:
+6. In the **Add Collection** blade, configure the following:
 
     - **Database id**: Select **Create new**, then enter "Woodgrove" for the id.
     - **Provision database throughput**: Unchecked.
@@ -134,27 +143,27 @@ In this task, you will create an Azure Cosmos DB account, database, and containe
 
     ![The Add Collection blade is displayed, with the previously mentioned settings entered into the appropriate fields.](media/cosmos-db-add-collection-blade.png 'Add Collection blade')
 
-7.  Select **Keys** from the left-hand menu.
+7. Select **Keys** from the left-hand menu.
 
     ![Keys is selected within the left-hand menu](media/cosmos-db-keys-link.png 'Select Keys')
 
-8.  Copy both the **URI** and **Primary Key** values and save to Notepad or similar for later.
+8. Copy both the **URI** and **Primary Key** values and save to Notepad or similar for later.
 
     ![The Cosmos DB Read-write Keys blade is displayed with highlights around the copy buttons for both URI and Primary Key.](media/cosmos-db-keys.png 'Cosmos DB Read-write Keys')
 
-9.  Select **Firewall and virtual networks** from the left-hand menu, then select Allow access from **All networks**. Select **Save**. This will allow the payment generator application to send data to your Cosmos DB collection.
+9. Select **Firewall and virtual networks** from the left-hand menu, then select Allow access from **All networks**. Select **Save**. This will allow the payment generator application to send data to your Cosmos DB collection.
 
     ![The Firewall and virtual networks blade is displayed with the All networks radio button highlighted and selected.](media/cosmos-db-firewall.png 'Firewall and virtual networks blade')
 
-### Task 4: Provision Event Hubs
+### Task 5: Provision Event Hubs
 
 In this task, you will create an Event Hubs namespace and add an Event Hub within for ingesting streaming payment data.
 
-1.  In the [Azure portal](https://portal.azure.com), select **+ Create a resource**, enter "event hubs" into the Search the Marketplace box, select **Event Hubs** from the results, and then select **Create**.
+1. In the [Azure portal](https://portal.azure.com), select **+ Create a resource**, enter "event hubs" into the Search the Marketplace box, select **Event Hubs** from the results, and then select **Create**.
 
     ![Create a resource is highlighted in the left-hand navigation menu of the Azure portal, event hubs is entered into the Search the Marketplace box, and Event Hubs is highlighted in the results.](media/create-resource-event-hubs.png 'Create an Event Hubs namespace')
 
-2.  On the Create Namespace blade, enter the following:
+2. On the Create Namespace blade, enter the following:
 
     - **Name**: Enter a globally unique name (indicated by a green check mark).
     - **Pricing tier**: Select Standard.
@@ -168,17 +177,17 @@ In this task, you will create an Event Hubs namespace and add an Event Hub withi
 
     ![The Create Namespace blade is displayed, with the previously mentioned settings entered into the appropriate fields.](media/create-event-hubs-blade.png 'Create Namespace')
 
-3.  Select **Create**.
+3. Select **Create**.
 
-4.  Navigate to the newly provisioned Event Hubs namespace in the Azure portal, then select **Event Hubs** under Entities on the left-hand menu.
+4. Navigate to the newly provisioned Event Hubs namespace in the Azure portal, then select **Event Hubs** under Entities on the left-hand menu.
 
     ![Event Hubs is selected within the left-hand menu](media/select-event-hubs.png 'Select Event Hubs')
 
-5.  Select **+ Event Hub** in the top toolbar.
+5. Select **+ Event Hub** in the top toolbar.
 
     ![Select the + Event Hub button in the top toolbar](media/add-event-hub-button.png 'Add Event Hub')
 
-6.  In the **Create Event Hub** blade, configure the following:
+6. In the **Create Event Hub** blade, configure the following:
 
     - **Name**: Enter "transactions".
     - **Partition Count**: Move the slider to set the value to 10.
@@ -187,13 +196,13 @@ In this task, you will create an Event Hubs namespace and add an Event Hub withi
 
     ![The Create Event Hub blade is displayed, with the previously mentioned settings entered into the appropriate fields'](media/create-event-hub-blade.png 'Create Event Hub')
 
-7.  Select **Create**.
+7. Select **Create**.
 
-8.  After the new Event Hub is created, select it then select **Shared access policies** under Settings in the left-hand menu.
+8. After the new Event Hub is created, select it then select **Shared access policies** under Settings in the left-hand menu.
 
     ![Shared access policies is selected within the left-hand menu](media/select-shared-access-policies.png 'Select Shared access policies')
 
-9.  Select **+ Add** in the top toolbar.
+9. Select **+ Add** in the top toolbar.
 
     ![Select the + Add button in the top toolbar](media/add-shared-access-policy.png 'Add Shared Access Policy')
 
@@ -229,7 +238,7 @@ In this task, you will create an Event Hubs namespace and add an Event Hub withi
 
 17. Follow the step above to copy the **Connection string-primary key** value for the Listener policy and save for later.
 
-### Task 5: Create an Azure Data Lake Storage Gen2 account
+### Task 6: Create an Azure Data Lake Storage Gen2 account
 
 In this task, you will create an Azure Data Lake Storage Gen2 (ADLS Gen2) account, which will be used as the repository for the Databricks Delta tables you will be creating in this hands-on lab.
 
@@ -264,23 +273,21 @@ In this task, you will create an Azure Data Lake Storage Gen2 (ADLS Gen2) accoun
 
    - Copy the **Storage account name** value and paste it into a text editor, such as Notepad, for later use.
 
-   - Copy the key1 **Key** value and paste it into a text editor, such as Notepad, for later use.
+     ![The storage account Access keys blade is displayed, with the storage account name highlighted.](media/storage-account-access-keys.png 'Storage account access keys')
 
-     ![The storage account Access keys blade is displayed, with the storage account name and key highlighted.](media/storage-account-access-keys.png 'Storage account access keys')
-
-### Task 6: Provision an Azure Machine Learning Service
+### Task 7: Provision an Azure Machine Learning Service
 
 TODO: Enter steps for this.
 
-### Task 7: Set up Azure Key Vault
+### Task 8: Set up Azure Key Vault
 
 In this task, you will create an Azure Key Vault account in which you will store secrets such as account keys and connection strings. Key Vault will be used as a backing-store for Azure Databricks secrets to securely access these values from notebooks and libraries.
 
-1.  In the [Azure portal](https://portal.azure.com), select **+ Create a resource**, enter "key vault" into the Search the Marketplace box, select **Key Vault** from the results, and then select **Create**.
+1. In the [Azure portal](https://portal.azure.com), select **+ Create a resource**, enter "key vault" into the Search the Marketplace box, select **Key Vault** from the results, and then select **Create**.
 
     ![Create a resource is highlighted in the left-hand navigation menu of the Azure portal, key vault is entered into the Search the Marketplace box, and Key Vault is highlighted in the results.](media/create-resource-key-vault.png 'Create an Azure Key Vault account')
 
-2.  On the Create storage account blade's **Basics** tab, enter the following:
+2. On the Create storage account blade's **Basics** tab, enter the following:
 
     - **Name**: Enter a globally unique name (indicated by a green check mark).
     - **Subscription**: Select the subscription you are using for this hands-on lab.
@@ -290,13 +297,13 @@ In this task, you will create an Azure Key Vault account in which you will store
 
     ![The Create Key Vault blade is displayed, with the previously mentioned settings entered into the appropriate fields.](media/create-key-vault-blade.png 'Create Key Vault')
 
-3.  Select **Create**.
+3. Select **Create**.
 
-4.  Navigate to the newly provisioned Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
+4. Navigate to the newly provisioned Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
 
     ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
 
-5.  On the Create a secret blade, enter the following:
+5. On the Create a secret blade, enter the following:
 
     - **Upload options**: Select Manual.
     - **Name**: Enter "Cosmos-DB-URI".
@@ -304,11 +311,11 @@ In this task, you will create an Azure Key Vault account in which you will store
 
     ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-uri-secret.png 'Create a secret')
 
-6.  Select **Create**.
+6. Select **Create**.
 
-7.  Select **+ Generate/Import** on the top toolbar to create another secret.
+7. Select **+ Generate/Import** on the top toolbar to create another secret.
 
-8.  On the Create a secret blade, enter the following:
+8. On the Create a secret blade, enter the following:
 
     - **Upload options**: Select Manual.
     - **Name**: Enter "Cosmos-DB-Key".
@@ -316,7 +323,7 @@ In this task, you will create an Azure Key Vault account in which you will store
 
     ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-key-secret.png 'Create a secret')
 
-9.  Select **Create**.
+9. Select **Create**.
 
 10. Select **Properties** on the left-hand menu of your Key Vault account.
 
@@ -324,45 +331,45 @@ In this task, you will create an Azure Key Vault account in which you will store
 
     ![Properties is selected on the left-hand menu, and DNS Name and Resource ID are highlighted to show where to copy the values from.](media/key-vault-properties.png 'Key Vault properties')
 
-### Task 8: Configure Azure Databricks Key Vault-backed secrets
+### Task 9: Configure Azure Databricks Key Vault-backed secrets
 
 In this task, you will connect to your Azure Databricks workspace and configure Azure Databricks secrets to use your Azure Key Vault account as a backing store.
 
-1.  Return to the [Azure portal](https://portal.azure.com), navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+1. Return to the [Azure portal](https://portal.azure.com), navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
 
     ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
 
-2.  In your browser's URL bar, append **#secrets/createScope** to your Azure Databricks base URL (for example, https://eastus.azuredatabricks.net#secrets/createScope).
+2. In your browser's URL bar, append **#secrets/createScope** to your Azure Databricks base URL (for example, https://eastus.azuredatabricks.net#secrets/createScope).
 
-3.  Enter the name of the secret scope, such as `key-vault-secrets`.
+3. Enter the name of the secret scope, such as `key-vault-secrets`.
 
-4.  Select **Creator** within the Manage Principal drop-down to specify only the creator (which is you) of the secret scope has the MANAGE permission.
+4. Select **Creator** within the Manage Principal drop-down to specify only the creator (which is you) of the secret scope has the MANAGE permission.
 
     > MANAGE permission allows users to read and write to this secret scope, and, in the case of accounts on the Azure Databricks Premium Plan, to change permissions for the scope.
 
     > Your account must have the Azure Databricks Premium Plan for you to be able to select Creator. This is the recommended approach: grant MANAGE permission to the Creator when you create the secret scope, and then assign more granular access permissions after you have tested the scope.
 
-5.  Enter the **DNS Name** (for example, https://woodgrove-vault.vault.azure.net/) and **Resource ID** you copied earlier during the Key Vault creation step, for example: `/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/hands-on-lab/providers/Microsoft.KeyVault/vaults/woodgrove-vault`.
+5. Enter the **DNS Name** (for example, https://woodgrove-vault.vault.azure.net/) and **Resource ID** you copied earlier during the Key Vault creation step, for example: `/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/hands-on-lab/providers/Microsoft.KeyVault/vaults/woodgrove-vault`.
 
     ![Create Secret Scope form](media/create-secret-scope.png 'Create Secret Scope')
 
-6.  Select **Create**.
+6. Select **Create**.
 
 After a moment, you will see a dialog verifying that the secret scope has been created.
 
-### Task 9: Create an Azure Databricks cluster
+### Task 10: Create an Azure Databricks cluster
 
 In this task, you will connect to your Azure Databricks workspace and create a cluster to use for this hands-on lab.
 
-1.  Return to the [Azure portal](https://portal.azure.com), navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+1. Return to the [Azure portal](https://portal.azure.com), navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
 
     ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
 
-2.  Select **Clusters** from the left-hand navigation menu, and then select **+ Create Cluster**.
+2. Select **Clusters** from the left-hand navigation menu, and then select **+ Create Cluster**.
 
     ![The Clusters option in the left-hand menu is selected and highlighted, and the Create Cluster button is highlighted on the clusters page.](media/databricks-clusters.png 'Databricks Clusters')
 
-3.  On the Create Cluster screen, enter the following:
+3. On the Create Cluster screen, enter the following:
 
     - **Cluster Name**: Enter a name for your cluster, such as lab-cluster.
     - **Cluster Mode**: Select Standard.
@@ -382,6 +389,26 @@ In this task, you will connect to your Azure Databricks workspace and create a c
 
     ![The Create Cluster screen is displayed, with the values specified above entered into the appropriate fields.](media/databricks-create-new-cluster.png 'Create a new Databricks cluster')
 
-4.  Select **Create Cluster**. It will take 3-5 minutes for the cluster to be created and started.
+4. Select **Create Cluster**. It will take 3-5 minutes for the cluster to be created and started.
+
+### Task 11: Open Azure Databricks and load lab notebooks
+
+In this task, you will download the notebooks contained in the [Cosmos DB real-time advanced analytics MCW GitHub repo](https://github.com/Microsoft/MCW-Cosmos-DB-Real-Time-Advanced-Analytics) and upload them to your Azure Databricks workspace.
+
+1. Download the lab notebooks from the following link:
+
+    - [CosmosDbAdvancedAnalytics.dbc](https://github.com/Microsoft/MCW-Cosmos-DB-real-time-advanced-analytics/blob/master/Hands-on%20lab/lab-files/CosmosDbAdvancedAnalytics.dbc)
+
+2. Within your Azure Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and select your user account (email address), and then select the down arrow on top of your user workspace and select **Import** from the context menu.
+
+    ![The Workspace menu is highlighted in the Azure Databricks workspace, and Users is selected with the current user's account selected and highlighted. Import is selected in the user's context menu.](media/databricks-workspace-import.png "Import files into user workspace")
+
+3. Within the Import Notebooks dialog, select **File** for Import from, and then drag-and-drop the downloaded `dbc` file into the box, or browse to upload it.
+
+    ![The Import Notebooks dialog is displayed](media/databricks-import-notebooks.png "Import Notebooks dialog")
+
+4. Select **Import**.
+
+5. You should now see a folder named **CosmosDbAdvancedAnalytics** in your user workspace. This folder contains all of the notebooks you will use throughout this hands-on lab.
 
 > You should follow all steps provided _before_ performing the Hands-on lab.
