@@ -224,6 +224,8 @@ The analysts at Woodgrove Bank are very interested in the recent notebook-driven
 
 3.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
 
+4.  We are concerned about how much it costs to use Cosmos DB for our solution. What is the real value in using this service?
+
 ### Infographic for common scenarios
 
 ![Infographic for common scenarios](media/common-scenarios.png 'Common scenarios diagram')
@@ -358,7 +360,7 @@ Directions: Tables reconvene with the larger group to hear the facilitator/SME s
 | Scaling throughput in Azure Cosmos DB                  | <https://docs.microsoft.com/azure/cosmos-db/scaling-throughput>                                                                   |
 | Partitioning and horizontal scaling in Azure Cosmos DB | <https://docs.microsoft.com/azure/cosmos-db/partition-data>                                                                       |
 | Consistency levels in Azure Cosmos DB                  | <https://docs.microsoft.com/azure/cosmos-db/consistency-levels>                                                                   |
-| Apache Spark Connector to Cosmos DB                    | <https://docs.microsoft.com/en-us/azure/cosmos-db/spark-connector>                                                                   |
+| Apache Spark Connector to Cosmos DB                    | <https://docs.microsoft.com/en-us/azure/cosmos-db/spark-connector>                                                                |
 | Azure Machine Learning SDK for Python                  | <https://docs.microsoft.com/python/api/overview/azure/ml/intro?view=azure-ml-py>                                                  |
 
 # Cosmos DB real-time advanced analytics whiteboard design session trainer guide
@@ -417,7 +419,7 @@ _High-level architecture_
 
     ![The Solution diagram is described in the text following this diagram.](../Media/outline-architecture.png 'Solution diagram')
 
-    The solution begins with the payment transaction systems writing transactions to Azure Cosmos DB. With change feed enabled in Cosmos DB, the transactions can be read as a stream of incoming data within an Azure Databricks notebook, using the `azure-cosmosdb-spark` connector, and stored long-term within an Azure Databricks Delta table backed by Azure Data Lake Storage. The Delta tables efficiently manage inserts and updates (e.g., upserts) to the transaction data. Tables created in Databricks over this data can be accessed by business analysts using dashboards and reports in Power BI, by using Power BI's Spark connector. Data scientists and engineers can create their own reports against this data, using Azure Databricks notebooks. Azure Databricks also supports training and validating the machine learning model, using historical data stored in Azure Data Lake Storage. The model can be periodically re-trained using the data stored in Delta tables or other historical tables. The Azure Machine Learning service is used to deploy the trained model as a real-time scoring web service running on a highly available Azure Kubernetes Service cluster (AKS cluster). The trained model is also used in scheduled offline scoring through Databricks jobs, and the "suspicious activity" output is stored in Azure Cosmos DB so it is globally available in regions closest to Woodgrove Bank's customers through their web applications. Finally, Azure Key Vault is used to securely store secrets, such as account keys and connection strings, and serves as a backing for Azure Databricks secret scopes.
+    The solution begins with the payment transaction systems writing transactions to Azure Cosmos DB. With change feed enabled in Cosmos DB, the transactions can be read as a stream of incoming data within an Azure Databricks notebook, using the `azure-cosmosdb-spark` connector, and stored long-term within an Azure Databricks Delta table backed by Azure Data Lake Storage. The Delta tables efficiently manage inserts and updates (e.g., upserts) to the transaction data. Tables created in Databricks over this data can be accessed by business analysts using dashboards and reports in Power BI, by using Power BI's Spark connector. Alternately, semantic models can be stored in Azure Analysis Service to serve data to Power BI, eliminating the need to keep a dedicated Databricks cluster running for reporting. Data scientists and engineers can create their own reports against Databricks tables, using Azure Databricks notebooks. Azure Databricks also supports training and validating the machine learning model, using historical data stored in Azure Data Lake Storage. The model can be periodically re-trained using the data stored in Delta tables or other historical tables. The Azure Machine Learning service is used to deploy the trained model as a real-time scoring web service running on a highly available Azure Kubernetes Service cluster (AKS cluster). The trained model is also used in scheduled offline scoring through Databricks jobs, and the "suspicious activity" output is stored in Azure Cosmos DB so it is globally available in regions closest to Woodgrove Bank's customers through their web applications. Finally, Azure Key Vault is used to securely store secrets, such as account keys and connection strings, and serves as a backing for Azure Databricks secret scopes.
 
     > **Note**: The preferred solution is only one of many possible, viable approaches.
 
@@ -468,16 +470,17 @@ _Data ingest_
 
         - Event Hubs guarantees consistency and event ordering _per partition_. Since it is important to keep payment transactions in order when processing them, you can guarantee ordering by setting a partition key on the event, or use a `PartitionSender` object to only send events to a certain partition. This has scaling implications if you plan to use more than one partition. It also has uptime implications if the partition you are trying to send to is unavailable. If no partition is defined, then the data is distributed across available partitions. You may choose to ensure ordering by region or merchant, as an example, by creating a partition for the region or merchant. The potential downside to this approach is finite number of available partitions for a given event hub (32 max by default, higher via quota increase request). Another option is to aggregate events within the processing application by time-stamping the event with a custom sequence number. This requires state to be kept within the processing application.
 
-    2.  **Azure Cosmos DB change feed** outputs a sorted list of documents that were changed in the order in which they were modified or inserted. Like Event Hubs, the change feed output can be distributed across one or more consumers for parallel processing. Azure Cosmos DB change feed is a good candidate for this architecture for the following reasons:
+    2.  **Azure Cosmos DB** outputs a sorted list of documents that were changed in the order in which they were modified or inserted, as they are being written, by reading from its change feed. Like Event Hubs, the change feed output can be distributed across one or more consumers for parallel processing. Azure Cosmos DB is a good candidate for this architecture for the following reasons:
 
         - Fully managed PaaS with little configuration or management overhead.
         - Cosmos DB is highly scalable, and is already being used to store pre-scored fraud data.
         - An Apache Spark connector is available, allowing Azure Databricks clusters to directly access the change feed with very little code.
         - Cosmos DB with change feed enabled acts as both a raw data store for batch processing and stream processing.
-        - Event publishers can publish events to Cosmos DB using .NET, Java, Node.js, and Python, using a number of APIs, such as SQL, Cassandra, MongoDB, Gremlin, and Azure Table Storage. 
+        - Event publishers can publish events to Cosmos DB using .NET, Java, Node.js, and Python, using a number of APIs, such as SQL, Cassandra, MongoDB, Gremlin, and Azure Table Storage.
         - The change feed feature can only be used by the SQL and Gremlin APIs of Cosmos DB. Woodgrove will be using the SQL API, so they will be able to use the change feed feature.
         - Cosmos DB is globally accessible across many Azure regions, bringing it closer to distributed event publishers and consumers.
         - In a multi-region Azure Cosmos account, if a write-region fails over, the change feed will work across the manual failover operation and it will be contiguous.
+        - Cosmos DB Allows you to set a time-to-live (TTL) value, in seconds, on a container or on individual documents. This value tells Cosmos DB when to expire, or delete, the document(s) automatically. This setting can help save in storage costs by removing what you no longer need. Typically, this is used on hot data, or data that must be expired after a period of time due to regulatory requirements.
 
         Things to be cautious about are:
 
@@ -489,7 +492,11 @@ _Data ingest_
 
     Both services are capable of acting as the ingestion service. They both support a high rate of flow, and both have options for long-term storage needs. However, Event Hubs requires an extra step for long-term storage, which is handled through Event Hubs Capture, whereas Cosmos DB already provides this storage for raw data. Considering the level of effort to implement, this favors Cosmos DB since transactional data is already being written to a database, those applications or APIs can be updated to also write to Cosmos DB, or switch over to Cosmos DB entirely as the single database. Event Hubs requires adding an event service to their architecture and learning how to use it from their current systems.
 
-    > Note: for multi-master accounts, change feed based on a server-side token (which is based on a logical timestamp) will provide a predictable change feed experience is supported. Change feed based on If-Modified-Since in this scenario could result in missing versions and duplicates, and is therefore blocked.
+    Another point to consider is that Woodgrove Bank would like to ingest and serve data across multiple regions around the globe, and have that data synchronized as well. With Cosmos DB, you can simply add additional regions at any time either programmatically through its APIs, or through the "Replicate data globally" Cosmos DB settings in the portal. However, Event Hubs does not have this same option. You have to create new Event Hubs in each region you wish to send data to, modify your sending applications, as well as your stream processing applications to account for the additional service endpoints.
+
+    A final decision point for using Cosmos DB for ingestion, is that it offers flexible message retention through its time-to-live (TTL) settings. This value can be set at the container level by applying a TTL value for all documents within, or on individual messages as they are sent. This optimization helps save in storage costs by automatically expiring (deleting) the documents after the specified period of time. For instance, you can set the TTL to 60 days to allow Woodgrove Bank to keep the streaming data available for that amount of time so they can reprocess in Azure Databricks, or query the raw data within the collection as needed.
+
+    Event Hubs has a similar feature called message retention. You can set the value between one and seven days, or a maximum of four weeks if you contact Microsoft support. Setting the TTL for documents saved to Cosmos DB individually for any length of time desired (even beyond 7 days) is an advantage Cosmos DB has over Event Hubs when used for ingesting streaming data.
 
 _Data pipeline processing_
 
@@ -500,7 +507,7 @@ _Data pipeline processing_
     There are a lot of features Azure Databricks offers over top of standard Spark installations. The key features that make this a good choice for Woodgrove Bank are:
 
     - Integrates with Azure Active Directory for single sign-on and RBAC in certain scenarios.
-    - Contains collaborative features such as the workspace that contains both private and  shared folders, integrated change tracking of notebooks and integration with git source control systems like GitHub, and granular user and role-based permissions.
+    - Contains collaborative features such as the workspace that contains both private and shared folders, integrated change tracking of notebooks and integration with git source control systems like GitHub, and granular user and role-based permissions.
     - It is possible to start and stop clusters either manually or automatically, based on usage.
     - Supports running scheduled jobs for executing notebooks and libraries on a schedule.
     - Integrates with Azure Key Vault, which serves as a backing store for secrets within Azure Databricks, including automatic redaction of those secrets when users attempt to output them in a notebook.
@@ -645,7 +652,13 @@ _Dashboards and reporting_
 
 1.  Woodgrove Bank's business analysts would like to have a set of dashboards they can monitor that provide real-time views of fraud trends at a global scale. Thinking back to how your proposed solution provides a set of summary (gold) tables containing business-level aggregates, what do you propose using to meet this requirement? Be specific about how this solution will be put in place and which features it supports.
 
-    PowerBI can query any tables created in Azure Databricks. This connection is facilitated via a JDBC connector, whose connection information is provided in the Get Data UI of Power BI by selecting the Spark connector. While the data for these tables may be stored in ADLS, the experience to the analysts is similar to them querying a table from a more traditional relational database. With the table connection in place, analysts can build reports and dashboards using Power BI.
+    - Option 1: No additional services required, but with a comparatively higher cost:
+    
+        Power BI can query any tables created in Azure Databricks. This connection is facilitated via a JDBC connector, whose connection information is provided in the Get Data UI of Power BI by selecting the Spark connector. While the data for these tables may be stored in ADLS, the experience to the analysts is similar to them querying a table from a more traditional relational database. With the table connection in place, analysts can build reports and dashboards using Power BI.
+
+    - Option 2: Additional service and synchronization required, but lower cost option:
+    
+        A more cost-effective approach to reporting is to store the summary (gold) table data in Azure Analysis Services, which you connect to from Power BI. This eliminates having to have a dedicated Databricks cluster running at all times for reporting and analysis. Azure Analysis Services is a fully managed platform as a service (PaaS) for storing your data in a tabular semantic data model. You will need to synchronize the data to your semantic models in Azure Analysis Services to keep your dashboard and reports up-to-date. This can be done as an extra step during stream processing, using rolling aggregates over a time window, or by batch processing on a schedule, using an Azure Databricks job or an orchestration service like Azure Data Factory.
 
 2.  How do you propose giving access to this same data to Woodgrove Bank's data scientists and data engineers within the data processing environment wherein they can craft complex queries and data visualizations?
 
@@ -655,7 +668,7 @@ _Dashboards and reporting_
 
 1.  It's not clear to us if we can only use Cosmos DB as our web app's database, or if we should consider using it in other parts of our advanced analytics data pipeline such as for real-time transaction ingest or for serving of offline processed data.
 
-    Cosmos DB was created from the ground-up as a distributed database service that transparently handles the complexity of running within multiple regions around the world. Because providing data to customers around the globe is a key requirement, Cosmos DB is an ideal choice for ingesting data where it arrives, and serving the data where it is requested. The change feed feature of Cosmos DB makes it useful for both storing raw transaction data as it is written, and notifying consumers, like Azure Databricks, of changes as they occur for real-time processing.
+    Cosmos DB was created from the ground-up as a distributed database service that transparently handles the complexity of running within multiple regions around the world. Because providing data to customers around the globe is a key requirement, Cosmos DB is an ideal choice for ingesting data where it arrives, and serving the data where it is requested. It's major advantage when operating at a global scale is its high concurrency with low latency and predictable results. This combination is unique to Cosmos DB and ideal for Woodgrove Bank's needs. The change feed feature of Cosmos DB makes it useful for both storing raw transaction data as it is written, and notifying consumers, like Azure Databricks, of changes as they occur for real-time processing.
 
 2.  Does Cosmos DB integrate with open source big data analytics like Apache Spark?
 
@@ -664,6 +677,18 @@ _Dashboards and reporting_
 3.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
 
     The typical approach to model training involves a time-consuming process trying dozens or even hundreds of combinations. Data scientists often try different ways of normalizing the data, different algorithms and different settings for those algorithms (hyperparameters). Data scientists will often setup a grid-search approach that will run multiple independent tests using differing combinations, measuring the performance of each and choosing the combination that provides the best results according to some performance metrics they select. With Azure Machine Learning AutoML, this search process is automated, and greatly simplifies the setup to try the typical combinations and quickly identify the best performing model against a user-selected performance metric. AutoML is used via the Azure Machine Learning Python SDK and can be utilized within Azure Databricks notebooks.
+
+4.  We are concerned about how much it costs to use Cosmos DB for our solution. What is the real value in using this service?
+
+    Azure Cosmos DB's greatest strength is that it provides a multi-model, globally available NoSQL database with high concurrency, low latency, and predictable results. The fact that it transparently synchronizes data to all regions, which can quickly and easily be added at any time, adds value by reducing the amount of development required to read and write the data and removes any need for synchronization.
+    
+    The cost of all database operations, such as throughput, CPU, and memory, is normalized by Azure Cosmos DB and is expressed in terms of Request Units (RUs). The cost to read a 1-KB item is 1 Request Unit (1 RU) and the minimum RUs required to consume 1 GB of storage is 40. The cost of writing a 1-KB item is 5 RUs. Many people risk over-allocating RUs to their collections, when they may not need such high levels at all times. To save costs, a good tactic is to ramp up the number of RUs during batch processing or other read/write-heavy loads, then reduce the number of RUs afterwards. This can be done automatically or manually through the portal. An example of how this can be automatically done is to monitor Cosmos DB with Azure Monitor and set an alert rule that calls an Azure Function to scale up the number of RUs for that collection. Then you would have another process to scale down as needed. You configure Azure Monitor to monitor the total requests for a 429 HTTP status code (which means the requests are throttled), apply alert logic where the total number of these codes are greater than a pre-defined value (like 10) over the last 5 minutes.
+
+    ![A screenshot of Azure Monitor where the an alert is configured by selecting a status code value of 429 with a condition set to greater than, the time aggregation set to total, and threshold set to 10.](media/azure-monitor.png "Azure Monitor")
+
+    Cosmos DB also offers flexible time-to-live (TTL) that can be set at the collection-level or on individual documents. This value tells Cosmos DB to expire, or delete, a document after a certain amount of seconds. This value can be set to as little as one second, or months into the future. As a result, you can save storage costs for records that are no longer needed. The flexibility of setting TTL at the collection or record-level is a unique characteristic of Cosmos DB.
+
+    Another pitfall that developers or database administrators experience, especially those who are used to using traditional relational databases, is that they tend to want to create a Cosmos DB collection for each "table", or entity type they wish to store. Instead, you should consider storing any number of entity types within the same collection. The reason for this is that there is a cost associated with each collection that you add. Because collections do not enforce any type of schema, you are able to store entities of the same type with different schemas (likely due to changes over time or from excluding properties with no values), or entirely different entities within that collection. A common approach to dealing with different types of entities within a collection is to add a string property like `collectionType` so that you can filter query results by that type. For instance, Woodgrove Bank stores transaction and suspicious activity data within the same collection. They could assign a value of "Transaction" to the transaction entities, and "SuspiciousActivity" to the suspicious activity entities. Both types and many others can coexist within the collection and can easily be filtered by the `collectionType` property.
 
 ## Customer quote (to be read back to the attendees at the end)
 
