@@ -112,11 +112,16 @@ In this task, you will configure the payment transaction data generator project 
         "COSMOS_DB_AUTH_KEY": "",
 
         "SECONDS_TO_LEAD": "0",
-        "SECONDS_TO_RUN": "600"
+        "SECONDS_TO_RUN": "600",
+        "ONLY_WRITE_TO_COSMOS_DB": "false"
     }
     ```
 
-    `SECONDS_TO_LEAD` is the amount of time to wait before sending payment transaction data. Default value is `0`. `SECONDS_TO_RUN` is the maximum amount of time to allow the generator to run before stopping transmission of data. The default value is `600`. Data will also stop transmitting after the included `Untagged_Transactions.csv` file's data has been sent.
+    `SECONDS_TO_LEAD` is the amount of time to wait before sending payment transaction data. Default value is `0`.
+
+    `SECONDS_TO_RUN` is the maximum amount of time to allow the generator to run before stopping transmission of data. The default value is `600`. Data will also stop transmitting after the included `Untagged_Transactions.csv` file's data has been sent.
+
+    If the `ONLY_WRITE_TO_COSMOS_DB` property is set to `true`, no records will be sent to the Event Hubs instances. Default value is `false`.
 
 4.  Copy your Event Hub connection string value you saved during the steps you completed in the before the hands-on lab setup guide. Paste this value into the double-quotes located next to `EVENT_HUB_1_CONNECTION_STRING`.
 
@@ -249,7 +254,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
     This configure Cosmos DB to automatically delete the ingested messages after 60 days by setting the TTL value (`ttl` property) on individual messages as they are sent. This optimization helps save in storage costs while meeting Woodgrove Bank's requirement to keep the streaming data available for that amount of time so they can reprocess in Azure Databricks, or query the raw data within the collection as needed.
 
-    > Setting the TTL for documents saved to Cosmos DB individually for any length of time desired (even beyond 7 days) is and advantage Cosmos DB has over Event Hubs when used for ingesting streaming data.
+    > Setting the TTL for documents saved to Cosmos DB individually for any length of time desired (even beyond 7 days) is an advantage Cosmos DB has over Event Hubs when used for ingesting streaming data.
 
 2.  Save your changes.
 
