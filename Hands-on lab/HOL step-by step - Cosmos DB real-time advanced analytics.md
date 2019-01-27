@@ -177,27 +177,59 @@ To perform authentication using the service principal account in Databricks you 
 
 2. Paste the copied value into a text editor, such as Notepad, for use in the Databricks notebook in an upcoming task.
 
-### Task 5: Mount ADLS Gen2 filesystem with Databricks
-
-To connect Azure Databricks to ADLS Gen2, you can either create a direct connection, or mount it. Mounting makes the access point available to all clusters in your Databricks workspace, so for this hands-on lab, you will mount ADLS Gen2 in DBFS.
-
-1. In the [Azure portal](https://portal.azure.com), navigate to your Databricks workspace and select **Launch workspace**.
-
-    ![Launch Databricks workspace](media/databricks-launch-workspace.png "Launch Databricks workspace")
-
-2. Select **Workspace** from the left-hand menu, and 
-
-### Task 6: Install the Azure Cosmos DB Spark Connector in Databricks
+### Task 4: Install the Azure Cosmos DB Spark Connector in Databricks
 
 In this task, you will install the [Azure Cosmos DB Spark Connector](https://github.com/Azure/azure-cosmosdb-spark) on your Databricks cluster. The connector allows you to easily read to and write from Azure Cosmos DB via Apache Spark DataFrames in `python` and `scala`. It also allows you to easily create a lambda architecture for batch-processing, stream-processing, and a serving layer while being globally replicated and minimizing the latency involved in working with big data.
 
-1. In a web browser, download the latest [azure-cosmosdb-spark library](https://search.maven.org/remotecontent?filepath=com/microsoft/azure/azure-cosmosdb-spark_2.3.0_2.11/1.2.2/azure-cosmosdb-spark_2.3.0_2.11-1.2.2-uber.jar) from here: <https://search.maven.org/remotecontent?filepath=com/microsoft/azure/azure-cosmosdb-spark_2.3.0_2.11/1.2.2/azure-cosmosdb-spark_2.3.0_2.11-1.2.2-uber.jar>.
+1. In a web browser, download the latest [azure-cosmosdb-spark library](https://github.com/Azure/azure-cosmosdb-spark) from here: <https://search.maven.org/remotecontent?filepath=com/microsoft/azure/azure-cosmosdb-spark_2.3.0_2.11/1.2.2/azure-cosmosdb-spark_2.3.0_2.11-1.2.2-uber.jar>.
 
-2. Upload the download JAR file to Databricks...
+2. Navigate to your Azure Databricks workspace in the Azure portal, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
 
-3. Install the uploaded library into your Databricks cluster.
+    ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png "Launch Workspace")
 
-### Task 2: Querying streaming transactions with Azure Databricks and Spark Structured Streaming
+3. Select **Workspace** from the left-hand menu, then select the drop down arrow next to **Shared** and select **Create** and **Library** from the context menus.
+
+4. Drag and drop the downloaded JAR file into the box on the Create Library dialog to install the uploaded library into your Databricks cluster.
+
+    ![The Databricks Create Library dialog is displayed, with the azure-cosmosdb-spark library downloaded above added to the upload box.](media/databricks-create-library.png "Create Library")
+
+5. Select **Create** to finish installing the library.
+
+6. On the following screen, check the box for **Install automatically on all clusters**, and select **Confirm** when prompted.
+
+    ![The Install automatically on all clusters box is checked and highlighted on the library dialog.](media/datbricks-install-library-on-all-clusters.png "Install library on all clusters")
+
+### Task 5: Mount ADLS Gen2 filesystem with Databricks
+
+In this task, you will use an Azure Databricks notebook to configure and mount the ADLS Gen2 filesystem with DBFS.
+
+1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
+
+    ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
+
+2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **1-Mount-ADLS-Gen2**.
+
+    ![In the user's workspace, the 1-Mounts-ADLS-Gen2 notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook1.png "Notebooks in the user workspace")
+
+3. In the **1-Mount-ADLS-Gen2** notebook, follow the instructions to complete the remaining steps of this task.
+
+> **NOTE**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you won't have to jump back and forth between this document and the Databricks notebooks for this exercise.
+
+### Task 6: Querying historical transactions from Cosmos DB with Azure Databricks and Spark
+
+In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and write queries to explore transaction data retrieved directly from Cosmos DB and Spark SQL.
+
+1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
+
+    ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
+
+2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **2-Querying-Cosmos-DB**.
+
+    ![In the user's workspace, the 1-Mounts-ADLS-Gen2 notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook2.png "Notebooks in the user workspace")
+
+3. In the **2-Querying-Cosmos-DB** notebook, follow the instructions to complete the remaining steps of this task.
+
+### Task 7: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks
 
 1. Within your databricks workspace...
 2. Import the DBC file into Databricks from the GitHub repo
@@ -205,15 +237,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 3. The DBC file contains multiple notebooks. Open the Exercise 2 notebook...
 4. Follow the instructions within the notebook to complete this task. You will return here to move on to the next task when you are done with the notebook...
 
-### Task 2: Querying transactions directly from Cosmos DB with Azure Databricks and Spark
-
-In this task, you will create a connection to your Cosmos DB instance from an Azure Databricks notebook, and write queries to retrieve transaction data directly from Cosmos DB and Spark SQL.
-
-1. Number and insert your custom workshop content here
-
-### Task 3: Responding to transactions using the Cosmos DB Change Feed and Azure Databricks Delta
-
-1. xxx
+### DELETE THIS ONE: Task 3: Responding to transactions using the Cosmos DB Change Feed and Azure Databricks Delta
 
 ## Exercise 3: Creating and evaluating fraud models
 

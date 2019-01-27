@@ -275,6 +275,8 @@ In this task, you will create an Azure Data Lake Storage Gen2 (ADLS Gen2) accoun
 
      ![The storage account Access keys blade is displayed, with the storage account name highlighted.](media/storage-account-access-keys.png 'Storage account access keys')
 
+    ![The storage account Access keys blade is displayed, with the storage account name highlighted.](media/storage-account-access-keys.png "Storage account access keys")
+
 ### Task 7: Provision an Azure Machine Learning Service
 
 TODO: Enter steps for this.
@@ -399,16 +401,20 @@ In this task, you will download the notebooks contained in the [Cosmos DB real-t
 
     - [CosmosDbAdvancedAnalytics.dbc](https://github.com/Microsoft/MCW-Cosmos-DB-real-time-advanced-analytics/blob/master/Hands-on%20lab/lab-files/CosmosDbAdvancedAnalytics.dbc)
 
-2. Within your Azure Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and select your user account (email address), and then select the down arrow on top of your user workspace and select **Import** from the context menu.
+2. Navigate to your Azure Databricks workspace in the Azure portal, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+
+    ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png "Launch Workspace")
+
+3. Select **Workspace** from the left-hand menu, then select **Users** and select your user account (email address), and then select the down arrow on top of your user workspace and select **Import** from the context menu.
 
     ![The Workspace menu is highlighted in the Azure Databricks workspace, and Users is selected with the current user's account selected and highlighted. Import is selected in the user's context menu.](media/databricks-workspace-import.png "Import files into user workspace")
 
-3. Within the Import Notebooks dialog, select **File** for Import from, and then drag-and-drop the downloaded `dbc` file into the box, or browse to upload it.
+4. Within the Import Notebooks dialog, select **File** for Import from, and then drag-and-drop the downloaded `dbc` file into the box, or browse to upload it.
 
     ![The Import Notebooks dialog is displayed](media/databricks-import-notebooks.png "Import Notebooks dialog")
 
-4. Select **Import**.
+5. Select **Import**.
 
-5. You should now see a folder named **CosmosDbAdvancedAnalytics** in your user workspace. This folder contains all of the notebooks you will use throughout this hands-on lab.
+6. You should now see a folder named **CosmosDbAdvancedAnalytics** in your user workspace. This folder contains all of the notebooks you will use throughout this hands-on lab.
 
 > You should follow all steps provided _before_ performing the Hands-on lab.
