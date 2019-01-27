@@ -91,9 +91,15 @@ namespace TransactionGenerator
 
         [JsonProperty] public string PurchaseProductType { get; set; }
 
-        // Used to set expiration policy
+        // Used to set the expiration policy.
         [JsonProperty(PropertyName = "ttl", NullValueHandling = NullValueHandling.Ignore)]
         public int? TimeToLive { get; set; }
+
+        // This property is used to indicate the type of document this is within the collection.
+        // This allows consumers to query documents stored within the collection by the type.
+        // This is needed because a collection can contain any number of document types within,
+        // since it does not enforce any type of schema.
+        [JsonProperty] public string CollectionType => "Transaction";
 
         [JsonIgnore]
         public string PartitionKey => IpCountryCode;
