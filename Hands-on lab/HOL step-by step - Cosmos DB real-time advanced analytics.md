@@ -37,9 +37,12 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 2: Ingesting streaming data into Cosmos DB](#task-2-ingesting-streaming-data-into-cosmos-db)
     - [Task 3: Choosing between Cosmos DB and Event Hubs for ingestion](#task-3-choosing-between-cosmos-db-and-events-hubs-for-ingestion)
   - [Exercise 2: Understanding and preparing the transaction data at scale](#exercise-2-understanding-and-preparing-the-transaction-data-at-scale)
-    - [Task 1: Querying streaming transactions with Azure Databricks and Spark Structured Streaming](#task-1-querying-streaming-transactions-with-azure-databricks-and-spark-structured-streaming)
-    - [Task 2: Querying transactions directly from Cosmos DB with Azure Databricks and Spark](#task-2-querying-transactions-directly-from-cosmos-db-with-azure-databricks-and-spark)
-    - [Task 3: Responding to transactions using the Cosmos DB Change Feed and Azure Databricks Delta](#task-3-responding-to-transactions-using-the-cosmos-db-change-feed-and-azure-databricks-delta)
+    - [Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem](#task-1-create-a-service-principal-for-oauth-access-to-the-adls-gen2-filesystem)
+    - [Task 2: Grant ADLS Gen2 permissions to the service principal](#task-2-grant-adls-gen2-permissions-to-the-service-principal)
+    - [Task 3: Retrieve your Azure AD tenant ID](#task-3-retrieve-your-azure-ad-tenant-id)
+    - [Task 4: Install the Azure Cosmos DB Spark Connector in Databricks](#task-4-install-the-azure-cosmos-db-spark-connector-in-databricks)
+    - [Task 5: Querying transactions directly from Cosmos DB with Azure Databricks and Spark](#task-5-querying-transactions-directly-from-cosmos-db-with-azure-databricks-and-spark)
+    - [Task 6: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks](#task-6-responding-to-streaming-transactions-using-the-cosmos-db-change-feed-and-spark-structured-streaming-in-azure-databricks)
   - [Exercise 3: Creating and evaluating fraud models](#exercise-3-creating-and-evaluating-fraud-models)
     - [Task 1: Task name](#task-1-task-name-2)
     - [Task 2: Task name](#task-2-task-name-2)
@@ -426,7 +429,7 @@ In this exercise, you will use Azure Databricks to explore the transaction data 
 
 ### Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem
 
-Mounting an ADLS Gen2 filesystem using Databricks requires that you use OAuth 2.0 for authentication. In this task, you will create an identity in Azure Active Directory (Azure AD) known as a service principal to facilitate the use of OAuth authentication.
+As an added layer of security when accessing an ADLS Gen2 filesystem using Databricks you can use OAuth 2.0 for authentication. In this task, you will create an identity in Azure Active Directory (Azure AD) known as a service principal to facilitate the use of OAuth authentication.
 
 > **IMPORTANT**: You must have permissions within your Azure subscription to create an App registration and service principal within Azure Active Directory to complete this task.
 
@@ -444,7 +447,7 @@ Mounting an ADLS Gen2 filesystem using Databricks requires that you use OAuth 2.
 
 3. Select **Create**.
 
-4. To access your ADLS Gen2 account from Azure Databricks you will need to provide the credentials of your newly created service principal within Databricks. On the Registered app blade that appears, copy the **Application ID** and paste it into a text editor, such as Notepad, for use in the Databricks notebook in an upcoming task.
+4. To provide access your ADLS Gen2 account from Azure Databricks you will use secrets stored in your Azure Key Vault account to provide the credentials of your newly created service principal within Databricks. On the Registered app blade that appears, copy the **Application ID** and paste it into a text editor, such as Notepad, for use in an upcoming step to create a new secret in Key Vault.
 
    ![Copy the Registered App Application ID](media/registered-app-id.png "Copy the Registered App Application ID")
 
@@ -459,9 +462,35 @@ Mounting an ADLS Gen2 filesystem using Databricks requires that you use OAuth 2.
 
    ![Create new password](media/registered-app-create-key.png "Create new password")
 
-7. Select **Save**, and then copy the key displayed under **Value**, and paste it into a text editor, such as Notepad, for use in the Databricks notebook in an upcoming task. **Note**: This value will not be accessible once you navigate away from this screen, so make sure you copy it before leaving the Keys blade.
+7. Select **Save**, and then copy the key displayed under **Value**, and paste it into a text editor, such as Notepad, for use in an upcoming step to create a new secret in Key Vault. **Note**: This value will not be accessible once you navigate away from this screen, so make sure you copy it before leaving the Keys blade.
 
    ![Copy key value](media/registered-app-key-value.png "Copy key value")
+
+8. Navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
+
+    ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png "Key Vault secrets blade")
+
+9. On the Create a secret blade, enter the following:
+
+    - **Upload options**: Select Manual.
+    - **Name**: Enter "Woodgrove-SP-Client-ID".
+    - **Value**: Paste the Application ID value you copied in an earlier step.
+
+    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-woodgrove-sp-client-id-secret.png "Create a secret")
+
+10. Select **Create**.
+
+11. Select **+ Generate/Import** again on the top toolbar to create another secret.
+
+12. On the Create a secret blade, enter the following:
+
+    - **Upload options**: Select Manual.
+    - **Name**: Enter "Woodgrove-SP-Client-Key".
+    - **Value**: Paste the Password value you copied in an earlier step.
+
+    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-woodgrove-sp-client-key-secret.png "Create a secret")
+
+13. Select **Create**.
 
 ### Task 2: Grant ADLS Gen2 permissions to the service principal
 
@@ -491,7 +520,19 @@ To perform authentication using the service principal account in Databricks you 
 
    ![Azure Active Directory is selected in the left-hand menu on the Azure portal, and the properties menu is selected. The Directory ID field is highlighted.](media/aad-tenant-id.png "Retrieve Tenant ID")
 
-2. Paste the copied value into a text editor, such as Notepad, for use in the Databricks notebook in an upcoming task.
+2. Navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
+
+    ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png "Key Vault secrets blade")
+
+3. On the Create a secret blade, enter the following:
+
+    - **Upload options**: Select Manual.
+    - **Name**: Enter "Azure-Tenant-ID".
+    - **Value**: Paste the Directory ID value you copied in an earlier step.
+
+    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-azure-tenant-id-secret.png "Create a secret")
+
+4. Select **Create**.
 
 ### Task 4: Install the Azure Cosmos DB Spark Connector in Databricks
 
@@ -517,49 +558,33 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
     ![The Install automatically on all clusters box is checked and highlighted on the library dialog.](media/datbricks-install-library-on-all-clusters.png "Install library on all clusters")
 
-### Task 5: Mount ADLS Gen2 filesystem with Databricks
+### Task 5: Querying transactions directly from Cosmos DB with Azure Databricks and Spark
 
-In this task, you will use an Azure Databricks notebook to configure and mount the ADLS Gen2 filesystem with DBFS.
+In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and write queries to explore transaction data retrieved directly from Cosmos DB and Spark SQL.
 
 1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
 
     ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
 
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **1-Mount-ADLS-Gen2**.
+2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **1-Querying-Cosmos-DB**.
 
-    ![In the user's workspace, the 1-Mounts-ADLS-Gen2 notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook1.png "Notebooks in the user workspace")
+    ![In the user's workspace, the 2-Querying-Cosmos-DB notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook1.png "Notebooks in the user workspace")
 
-3. In the **1-Mount-ADLS-Gen2** notebook, follow the instructions to complete the remaining steps of this task.
+3. In the **1-Querying-Cosmos-DB** notebook, follow the instructions to complete the remaining steps of this task.
 
 > **NOTE**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
 
-### Task 6: Querying transactions directly from Cosmos DB with Azure Databricks and Spark
+### Task 6: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks
 
-In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and write queries to explore transaction data retrieved directly from Cosmos DB and Spark SQL.
-
-1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
-
-    ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
-
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **2-Querying-Cosmos-DB**.
-
-    ![In the user's workspace, the 2-Querying-Cosmos-DB notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook2.png "Notebooks in the user workspace")
-
-3. In the **2-Querying-Cosmos-DB** notebook, follow the instructions to complete the remaining steps of this task.
-
-### Task 7: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks
-
-In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and write queries to explore transaction data retrieved directly from Cosmos DB and Spark SQL.
+In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and query streaming data from the Cosmos DB Change Feed.
 
 1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
 
-    ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
+2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **2-Cosmos-DB-Change-Feed**.
 
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **3-Cosmos-DB-Change-Feed**.
+    ![In the user's workspace, the 3-Cosmos-DB-Change-Feed notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook2.png "Notebooks in the user workspace")
 
-    ![In the user's workspace, the 3-Cosmos-DB-Change-Feed notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook3.png "Notebooks in the user workspace")
-
-3. In the **3-Cosmos-DB-Change-Feed** notebook, follow the instructions to complete the remaining steps of this task.
+3. In the **2-Cosmos-DB-Change-Feed** notebook, follow the instructions to complete the remaining steps of this task.
 
 ## Exercise 3: Creating and evaluating fraud models
 

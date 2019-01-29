@@ -231,7 +231,7 @@ In this task, you will connect to your Azure Databricks workspace and configure 
 
 2. In your browser's URL bar, append **#secrets/createScope** to your Azure Databricks base URL (for example, <https://eastus.azuredatabricks.net#secrets/createScope>).
 
-3. Enter the name of the secret scope, such as `key-vault-secrets`.
+3. Enter `key-vault-secrets` for the name of the secret scope.
 
 4. Select **Creator** within the Manage Principal drop-down to specify only the creator (which is you) of the secret scope has the MANAGE permission.
 
