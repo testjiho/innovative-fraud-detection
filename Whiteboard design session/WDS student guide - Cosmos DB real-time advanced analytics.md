@@ -100,6 +100,8 @@ The analysts at Woodgrove Bank are very interested in the recent notebook-driven
 
 3.  Properly selecting the right algorithm and training a model using the optimal set of parameters can take a lot of time. Is there a way to speed up this process?
 
+4.  We are concerned about how much it costs to use Cosmos DB for our solution. What is the real value in using this service?
+
 ### Infographic for common scenarios
 
 ![Infographic for common scenarios](media/common-scenarios.png 'Common scenarios diagram')
