@@ -21,23 +21,7 @@ namespace TransactionGenerator
 
         [JsonProperty] public string TransactionCurrencyCode { get; set; }
 
-        [JsonProperty] public string TransactionCurrencyConversionRate { get; set; }
-
-        [JsonProperty] public int TransactionDate { get; set; }
-
-        [JsonProperty] public int TransactionTime { get; set; }
-
         [JsonProperty] public int LocalHour { get; set; }
-
-        [JsonProperty] public string TransactionScenario { get; set; }
-
-        [JsonProperty] public string TransactionType { get; set; }
-
-        [JsonProperty] public string TransactionMethod { get; set; }
-
-        [JsonProperty] public string TransactionDeviceType { get; set; }
-
-        [JsonProperty] public string TransactionDeviceId { get; set; }
 
         [JsonProperty] public string TransactionIPaddress { get; set; }
 
@@ -49,19 +33,11 @@ namespace TransactionGenerator
 
         [JsonProperty] public bool? IsProxyIP { get; set; }
 
-        [JsonProperty] public string BrowserType { get; set; }
-
         [JsonProperty] public string BrowserLanguage { get; set; }
 
         [JsonProperty] public string PaymentInstrumentType { get; set; }
 
         [JsonProperty] public string CardType { get; set; }
-
-        [JsonProperty] public string CardNumberInputMethod { get; set; }
-
-        [JsonProperty] public string PaymentInstrumentID { get; set; }
-
-        [JsonProperty] public string PaymentBillingAddress { get; set; }
 
         [JsonProperty] public string PaymentBillingPostalCode { get; set; }
 
@@ -69,27 +45,27 @@ namespace TransactionGenerator
 
         [JsonProperty] public string PaymentBillingCountryCode { get; set; }
 
-        [JsonProperty] public string PaymentBillingName { get; set; }
-
-        [JsonProperty] public string ShippingAddress { get; set; }
-
-        [JsonProperty] public string ShippingPostalCode { get; set; }
-
-        [JsonProperty] public string ShippingCity { get; set; }
-
-        [JsonProperty] public string ShippingState { get; set; }
-
-        [JsonProperty] public string ShippingCountry { get; set; }
-
         [JsonProperty] public string CvvVerifyResult { get; set; }
-
-        [JsonProperty] public string ResponseCode { get; set; }
 
         [JsonProperty] public int DigitalItemCount { get; set; }
 
         [JsonProperty] public int PhysicalItemCount { get; set; }
 
-        [JsonProperty] public string PurchaseProductType { get; set; }
+        [JsonProperty] public string AccountPostalCode { get; set; }
+
+        [JsonProperty] public string AccountState { get; set; }
+
+        [JsonProperty] public string AccountCountry { get; set; }
+
+        [JsonProperty] public int AccountAge { get; set; }
+
+        [JsonProperty] public bool IsUserRegistered { get; set; }
+
+        [JsonProperty] public double PaymentInstrumentAgeInAccount { get; set; }
+
+        [JsonProperty] public int NumPaymentRejects1dPerUser { get; set; }
+
+        [JsonProperty] public DateTime TransactionDateTime { get; set; }
 
         // Used to set the expiration policy.
         [JsonProperty(PropertyName = "ttl", NullValueHandling = NullValueHandling.Ignore)]
@@ -123,7 +99,7 @@ namespace TransactionGenerator
             }
 
             var tokens = line.Split(',');
-            if (tokens.Length != 40)
+            if (tokens.Length != 28)
             {
                 throw new ArgumentException($"Invalid record: {line}");
             }
@@ -140,41 +116,29 @@ namespace TransactionGenerator
                 tx.TransactionAmountUSD = double.TryParse(tokens[2], out var dresult) ? dresult : 0.0;
                 tx.TransactionAmount = double.TryParse(tokens[3], out dresult) ? dresult : 0.0;
                 tx.TransactionCurrencyCode = tokens[4];
-                tx.TransactionCurrencyConversionRate = tokens[5];
-                tx.TransactionDate = int.TryParse(tokens[6], out var iresult) ? iresult : 0;
-                tx.TransactionTime = int.TryParse(tokens[7], out iresult) ? iresult : 0;
-                tx.LocalHour = int.TryParse(tokens[8], out iresult) ? iresult : 0;
-                tx.TransactionScenario = tokens[9];
-                tx.TransactionType = tokens[10];
-                tx.TransactionMethod = tokens[11];
-                tx.TransactionDeviceType = tokens[12];
-                tx.TransactionDeviceId = tokens[13];
-                tx.TransactionIPaddress = tokens[14];
-                tx.IpState = tokens[15];
-                tx.IpPostcode = tokens[16];
-                tx.IpCountryCode = string.IsNullOrWhiteSpace(tokens[17]) ? "unk" : tokens[17];
-                tx.IsProxyIP = bool.TryParse(tokens[18], out var bresult) && bresult;
-                tx.BrowserType = tokens[19];
-                tx.BrowserLanguage = tokens[20];
-                tx.PaymentInstrumentType = tokens[21];
-                tx.CardType = tokens[22];
-                tx.CardNumberInputMethod = tokens[23];
-                tx.PaymentInstrumentID = tokens[24];
-                tx.PaymentBillingAddress = tokens[25];
-                tx.PaymentBillingPostalCode = tokens[26];
-                tx.PaymentBillingState = tokens[27];
-                tx.PaymentBillingCountryCode = tokens[28];
-                tx.PaymentBillingName = tokens[29];
-                tx.ShippingAddress = tokens[30];
-                tx.ShippingPostalCode = tokens[31];
-                tx.ShippingCity = tokens[32];
-                tx.ShippingState = tokens[33];
-                tx.ShippingCountry = tokens[34];
-                tx.CvvVerifyResult = tokens[35];
-                tx.ResponseCode = tokens[36];
-                tx.DigitalItemCount = int.TryParse(tokens[37], out iresult) ? iresult : 0;
-                tx.PhysicalItemCount = int.TryParse(tokens[38], out iresult) ? iresult : 0;
-                tx.PurchaseProductType = tokens[39];
+                tx.LocalHour = int.TryParse(tokens[5], out var iresult) ? iresult : 0;
+                tx.TransactionIPaddress = tokens[6];
+                tx.IpState = tokens[7];
+                tx.IpPostcode = tokens[8];
+                tx.IpCountryCode = string.IsNullOrWhiteSpace(tokens[9]) ? "unk" : tokens[9];
+                tx.IsProxyIP = bool.TryParse(tokens[10], out var bresult) && bresult;
+                tx.BrowserLanguage = tokens[11];
+                tx.PaymentInstrumentType = tokens[12];
+                tx.CardType = tokens[13];
+                tx.PaymentBillingPostalCode = tokens[14];
+                tx.PaymentBillingState = tokens[15];
+                tx.PaymentBillingCountryCode = tokens[16];
+                tx.CvvVerifyResult = tokens[17];
+                tx.DigitalItemCount = int.TryParse(tokens[18], out iresult) ? iresult : 0;
+                tx.PhysicalItemCount = int.TryParse(tokens[19], out iresult) ? iresult : 0;
+                tx.AccountPostalCode = tokens[20];
+                tx.AccountState = tokens[21];
+                tx.AccountCountry = tokens[22];
+                tx.AccountAge = int.TryParse(tokens[23], out iresult) ? iresult : 0;
+                tx.IsUserRegistered = bool.TryParse(tokens[24], out bresult) && bresult;
+                tx.PaymentInstrumentAgeInAccount = double.TryParse(tokens[25], out dresult) ? dresult : 0;
+                tx.NumPaymentRejects1dPerUser = int.TryParse(tokens[26], out iresult) ? iresult : 0;
+                tx.TransactionDateTime = DateTime.TryParse(tokens[27], out var dtresult) ? dtresult : DateTime.UtcNow;
 
                 // Set the TTL value to 60 days, which deletes the document in Cosmos DB after around two months, saving
                 // storage costs while meeting Woodgrove Bank's requirement to keep the streaming data available for

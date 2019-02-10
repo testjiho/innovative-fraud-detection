@@ -64,7 +64,7 @@ namespace TransactionGenerator
 
             Console.WriteLine("Retrieving sample transaction data...");
 
-            using (var reader = new StreamReader(File.OpenRead(@"Untagged_Transactions.csv")))
+            using (var reader = new StreamReader(File.OpenRead(@"cleaned-transactions.csv")))
             {
                 var header = reader.ReadLines()
                     .First();
