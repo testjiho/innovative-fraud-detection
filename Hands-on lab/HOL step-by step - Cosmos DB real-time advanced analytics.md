@@ -46,9 +46,12 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
   - [Exercise 3: Creating and evaluating fraud models](#exercise-3-creating-and-evaluating-fraud-models)
     - [Task 1: Task name](#task-1-task-name-2)
     - [Task 2: Task name](#task-2-task-name-2)
+  - [Exercise 4: Scaling globally](#exercise-4-scaling-globally)
+    - [Task 1: Distributing batch scored data globally using Cosmos DB](#task-1-distributing-batch-scored-data-globally-using-cosmos-db)
+    - [Task 2: Distributing models globally](#task-2-distributing-models-globally)
+    - [Task 3: Scheduling Azure Databricks jobs to batch score transactions on a schedule](#task-3-scheduling-azure-databricks-jobs-to-batch-score-transactions-on-a-schedule)
   - [After the hands-on lab](#after-the-hands-on-lab)
-    - [Task 1: Task name](#task-1-task-name-3)
-    - [Task 2: Task name](#task-2-task-name-3)
+    - [Task 1: Delete the hands-on-lab resource group](#task-1-delete-the-hands-on-lab-resource-group)
 
 <!-- /TOC -->
 
@@ -274,7 +277,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
 7. Select **Save Changes**.
 
-    > Woodgrove Bank wants to write all transaction data simultaneously two three different geographic locations: United States, Great Britain, and East Asia. All data should be able to be read from these locations with as little latency as possible. They require this for redundancy purposes as well as being able to better process the data in those regions.
+    > Woodgrove Bank wants to write all transaction data simultaneously to three different geographic locations: United States, Great Britain, and East Asia. All data should be able to be read from these locations with as little latency as possible. They require this for redundancy purposes as well as being able to better process the data in those regions.
 
 8. Create two more Event Hubs namespaces and event hubs within to ingest transaction data. In the [Azure portal](https://portal.azure.com), select **+ Create a resource**, enter "event hubs" into the Search the Marketplace box, select **Event Hubs** from the results, and then select **Create**.
 
@@ -612,6 +615,59 @@ Duration: X minutes
     a. Insert content here
 
         i.
+
+## Exercise 4: Scaling globally
+
+In this exercise, you will add additional regions to your Cosmos DB instance for global distribution of data, and then write data to those regions using Azure Databricks and the Azure Cosmos DB Spark Connector.
+
+### Task 1: Distributing batch scored data globally using Cosmos DB
+
+In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and write queries to explore transaction data retrieved directly from Cosmos DB and Spark SQL.
+
+1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
+
+    ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
+
+2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **1-Querying-Cosmos-DB**.
+
+    ![In the user's workspace, the 2-Querying-Cosmos-DB notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook1.png "Notebooks in the user workspace")
+
+3. In the **1-Querying-Cosmos-DB** notebook, follow the instructions to complete the remaining steps of this task.
+
+> **NOTE**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
+
+### Task 2: Distributing models globally
+
+### Task 3: Scheduling Azure Databricks jobs to batch score transactions on a schedule
+
+In this task, you will create an Azure Databricks job, which will execute a notebook that performs batch scoring on transactions on an hourly schedule.
+
+1. Navigate to your Databricks workspace, select **Jobs** from the left-hand menu, and then select **+ Create Job**.
+
+    ![Jobs is highlighted in left-hand menu in Databricks, and the Create Job button is highlighted.](media/databricks-jobs.png "Databricks Jobs")
+
+2. On the untitled job screen, complete the following steps:
+
+    - Enter a title, such as **Transactions-Batch-Scoring**.
+    - Click the **Select Notebook** link next to task, and on the Select Notebook dialog select **Users --> Your user account --> CosmosDbAdvancedAnalytics --> Exercise 4** and then select the `3-Batch-Score-Transactions` notebook and select **OK**.
+
+> TODO: Determine if there are any libraries that will need to be included for this step. Possibly the Azure ML SDK, and associated libraries. And maybe the Cosmos DB Connector...
+
+    ![The Select Notebook dialog for an Azure Databricks job is displayed, with the path to the 3-Batch-Score-Transactions notebook highlighted.](media/databricks-job-select-notebook.png "Select notebook dialog")
+
+    - Select **Edit** next to Schedule, and on the Schedule Job dialog set the schedule to Every hour. For the time, the hour field will be disabled, so select a minute value that is close to the current time, so you can see it triggered in a reasonable amount of time. Select your time zone, and select **Confirm**.
+
+    ![The Schedule Job dialog is displayed, with the schedule set to every hour starting at 00:30.](media/databricks-job-schedule-job.png "Schedule Job dialog")
+
+3. Your final job screen should look something like the following:
+
+    ![Screen shot of the Transactions-Batch-Scoring job.](media/databricks-job-batch-scoring.png "Transactions Batch Scoring job")
+
+4. Select **< All Jobs** to return to the Jobs list when complete. You will be able to monitor execution of your jobs from this screen, and also can see Job Clusters listed by selecting the Clusters menu on the left-hand side of the Databricks workspace.
+
+5. While waiting for your job to start, select **Workspace** from the left-hand menu, and navigate to the `3-Batch-Score-Transactions` notebook under the Exercise 4 folder.
+
+6. Open the notebook, and take a few minutes to understand the steps that are being used to perform the batch scoring process. As you will see, they are identical to the steps you've gone through already, with the only difference being that the data selected from the `transactions` Delta table includes a timestamp so only new data is processed and sent on to the `scored_transactions` table.
 
 ## After the hands-on lab
 
