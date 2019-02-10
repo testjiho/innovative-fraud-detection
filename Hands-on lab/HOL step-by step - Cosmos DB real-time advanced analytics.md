@@ -38,10 +38,10 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 3: Choosing between Cosmos DB and Event Hubs for ingestion](#task-3-choosing-between-cosmos-db-and-events-hubs-for-ingestion)
   - [Exercise 2: Understanding and preparing the transaction data at scale](#exercise-2-understanding-and-preparing-the-transaction-data-at-scale)
     - [Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem](#task-1-create-a-service-principal-for-oauth-access-to-the-adls-gen2-filesystem)
-    - [Task 2: Grant ADLS Gen2 permissions to the service principal](#task-2-grant-adls-gen2-permissions-to-the-service-principal)
+    - [Task 2: Grant ADLS Gen2 access permissions to the service principal](#task-2-grant-adls-gen2-access-permissions-to-the-service-principal)
     - [Task 3: Retrieve your Azure AD tenant ID](#task-3-retrieve-your-azure-ad-tenant-id)
     - [Task 4: Install the Azure Cosmos DB Spark Connector in Databricks](#task-4-install-the-azure-cosmos-db-spark-connector-in-databricks)
-    - [Task 5: Querying transactions directly from Cosmos DB with Azure Databricks and Spark](#task-5-querying-transactions-directly-from-cosmos-db-with-azure-databricks-and-spark)
+    - [Task 5: Explore historical transaction data with Azure Databricks and Spark](#task-5-explore-historical-transaction-data-with-azure-databricks-and-spark)
     - [Task 6: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks](#task-6-responding-to-streaming-transactions-using-the-cosmos-db-change-feed-and-spark-structured-streaming-in-azure-databricks)
   - [Exercise 3: Creating and evaluating fraud models](#exercise-3-creating-and-evaluating-fraud-models)
     - [Task 1: Task name](#task-1-task-name-2)
@@ -431,9 +431,9 @@ We will continue the lab using Cosmos DB for data ingestion.
 
 ## Exercise 2: Understanding and preparing the transaction data at scale
 
-Duration: X minutes
+Duration: 45 minutes
 
-In this exercise, you will use Azure Databricks to explore the transaction data stored in Cosmos DB and respond to transactions directly from the Cosmos DB Change Feed, writing the incoming streaming transaction data into an Azure Databricks Delta table stored in your data lake.
+In this exercise, you will create connections from your Databricks workspace to ADLS Gen2 and Cosmos DB. Then, using Azure Databricks you will import and explore some of the historical raw transaction data provided by Woodgrove to gain a better understanding of the preparation that needs to be done prior to using the data from building and training a machine learning model. You will then use the connection to Cosmos DB from Databricks to read streaming transactions directly from the Cosmos DB Change Feed. Finally, you will write the incoming streaming transaction data into an Azure Databricks Delta table stored in your data lake.
 
 ### Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem
 
@@ -500,9 +500,9 @@ As an added layer of security when accessing an ADLS Gen2 filesystem using Datab
 
 13. Select **Create**.
 
-### Task 2: Grant ADLS Gen2 permissions to the service principal
+### Task 2: Grant ADLS Gen2 access permissions to the service principal
 
-In this task, you will assign the required permissions to the service principal in your ADLS Gen2 account.
+In this task, you will assign the required permissions to the service principal to grant access to your ADLS Gen2 account.
 
 1. In the [Azure portal](https://portal.azure.com), navigate to the ADLS Gen2 account you created above, select **Access control (IAM)** from the left-hand menu, and then select **+ Add role assignment**.
 
@@ -566,7 +566,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
     ![The Install automatically on all clusters box is checked and highlighted on the library dialog.](media/datbricks-install-library-on-all-clusters.png "Install library on all clusters")
 
-### Task 5: Querying transactions directly from Cosmos DB with Azure Databricks and Spark
+### Task 5: Explore historical transaction data with Azure Databricks and Spark
 
 In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and write queries to explore transaction data retrieved directly from Cosmos DB and Spark SQL.
 
@@ -574,11 +574,11 @@ In this task, you will use an Azure Databricks notebook to create a connection t
 
     ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
 
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **1-Querying-Cosmos-DB**.
+2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **1-Exploring-Historical-Transactions**.
 
-    ![In the user's workspace, the 2-Querying-Cosmos-DB notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook1.png "Notebooks in the user workspace")
+    ![In the user's workspace, the 2-Exploring-Historical-Transactions notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook1.png "Notebooks in the user workspace")
 
-3. In the **1-Querying-Cosmos-DB** notebook, follow the instructions to complete the remaining steps of this task.
+3. In the **1-Exploring-Historical-Transactions** notebook, follow the instructions to complete the remaining steps of this task.
 
 > **NOTE**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
 
