@@ -176,7 +176,13 @@ Download a starter project that includes a payment data generator that sends rea
 
 4. Unzip the contents to the folder **C:\\CosmosMCW\\**.
 
-### Task 7: Create an Azure Databricks workspace
+### Task 7: Download and install Power BI Desktop
+
+Power BI desktop is required to make a connection to your Azure Databricks environment when creating the Power BI dashboard.
+
+1. From your LabVM, download and install [Power BI Desktop](https://powerbi.microsoft.com/desktop/)
+
+### Task 8: Create an Azure Databricks workspace
 
 1. In the [Azure portal](https://portal.azure.com), select **+ Create a resource** from the left-hand navigation menu, enter "databricks" into the Search the Marketplace box, select **Azure Databricks** from the results, and then select **Create**.
 
@@ -195,7 +201,7 @@ Download a starter project that includes a payment data generator that sends rea
 
 3. Select **Create**. It can take 5 - 10 minutes to provision your Azure Databricks workspace. You can move on to the next task while provisioning completes.
 
-### Task 8: Set up Azure Key Vault
+### Task 9: Set up Azure Key Vault
 
 In this task, you will create an Azure Key Vault account in which you will store secrets such as account keys and connection strings. Key Vault will be used as a backing-store for Azure Databricks secrets to securely access these values from notebooks and libraries.
 
@@ -221,7 +227,7 @@ In this task, you will create an Azure Key Vault account in which you will store
 
    ![Properties is selected on the left-hand menu, and DNS Name and Resource ID are highlighted to show where to copy the values from.](media/key-vault-properties.png 'Key Vault properties')
 
-### Task 9: Configure Azure Databricks Key Vault-backed secrets
+### Task 10: Configure Azure Databricks Key Vault-backed secrets
 
 In this task, you will connect to your Azure Databricks workspace and configure Azure Databricks secrets to use your Azure Key Vault account as a backing store.
 
@@ -247,7 +253,7 @@ In this task, you will connect to your Azure Databricks workspace and configure 
 
 After a moment, you will see a dialog verifying that the secret scope has been created.
 
-### Task 10: Provision Cosmos DB
+### Task 11: Provision Cosmos DB
 
 In this task, you will create an Azure Cosmos DB account, database, and container for ingesting streaming payment data and for serving batch processed data.
 
@@ -327,7 +333,7 @@ In this task, you will create an Azure Cosmos DB account, database, and containe
 
 15. Select **Create**.
 
-### Task 11: Provision Event Hubs
+### Task 12: Provision Event Hubs
 
 In this task, you will create an Event Hubs namespace and add an Event Hub within for ingesting streaming payment data.
 
@@ -410,7 +416,7 @@ In this task, you will create an Event Hubs namespace and add an Event Hub withi
 
 17. Follow the step above to copy the **Connection string-primary key** value for the Listener policy and save for later.
 
-### Task 12: Create an Azure Data Lake Storage Gen2 account
+### Task 13: Create an Azure Data Lake Storage Gen2 account
 
 In this task, you will create an Azure Data Lake Storage Gen2 (ADLS Gen2) account, which will be used as the repository for the Databricks Delta tables you will be creating in this hands-on lab.
 
@@ -470,10 +476,6 @@ In this task, you will create an Azure Data Lake Storage Gen2 (ADLS Gen2) accoun
     ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-adls-gen2-account-key-secret.png 'Create a secret')
 
 12. Select **Create**.
-
-### Task 13: Provision an Azure Machine Learning Service
-
-TODO: Enter steps for this.
 
 ### Task 14: Create an Azure Databricks cluster
 
