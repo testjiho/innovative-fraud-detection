@@ -83,7 +83,8 @@ namespace TransactionGenerator
         // Send data to Cosmos DB and Event Hub:
         private static async Task SendData(List<Transaction> transactions,
             List<EventHubClient> eventHubClients, int randomSeed, int waittime,
-            CancellationToken externalCancellationToken, IProgress<Progress> progress)
+            CancellationToken externalCancellationToken, IProgress<Progress> progress,
+            bool onlyWriteToCosmosDb)
         {
             if (transactions == null)
             {
