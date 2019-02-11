@@ -631,7 +631,7 @@ In this task, you will install the required `AzureML` and `Scikit-Learn` librari
 
    ![All three libraries are listed as installed.](media/databricks-libraries-installed.png 'Cluster Libraries')
 
-### Task 2: Data exploration and preparation using Apache Spark
+### Task 2: Prepare and deploy scoring web service
 
 In this task, you will use an Azure Databricks notebook to explore the transaction and account data. You will also do some data cleanup and create a feature engineering pipeline that applies these transformations each time data is passed to the model for scoring. Finally, you will train and deploy a machine learning model that detects fraudulent transactions.
 
@@ -639,13 +639,27 @@ In this task, you will use an Azure Databricks notebook to explore the transacti
 
    ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
 
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 3** folder, and select the notebook named **1-Exploration**.
+2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 3** folder, and select the notebook named **1-Prepare-Scoring-Web-Service**.
 
-   ![In the user's workspace, the 1-Exploration notebook is selected under the Exercise 3 folder.](media/databricks-user-workspace-ex3-notebook1.png 'Notebooks in the user workspace')
+   ![In the user's workspace, the 1-Prepare-Scoring-Web-Service notebook is selected under the Exercise 3 folder.](media/databricks-user-workspace-ex3-notebook1.png 'Notebooks in the user workspace')
 
-3. In the **1-Exploration** notebook, follow the instructions to complete the remaining steps of this task.
+3. In the **1-Prepare-Scoring-Web-Service** notebook, follow the instructions to complete the remaining steps of this task.
 
 > **NOTE**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
+
+### Task 3: Prepare batch scoring model
+
+In this task, you will use an Azure Databricks notebook to prepare a model used to detect suspicious activity that will be used for batch scoring.
+
+1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
+
+   ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
+
+2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 3** folder, and select the notebook named **2-Prepare-Batch-Scoring-Model**.
+
+   ![In the user's workspace, the 2-Prepare-Batch-Scoring-Model notebook is selected under the Exercise 3 folder.](media/databricks-user-workspace-ex3-notebook2.png 'Notebooks in the user workspace')
+
+3. In the **2-Prepare-Batch-Scoring-Model** notebook, follow the instructions to complete the remaining steps of this task.
 
 ## After the hands-on lab
 
