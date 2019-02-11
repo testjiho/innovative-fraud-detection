@@ -647,6 +647,77 @@ In this task, you will use an Azure Databricks notebook to explore the transacti
 
 > **NOTE**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
 
+## Exercise 5: Reporting
+
+Duration: X minutes
+
+In this exercise, you create dashboards and reports in Power BI for business analysts to use, as well as within Azure Databricks for data scientists and analysts to query and visualize the data interactively.
+
+### Task 1: Utilizing Power BI to summarize and visualize global fraud trends
+
+In this task, you will use the JDBC URL for your Azure Databricks cluster to connect to from Power BI desktop. Then you will create reports and add them to a dashboard to summarize and visualize global fraud trends to gain more insight into the data.
+
+1.  Navigate to your Azure Databricks workspace in the [Azure portal](https://portal.azure.com/), and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+
+    ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
+
+2.  Select **Clusters** from the left-hand menu, then select your cluster in the list of interactive clusters.
+
+    ![The cluster is listed and selected](media/databricks-select-cluster.png 'Select cluster')
+
+3.  Scroll down and expand the **Advanced Options** section, then select the **JDBC/ODBC** tab. Copy the first **JDBC URL** value.
+
+    ![The cluster is displayed with the JDBC/ODBC tab selected, and the first JDBC URL value is highlighted.](media/databricks-jdbc.png 'JDBC/ODBC')
+
+4.  Now, you need to modify the JDBC URL to construct the JDBC server address that you will use to set up your Spark cluster connection in Power BI Desktop.
+
+    - In the JDBC URL:
+      - Replace `jdbc:hive2` with `https`
+      - Remove everything in the path between the port number and `/sql`
+      - Remove the following string from the end of the URL: `;AuthMech=3;UID=token;PWD=<personal-access-token>`, retaining the components indicated by the highlights in the image below
+
+    ![Parsed Cluster JDBC URL](media/databricks-cluster-jdbc-url-parsed.png 'Parsed JDBC URL')
+
+    - In our example, the server address would be: `https://eastus.azuredatabricks.net:443/sql/protocolv1/o/8433778235244215/0210-035431-quad242`
+
+    - Copy your server address.
+
+5.  Open Power BI Desktop, then select **Get data**.
+
+    ![Select Get Data on the Power BI Desktop home screen.](media/power-bi-desktop-home.png 'Power BI Desktop')
+
+6.  In the Get Data dialog, search for `spark`, then select **Spark** from the list of results.
+
+    ![Search for Spark in the Get Data dialog, then select Spark from the list results.](media/power-bi-desktop-get-data.png 'Get Data')
+
+7.  Enter the Databricks server address you created above into the Server field.
+
+8.  Set the Protocol to HTTP.
+
+9.  Select DirectQuery as the data connectivity mode, then select OK.
+
+    ![The Spark connection dialog is displayed with the previously mentioned values.](media/power-bi-desktop-spark-connection.png 'Spark connection dialog')
+
+    > Setting the data connectivity mode to DirectQuery lets you offload processing to Spark. This is ideal when you have a large volume of data or when you want near real-time analysis.
+
+10. Before you can enter credentials on the next screen, you need to create an Access token in Azure Databricks. In your Databricks workspace, select the Account icon in the top right corner, then select User settings from the menu.
+
+    ![Select User Settings from the Account menu.](media/databricks-user-settings.png 'User Settings menu')
+
+11. On the User Settings page, select Generate New Token, enter "Power BI Desktop" in the comment, and select Generate.
+
+    ![Enter Power BI Desktop as the comment then select Generate.](media/databricks-generate-token.png 'Generate New Token')
+
+12. Copy the generated token, and save it as you will need it more than once below. **NOTE**: You will not be able to access the token in Databricks once you close the Generate token dialog, so be sure to save this value to a text editor or another location you can access during this lab.
+
+13. Back in Power BI Desktop, enter "token" for the user name, and paste the access token you copied from Databricks into the password field.
+
+    ![Enter "token" as the user name and paste your generated token into the password field.](media/power-bi-desktop-spark-token.png 'Enter Spark credentials')
+
+14. Select the XXXXX table.
+
+### Task 2: Creating dashboards in Azure Databricks
+
 ## After the hands-on lab
 
 Duration: 10 mins
