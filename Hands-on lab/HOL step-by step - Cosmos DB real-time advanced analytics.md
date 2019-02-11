@@ -433,7 +433,7 @@ We will continue the lab using Cosmos DB for data ingestion.
 
 Duration: 45 minutes
 
-In this exercise, you will create connections from your Databricks workspace to ADLS Gen2 and Cosmos DB. Then, using Azure Databricks you will import and explore some of the historical raw transaction data provided by Woodgrove to gain a better understanding of the preparation that needs to be done prior to using the data from building and training a machine learning model. You will then use the connection to Cosmos DB from Databricks to read streaming transactions directly from the Cosmos DB Change Feed. Finally, you will write the incoming streaming transaction data into an Azure Databricks Delta table stored in your data lake.
+In this exercise, you will create connections from your Databricks workspace to ADLS Gen2 and Cosmos DB. Then, using Azure Databricks you will import and explore some of the historical raw transaction data provided by Woodgrove to gain a better understanding of the preparation that needs to be done prior to using the data for building and training a machine learning model. You will then use the connection to Cosmos DB from Databricks to read streaming transactions directly from the Cosmos DB Change Feed. Finally, you will write the incoming streaming transaction data into an Azure Databricks Delta table stored in your data lake.
 
 ### Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem
 
@@ -542,33 +542,45 @@ To perform authentication using the service principal account in Databricks you 
 
 4. Select **Create**.
 
-### Task 4: Install the Azure Cosmos DB Spark Connector in Databricks
+### Task 4: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks
 
-In this task, you will install the [Azure Cosmos DB Spark Connector](https://github.com/Azure/azure-cosmosdb-spark) on your Databricks cluster. The connector allows you to easily read to and write from Azure Cosmos DB via Apache Spark DataFrames in `python` and `scala`.
+In this task, you will install the [Azure Cosmos DB Spark Connector](https://github.com/Azure/azure-cosmosdb-spark) and scikit-learn libraries on your Databricks cluster. The Cosmos DB connector allows you to easily read from and write to Azure Cosmos DB via Apache Spark DataFrames.
 
-1. In a web browser, download the latest [azure-cosmosdb-spark library](https://github.com/Azure/azure-cosmosdb-spark) from here: <https://search.maven.org/remotecontent?filepath=com/microsoft/azure/azure-cosmosdb-spark_2.3.0_2.11/1.2.2/azure-cosmosdb-spark_2.3.0_2.11-1.2.2-uber.jar>.
-
-2. Navigate to your Azure Databricks workspace in the [Azure portal](https://portal.azure.com/), and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+1. Navigate to your Azure Databricks workspace in the [Azure portal](https://portal.azure.com/), and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
 
     ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png "Launch Workspace")
 
-3. Select **Workspace** from the left-hand menu, then select the drop down arrow next to **Shared** and select **Create** and **Library** from the context menus.
+2. Select **Workspace** from the left-hand menu, then select the drop down arrow next to **Shared** and select **Create** and **Library** from the context menus.
 
     ![The Workspace items is selected in the left-hand menu, and the shared workspace is highlighted. In the Shared workspace context menu, Create and Library are selected.](media/databrick-create-shared-library.png "Create Shared Library")
 
-4. Drag and drop the downloaded Cosmos DB connector JAR file into the box on the Create Library dialog to install the uploaded library into your Databricks cluster.
+3. On the Create Library page, select **Maven** under Library Source, and then select **Search Packages** next to the Coordinates text box.
 
-    ![The Databricks Create Library dialog is displayed, with the azure-cosmosdb-spark library downloaded above added to the upload box.](media/databricks-create-library.png "Create Library")
+    ![The Databricks Create Library dialog is displayed, with Maven selected under Library Source and the Search Packages link highlighted.](media/databricks-create-maven-library.png "Create Library")
+
+4. On the Search Packages dialog, select **Maven Central** from the source drop down, enter **azure-cosmosdb-spark** into the search box, and click **Select** next to Artifact Id `azure-cosmosdb-spark_2.4.0_2.11` release `1.3.5`.
+
+    ![The Search Packages dialog is displayed, with Maven Central specified as the source and azure-cosmosdb-spark entered into the search box. The most recent version of the Cosmos DB Spark Connector is highlighted.](media/databricks-maven-search-packages.png)
 
 5. Select **Create** to finish installing the library.
+
+    ![The Create button is highlighted on the Create Library dialog.](media/databricks-create-library-cosmosdb-spark.png "Create Library")
 
 6. On the following screen, check the box for **Install automatically on all clusters**, and select **Confirm** when prompted.
 
     ![The Install automatically on all clusters box is checked and highlighted on the library dialog.](media/datbricks-install-library-on-all-clusters.png "Install library on all clusters")
 
+7. Select the Shared folder under your workspace again, and select **Create** and  **Library** from the context menus.
+
+8. In the Create Library dialog, select **PyPI** as the Library Source, and enter **scikit-learn==0.20.1** in the Package box, and then select **Create**
+
+    ![The Create Library dialog is displayed, with PyPI highlighted under Library Source, and scikit-learn==0.20.1 entered into the Package text box.](media/databricks-create-library-scikit-learn.png "Create Library")
+
+9. On the following screen, check to box for **Install automatically on all clusters**, and select **Confirm** when prompted.
+
 ### Task 5: Explore historical transaction data with Azure Databricks and Spark
 
-In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and write queries to explore transaction data retrieved directly from Cosmos DB and Spark SQL.
+In this task, you will use an Azure Databricks notebook to download and explore historical transaction data.
 
 1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
 
@@ -618,27 +630,27 @@ Duration: X minutes
 
 ## Exercise 4: Scaling globally
 
-In this exercise, you will add additional regions to your Cosmos DB instance for global distribution of data, and then write data to those regions using Azure Databricks and the Azure Cosmos DB Spark Connector.
+When you set up Cosmos DB you enabled both geo-redundancy and multi-region writes, and in Exercise 1 you added more regions to your Cosmos DB instance.
+
+![Map showing newly added regions for Cosmos DB.](media/replicate-data-globally-map.png "Cosmos DB region map")
+
+In this exercise, you will score the batch transaction data stored in Databricks Delta with your trained ML model, and write any transactions that are marked as "suspicious" to Cosmos DB via the Azure Cosmos DB Spark Connector. Cosmos with automatically distribute that data globally, using the [default consistency level](https://docs.microsoft.com/en-us/azure/cosmos-db/consistency-levels). To learn more see [Global data distribution with Azure Cosmos DB - under the hood](https://docs.microsoft.com/en-us/azure/cosmos-db/global-dist-under-the-hood).
 
 ### Task 1: Distributing batch scored data globally using Cosmos DB
 
-In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and write queries to explore transaction data retrieved directly from Cosmos DB and Spark SQL.
+In this task, you will use an Azure Databricks notebook to batch stored the data stored in the `transactions` Databricks Delta table with your machine learning model. The scoring results will be written to a new `scored_transactions` Delta table, and any suspicious transactions will also be written back to Cosmos DB.
 
 1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
 
     ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
 
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **1-Querying-Cosmos-DB**.
+2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 4** folder, and select the notebook named **1-Distributing-Data-Globally**.
 
-    ![In the user's workspace, the 2-Querying-Cosmos-DB notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook1.png "Notebooks in the user workspace")
+    ![In the user's workspace, the 1-Distributing-Data-Globally notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex4-notebook1.png "Notebooks in the user workspace")
 
-3. In the **1-Querying-Cosmos-DB** notebook, follow the instructions to complete the remaining steps of this task.
+3. In the **1-Distributing-Data-Globally** notebook, follow the instructions to complete the remaining steps of this task.
 
-> **NOTE**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
-
-### Task 2: Distributing models globally
-
-### Task 3: Scheduling Azure Databricks jobs to batch score transactions on a schedule
+### Task 2: Using an Azure Databricks job to batch score transactions on a schedule
 
 In this task, you will create an Azure Databricks job, which will execute a notebook that performs batch scoring on transactions on an hourly schedule.
 
@@ -648,16 +660,33 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
 2. On the untitled job screen, complete the following steps:
 
-    - Enter a title, such as **Transactions-Batch-Scoring**.
-    - Click the **Select Notebook** link next to task, and on the Select Notebook dialog select **Users --> Your user account --> CosmosDbAdvancedAnalytics --> Exercise 4** and then select the `3-Batch-Score-Transactions` notebook and select **OK**.
+    - Enter a title, such as **Batch-Scoring-Job**.
 
-> TODO: Determine if there are any libraries that will need to be included for this step. Possibly the Azure ML SDK, and associated libraries. And maybe the Cosmos DB Connector...
+    - Select the **Select Notebook** link next to Task, and on the Select Notebook dialog select **Users --> Your user account --> CosmosDbAdvancedAnalytics --> Exercise 4** and then select the `2-Batch-Scoring-Job` notebook and select **OK**.
 
-    ![The Select Notebook dialog for an Azure Databricks job is displayed, with the path to the 3-Batch-Score-Transactions notebook highlighted.](media/databricks-job-select-notebook.png "Select notebook dialog")
+        ![The Databricks Job Select Notebook dialog is displayed, with the 2-Batch-Scoring-Job notebook highlighted under CosmosDbAdvancedAnaltyics/Exercise 4.](media/databricks-job-select-notebook-ex4.png "Select Notebook")
 
-    - Select **Edit** next to Schedule, and on the Schedule Job dialog set the schedule to Every hour. For the time, the hour field will be disabled, so select a minute value that is close to the current time, so you can see it triggered in a reasonable amount of time. Select your time zone, and select **Confirm**.
+    - Select **Add** next to Dependent Libraries, navigate to the Shared folder, select the **azure-cosmosdb-spark** library and select **OK**.
 
-    ![The Schedule Job dialog is displayed, with the schedule set to every hour starting at 00:30.](media/databricks-job-schedule-job.png "Schedule Job dialog")
+    - Repeat the step above to add the **scikit-learn==0.20.1** library as well.
+
+        ![The Add Dependent Library dialog is displayed with the azure-cosmosdb-spark and scikit-learn libraries highlighted within the Shared folder.](media/databricks-job-add-dependent-library.png "Add Dependent Library")
+
+    - Select **Edit** next to Cluster, and select the following:
+        - Databricks Runtime Version: Runtime 5.1 (Scala 2.11, Spark 2.4.0)
+        - Python Version: 3
+        - Worker Type: Standard_D24_v2
+        - Workers: 8
+        - Driver Type: Same as worker
+        - Expand Advanced and ensure that `spark.databricks.delta.preview.enabled true` is entered into the Spark Config box.
+
+            ![The Configure Cluster dialog for the jbo is displayed, with the values specified above entered into the dialog.](media/databricks-job-cluster-config.png "Configure Cluster")
+
+    - Select **Confirm** to save the cluster configuration.
+
+    - Select **Edit** next to Schedule, and on the Schedule Job dialog set the schedule to Every hour starting at a minute value that is close to the current time, so you can see it triggered in a reasonable amount of time. Select your time zone, and select **Confirm**.
+
+    ![The Schedule Job dialog is displayed, with the schedule set to every hour starting at 00:55.](media/databricks-job-schedule-job.png "Schedule Job dialog")
 
 3. Your final job screen should look something like the following:
 
@@ -667,7 +696,7 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
 5. While waiting for your job to start, select **Workspace** from the left-hand menu, and navigate to the `3-Batch-Score-Transactions` notebook under the Exercise 4 folder.
 
-6. Open the notebook, and take a few minutes to understand the steps that are being used to perform the batch scoring process. As you will see, they are identical to the steps you've gone through already, with the only difference being that the data selected from the `transactions` Delta table includes a timestamp so only new data is processed and sent on to the `scored_transactions` table.
+6. Open the notebook, and take a few minutes to understand the steps that are being used to perform the batch scoring process. As you will see, they are almost identical to the steps you've gone through already in preparing and transforming the transaction data in the previous task.
 
 ## After the hands-on lab
 
