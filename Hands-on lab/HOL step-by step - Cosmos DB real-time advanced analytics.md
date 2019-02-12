@@ -728,7 +728,113 @@ In this task, you will use the JDBC URL for your Azure Databricks cluster to con
 
     ![Enter "token" as the user name and paste your generated token into the password field.](media/power-bi-desktop-spark-token.png 'Enter Spark credentials')
 
-14. Select the XXXXX table.
+14. Select the `scored_transactions` and `percent_suspicious` tables, then select **Load**.
+
+    ![Select the scored_transactions and percent_suspicious tables, then select Load.](media/power-bi-desktop-select-tables.png 'Select Tables')
+
+15. After a few moments, you will be redirected to a blank report screen with the tables listed on the right-hand side. Select the **Donut chart** visualization on the right-hand menu under Visualizations and next to the list of tables and fields.
+
+    ![Select Donut chart under the Visualizations menu on the right.](media/power-bi-donut-chart.png "Donut Chart")
+
+16. Expand the `scored_transactions` table, then drag `ipCountryCode` under **Legend**, and `transactionAmountUSD` under **Values**.
+
+    ![Screenshot shows the donut chart settings.](media/power-bi-donut-chart-country-transaction.png "Donut Chart settings")
+
+17. Now select the **Format** tab for the donut chart and expand the **Legend** section underneath. Select **On** to turn on the legend, and select **Right** underneath **Position**. This turns on the legend for the chart and displays it to the right.
+
+    ![Screenshot shows the donut chart format settings.](media/power-bi-donut-chart-country-transaction-format.png "Donut Chart format")
+
+18. Your donut chart should look similar to the following, displaying the US dollar amount of transactions by country code:
+
+    ![Screenshot of the donut chart.](media/power-bi-donut-chart-country-transaction-display.png "Donut Chart")
+
+19. Select a blank area on the report to deselect the donut chart. Now select the **Treemap** visualization.
+
+    ![The Treemap visualization is selected.](media/power-bi-treemap-visualization.png "Treemap visualization")
+
+20. Drag the `ipCountryCode` field from the `scored_transactions` table under **Group**, then drag `isSuspicious` under **Values**.
+
+    ![Screenshot shows the treemap settings.](media/power-bi-treemap-country-suspicious-transactions.png "Treemap settings")
+
+21. The treemap should look similar to the following, displaying the number of suspicious transactions per country:
+
+    ![Screenshot of the treemap.](media/power-bi-treemap-country-suspicious-transactions-display.png "Treemap")
+
+22. Select a blank area on the report to deselect the treemap. Now select the **Treemap** visualization once more to add a new treemap. Drag the `transactionAmountUSD` field from the `scored_transactions` table under **Group**, then drag `isSuspicious` under **Values**.
+
+    ![Screenshot shows the treemap settings.](media/power-bi-treemap-suspicious-transactions.png "Treemap settings")
+
+23. The new treemap should look similar to the following, displaying the US dollar amounts that tend to have suspicious transactions, with the larger boxes representing higher suspicious transactions compared to smaller boxes:
+
+    ![Screenshot of the treemap.](media/power-bi-treemap-suspicious-transactions-display.png "Treemap")
+
+24. Select a blank area on the report to deselect the treemap. Now select the **Donut chart** visualization. Drag the `localHour` field from the `scored_transactions` table under **Legend**, then drag `isSuspicious` under **Values**.
+
+    ![Screenshot of the Donut chart settings.](media/power-bi-donut-chart-suspicious-hour.png "Donut Chart settings")
+
+25. The donut chart should look similar to the following, displaying which hours of the day tend to have a higher number of suspicious activity overall:
+
+    ![Screenshot of the donut chart highlighted.](media/power-bi-donut-chart-suspicious-hour-display.png "Donut Chart")
+
+26. Select a blank area on the report to deselect the donut chart. Now select the **Map** visualization. Drag the `ipCountryCode` field from the `scored_transactions` table under **Location**, then drag `isSuspicious` under **Size**.
+
+    ![Screenshot of the Map visualization settings.](media/power-bi-map.png "Map settings")
+
+27. The map should look similar to the following, showing circles of varying sizes on different regions of the map. The larger the circle, the more suspicious transactions there are in that region. You may also resize the charts to optimize your layout:
+
+    ![Screenshot of the map visualization and the full report view.](media/power-bi-map-display.png "Map")
+
+28. Now add a new page to your report. Select the **+** button on the bottom-left next to **Page 1**. This will create a new blank report page to add a few more visualizations.
+
+    ![Screenshot of the button you select to add a new page to the report.](media/power-bi-new-page.png "New page button")
+
+29. Select a blank area on the report, then select the **Donut chart** visualization. Drag the `cvvVerifyResult` field from the `scored_transactions` table under **Legend**, then drag `isSuspicious` under **Values**.
+
+    ![Screenshot of the Donut chart settings.](media/power-bi-donut-chart-verify-result.png "Donut Chart settings")
+
+30. Now select the **Format** tab for the donut chart and expand the **Legend** section underneath. Select **On** to turn on the legend, and select **Right** underneath **Position**. This turns on the legend for the chart and displays it to the right.
+
+    ![Screenshot shows the donut chart format settings.](media/power-bi-donut-chart-country-transaction-format.png "Donut Chart format")
+
+31. The donut chart should look similar to the following, displaying which CVV2 credit card verification codes correlate with the most suspicious transactions:
+
+    ![Screenshot of the donut chart highlighted.](media/power-bi-donut-chart-verify-result-display.png "Donut Chart")
+
+    The CVV2 codes have the following meaning in the data set:
+
+    | Code  | Meaning
+    | ----- | ---------
+    | M     | CVV2 Match
+    | N     | CVV2 No Match
+    | P     | Not Processed
+    | S     | Issuer indicates that CVV2 data should be present on the card, but the merchant has indicated data is not present on the card
+    | U     | Issuer has not certified for CVV2 or Issuer has not provided Visa with the CVV2 encryption keys
+
+32. Select a blank area on the report, then select the **100% Stacked column chart** visualization. Drag the `isSuspicious` field from the `scored_transactions` table under **Axis**, then drag `digitalItemCount` under **Value**, and finally `physicalItemCount` under **Value** as well.
+
+    ![Screenshot of the 100% Stacked Column Chart settings.](media/power-bi-stacked-column-chart.png "100% Stacked Column Chart settings")
+
+33. The 100% stacked column chart should look similar to the following, displaying the percentage of the number of physical items and digital items purchased for transactions that were not suspicious (value of 0) in one column, and the percentage of the number of both types of items purchased with suspicious transactions (value of 1):
+
+    ![Screenshot of the 100% stacked column chart.](media/power-bi-stacked-column-chart-display.png "100% Stacked Column Chart")
+
+34. Select a blank area on the report, then select the **ArcGIS Maps for Power BI** visualization. If you are prompted to accept the terms for using this visualization, please do so now. Drag the `ipCountryCode` field from the `percent_suspicious` table under **Location**, then drag `SuspiciousTransactionCount` under **Color**.
+
+    ![Screenshot of the ArcGIS Map settings.](media/power-bi-arcgis-map.png "ArcGIS Map settings")
+
+35. The ArcGIS Map should look similar to the following, displaying countries that have a higher number of suspicious transactions in darker colors than those with lower amounts:
+
+    ![Screenshot of the ArcGIS Map.](media/power-bi-arcgis-map-display.png "ArcGIS Map")
+
+36. Select a blank area on the report, then select the **Donut chart** visualization. Drag the `ipCountryCode` field from the `percent_suspicious` table under **Legend**, then drag `PercentSuspicious` under **Values**.
+
+    ![Screenshot of the donut chart settings.](media/power-bi-donut-chart-percent-suspicious.png "Donut Chart settings")
+
+37. The donut chart should look similar to the following, displaying the percent of suspicious transactions by country code:
+
+    ![Screenshot of the donut chart.](media/power-bi-donut-chart-percent-suspicious-display.png "Donut Chart")
+
+You may save your chart to local disk. Once saved, you are able to upload the chart to the Power BI website, making it available online with all the charts and data connections intact.
 
 ### Task 2: Creating dashboards in Azure Databricks
 
@@ -738,7 +844,7 @@ In this task, you will use an Azure Databricks notebook to build a dashboard, fo
 
 2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 5** folder, and select the notebook named **1-Databricks-Dashboards**.
 
-   ![In the user's workspace, the 1-Databricks-Dashboards notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex5-notebook1.png "Notebooks in the user workspace")
+   ![In the user's workspace, the 1-Databricks-Dashboards notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex5-notebook1.png 'Notebooks in the user workspace')
 
 3. In the **1-Databricks-Dashboards** notebook, follow the instructions to complete the remaining steps of this task.
 
