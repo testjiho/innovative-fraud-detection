@@ -1,14 +1,6 @@
 {
-  "ProjectFilePath": "c:\\Dropbox\\Microsoft Cloud Workshops GitHub\\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\\Hands-on lab\\lab-files\\TransactionGenerator\\TransactionGenerator.csproj",
+  "ProjectFilePath": "/Users/kyle/MCW/MCW-Cosmos-DB-Real-Time-Advanced-Analytics/Hands-on lab/lab-files/TransactionGenerator/TransactionGenerator.csproj",
   "TargetFramework": "netcoreapp2.0",
   "TagHelpers": [],
-  "Configuration": {
-    "ConfigurationName": "UnsupportedRazor",
-    "LanguageVersion": "1.0",
-    "Extensions": [
-      {
-        "ExtensionName": "UnsupportedRazorExtension"
-      }
-    ]
-  }
+  "Configuration": null
 }
