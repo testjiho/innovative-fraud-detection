@@ -732,6 +732,16 @@ In this task, you will use the JDBC URL for your Azure Databricks cluster to con
 
 ### Task 2: Creating dashboards in Azure Databricks
 
+In this task, you will use an Azure Databricks notebook to build a dashboard, for displaying visualization in Azure Databricks.
+
+1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
+
+2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 5** folder, and select the notebook named **1-Databricks-Dashboards**.
+
+   ![In the user's workspace, the 1-Databricks-Dashboards notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex5-notebook1.png "Notebooks in the user workspace")
+
+3. In the **1-Databricks-Dashboards** notebook, follow the instructions to complete the remaining steps of this task.
+
 ## After the hands-on lab
 
 Duration: 10 mins
