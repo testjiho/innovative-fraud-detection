@@ -31,27 +31,29 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
   - [Overview](#overview)
   - [Solution architecture](#solution-architecture)
   - [Requirements](#requirements)
-  - [Before the hands-on lab](#before-the-hands-on-lab)
   - [Exercise 1: Collecting streaming transaction data](#exercise-1-collecting-streaming-transaction-data)
-    - [Task 1: Configure Event Hubs and the transaction generator](#task-1-configure-event-hubs-and-the-transaction-generator)
+    - [Task 1: Configuring Event Hubs and the transaction generator](#task-1-configuring-event-hubs-and-the-transaction-generator)
     - [Task 2: Ingesting streaming data into Cosmos DB](#task-2-ingesting-streaming-data-into-cosmos-db)
-    - [Task 3: Choosing between Cosmos DB and Event Hubs for ingestion](#task-3-choosing-between-cosmos-db-and-events-hubs-for-ingestion)
+    - [Task 3: Choosing between Cosmos DB and Event Hubs for ingestion](#task-3-choosing-between-cosmos-db-and-event-hubs-for-ingestion)
   - [Exercise 2: Understanding and preparing the transaction data at scale](#exercise-2-understanding-and-preparing-the-transaction-data-at-scale)
     - [Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem](#task-1-create-a-service-principal-for-oauth-access-to-the-adls-gen2-filesystem)
     - [Task 2: Grant ADLS Gen2 access permissions to the service principal](#task-2-grant-adls-gen2-access-permissions-to-the-service-principal)
     - [Task 3: Retrieve your Azure AD tenant ID](#task-3-retrieve-your-azure-ad-tenant-id)
-    - [Task 4: Install the Azure Cosmos DB Spark Connector in Databricks](#task-4-install-the-azure-cosmos-db-spark-connector-in-databricks)
+    - [Task 4: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks](#task-4-install-the-azure-cosmos-db-spark-connector-and-scikit-learn-libraries-in-databricks)
     - [Task 5: Explore historical transaction data with Azure Databricks and Spark](#task-5-explore-historical-transaction-data-with-azure-databricks-and-spark)
     - [Task 6: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks](#task-6-responding-to-streaming-transactions-using-the-cosmos-db-change-feed-and-spark-structured-streaming-in-azure-databricks)
   - [Exercise 3: Creating and evaluating fraud models](#exercise-3-creating-and-evaluating-fraud-models)
-    - [Task 1: Task name](#task-1-task-name-2)
-    - [Task 2: Task name](#task-2-task-name-2)
+    - [Task 1: Install the AzureML and Scikit-Learn libraries in Databricks](#task-1-install-the-azureml-and-scikit-learn-libraries-in-databricks)
+    - [Task 2: Prepare and deploy scoring web service](#task-2-prepare-and-deploy-scoring-web-service)
+    - [Task 3: Prepare batch scoring model](#task-3-prepare-batch-scoring-model)
   - [Exercise 4: Scaling globally](#exercise-4-scaling-globally)
     - [Task 1: Distributing batch scored data globally using Cosmos DB](#task-1-distributing-batch-scored-data-globally-using-cosmos-db)
-    - [Task 2: Distributing models globally](#task-2-distributing-models-globally)
-    - [Task 3: Scheduling Azure Databricks jobs to batch score transactions on a schedule](#task-3-scheduling-azure-databricks-jobs-to-batch-score-transactions-on-a-schedule)
+    - [Task 2: Using an Azure Databricks job to batch score transactions on a schedule](#task-2-using-an-azure-databricks-job-to-batch-score-transactions-on-a-schedule)
+  - [Exercise 5: Reporting](#exercise-5-reporting)
+    - [Task 1: Utilizing Power BI to summarize and visualize global fraud trends](#task-1-utilizing-power-bi-to-summarize-and-visualize-global-fraud-trends)
+    - [Task 2: Creating dashboards in Azure Databricks](#task-2-creating-dashboards-in-azure-databricks)
   - [After the hands-on lab](#after-the-hands-on-lab)
-    - [Task 1: Delete the hands-on-lab resource group](#task-1-delete-the-hands-on-lab-resource-group)
+    - [Task 1: Delete the resource group](#task-1-delete-the-resource-group)
 
 <!-- /TOC -->
 
@@ -73,9 +75,14 @@ Woodgrove Bank, who provides payment processing services for commerce, is lookin
 
 Below is a diagram of the solution architecture you will build in this lab. Please study this carefully, so you understand the whole of the solution as you are working on the various components.
 
-![Preferred solution diagram outlining the ingestion of streaming payment transactions into Cosmos DB, and fed into Azure Databricks. Azure Databricks will process the data and insert it into Azure Data Lake Storage Gen2 for long-term storage. Databricks is also used for training machine learning models for batch and real-time fraud detection. Power BI is used for dashboards and reporting.](../media/outline-architecture.png 'Preferred Solution diagram')
+![The Solution diagram is described in the text following this diagram.](../Media/outline-architecture.png 'Solution diagram')
 
-The solution begins with the payment transaction systems writing transactions to Azure Cosmos DB. With change feed enabled in Cosmos DB, the transactions can be read as a stream of incoming data within an Azure Databricks notebook, using the `azure-cosmosdb-spark` connector, and stored long-term within an Azure Databricks Delta table backed by Azure Data Lake Storage. The Delta tables efficiently manage inserts and updates (e.g., upserts) to the transaction data. Tables created in Databricks over this data can be accessed by business analysts using dashboards and reports in Power BI, by using Power BI's Spark connector. Data scientists and engineers can create their own reports against this data, using Azure Databricks notebooks. Azure Databricks also supports training and validating the machine learning model, using historical data stored in Azure Data Lake Storage. The model can be periodically re-trained using the data stored in Delta tables or other historical tables. The Azure Machine Learning service is used to deploy the trained model as a real-time scoring web service running on a highly available Azure Kubernetes Service cluster (AKS cluster). The trained model is also used in scheduled offline scoring through Databricks jobs, and the "suspicious activity" output is stored in Azure Cosmos DB so it is globally available in regions closest to Woodgrove Bank's customers through their web applications. Finally, Azure Key Vault is used to securely store secrets, such as account keys and connection strings, and serves as a backing for Azure Databricks secret scopes.
+The solution begins with the payment transaction systems writing transactions to Azure Cosmos DB. Using the built-in change feed feature in Cosmos DB, the transactions can be read as a stream of incoming data within an Azure Databricks notebook, using the `azure-cosmosdb-spark` connector, and stored long-term within an Azure Databricks Delta table backed by Azure Data Lake Storage. The Delta tables efficiently manage inserts and updates (e.g., upserts) to the transaction data. Tables created in Databricks over this data can be accessed by business analysts using dashboards and reports in Power BI, by using Power BI's Spark connector. Alternately, semantic models can be stored in Azure Analysis Service to serve data to Power BI, eliminating the need to keep a dedicated Databricks cluster running for reporting.
+Data scientists and engineers can create their own reports against Databricks tables, using Azure Databricks notebooks.
+
+Azure Databricks also supports training and validating the machine learning model, using historical data stored in Azure Data Lake Storage. The model can be periodically re-trained using the data stored in Delta tables or other historical tables. The Azure Machine Learning service is used to deploy the trained model as a real-time scoring web service running on a highly available Azure Kubernetes Service cluster (AKS cluster). The trained model is also used in scheduled offline scoring through Databricks jobs, and the "suspicious activity" output is stored in Azure Cosmos DB so it is globally available in regions closest to Woodgrove Bank's customers through their web applications.
+
+Finally, Azure Key Vault is used to securely store secrets, such as account keys and connection strings, and serves as a backing for Azure Databricks secret scopes.
 
 > **Note**: The preferred solution is only one of many possible, viable approaches.
 
@@ -277,7 +284,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
 7. Select **Save Changes**.
 
-    > Woodgrove Bank wants to write all transaction data simultaneously to three different geographic locations: United States, Great Britain, and East Asia. All data should be able to be read from these locations with as little latency as possible. They require this for redundancy purposes as well as being able to better process the data in those regions.
+   > Woodgrove Bank wants to write all transaction data simultaneously to three different geographic locations: United States, Great Britain, and East Asia. All data should be able to be read from these locations with as little latency as possible. They require this for redundancy purposes as well as being able to better process the data in those regions.
 
 8. Create two more Event Hubs namespaces and event hubs within to ingest transaction data. In the [Azure portal](https://portal.azure.com), select **+ Create a resource**, enter "event hubs" into the Search the Marketplace box, select **Event Hubs** from the results, and then select **Create**.
 
@@ -556,25 +563,25 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
 3. On the Create Library page, select **Maven** under Library Source, and then select **Search Packages** next to the Coordinates text box.
 
-    ![The Databricks Create Library dialog is displayed, with Maven selected under Library Source and the Search Packages link highlighted.](media/databricks-create-maven-library.png "Create Library")
+   ![The Databricks Create Library dialog is displayed, with Maven selected under Library Source and the Search Packages link highlighted.](media/databricks-create-maven-library.png 'Create Library')
 
 4. On the Search Packages dialog, select **Maven Central** from the source drop down, enter **azure-cosmosdb-spark** into the search box, and click **Select** next to Artifact Id `azure-cosmosdb-spark_2.4.0_2.11` release `1.3.5`.
 
-    ![The Search Packages dialog is displayed, with Maven Central specified as the source and azure-cosmosdb-spark entered into the search box. The most recent version of the Cosmos DB Spark Connector is highlighted.](media/databricks-maven-search-packages.png)
+   ![The Search Packages dialog is displayed, with Maven Central specified as the source and azure-cosmosdb-spark entered into the search box. The most recent version of the Cosmos DB Spark Connector is highlighted.](media/databricks-maven-search-packages.png)
 
 5. Select **Create** to finish installing the library.
 
-    ![The Create button is highlighted on the Create Library dialog.](media/databricks-create-library-cosmosdb-spark.png "Create Library")
+   ![The Create button is highlighted on the Create Library dialog.](media/databricks-create-library-cosmosdb-spark.png 'Create Library')
 
 6. On the following screen, check the box for **Install automatically on all clusters**, and select **Confirm** when prompted.
 
    ![The Install automatically on all clusters box is checked and highlighted on the library dialog.](media/datbricks-install-library-on-all-clusters.png 'Install library on all clusters')
 
-7. Select the Shared folder under your workspace again, and select **Create** and  **Library** from the context menus.
+7. Select the Shared folder under your workspace again, and select **Create** and **Library** from the context menus.
 
 8. In the Create Library dialog, select **PyPI** as the Library Source, and enter **scikit-learn==0.20.1** in the Package box, and then select **Create**
 
-    ![The Create Library dialog is displayed, with PyPI highlighted under Library Source, and scikit-learn==0.20.1 entered into the Package text box.](media/databricks-create-library-scikit-learn.png "Create Library")
+   ![The Create Library dialog is displayed, with PyPI highlighted under Library Source, and scikit-learn==0.20.1 entered into the Package text box.](media/databricks-create-library-scikit-learn.png 'Create Library')
 
 9. On the following screen, check to box for **Install automatically on all clusters**, and select **Confirm** when prompted.
 
@@ -588,7 +595,7 @@ In this task, you will use an Azure Databricks notebook to download and explore 
 
 2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **1-Exploring-Historical-Transactions**.
 
-    ![In the user's workspace, the 2-Exploring-Historical-Transactions notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook1.png "Notebooks in the user workspace")
+   ![In the user's workspace, the 2-Exploring-Historical-Transactions notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook1.png 'Notebooks in the user workspace')
 
 3. In the **1-Exploring-Historical-Transactions** notebook, follow the instructions to complete the remaining steps of this task.
 
@@ -608,7 +615,7 @@ In this task, you will use an Azure Databricks notebook to create a connection t
 
 ## Exercise 3: Creating and evaluating fraud models
 
-Duration: X minutes
+Duration: 45 minutes
 
 In this exercise, you create and evaluate a fraud model that is used for real-time scoring of transactions as they occur at the web front-end. The goal is to block fraudulent transactions before they are processed. You will then create a model for detecting suspicious transactions, which gets executed during batch processing that will take place in Exercise 4. Finally, you will deploy the fraudulent transactions model and test it through HTTP REST calls, all within Databricks notebooks.
 
@@ -680,7 +687,7 @@ In this task, you will use an Azure Databricks notebook to prepare a model used 
 
 When you set up Cosmos DB you enabled both geo-redundancy and multi-region writes, and in Exercise 1 you added more regions to your Cosmos DB instance.
 
-![Map showing newly added regions for Cosmos DB.](media/replicate-data-globally-map.png "Cosmos DB region map")
+![Map showing newly added regions for Cosmos DB.](media/replicate-data-globally-map.png 'Cosmos DB region map')
 
 In this exercise, you will score the batch transaction data stored in Databricks Delta with your trained ML model, and write any transactions that are marked as "suspicious" to Cosmos DB via the Azure Cosmos DB Spark Connector. Cosmos with automatically distribute that data globally, using the [default consistency level](https://docs.microsoft.com/en-us/azure/cosmos-db/consistency-levels). To learn more see [Global data distribution with Azure Cosmos DB - under the hood](https://docs.microsoft.com/en-us/azure/cosmos-db/global-dist-under-the-hood).
 
@@ -690,11 +697,11 @@ In this task, you will use an Azure Databricks notebook to batch stored the data
 
 1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
 
-    ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
+   ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
 
 2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 4** folder, and select the notebook named **1-Distributing-Data-Globally**.
 
-    ![In the user's workspace, the 1-Distributing-Data-Globally notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex4-notebook1.png "Notebooks in the user workspace")
+   ![In the user's workspace, the 1-Distributing-Data-Globally notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex4-notebook1.png 'Notebooks in the user workspace')
 
 3. In the **1-Distributing-Data-Globally** notebook, follow the instructions to complete the remaining steps of this task.
 
@@ -704,41 +711,42 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
 1. Navigate to your Databricks workspace, select **Jobs** from the left-hand menu, and then select **+ Create Job**.
 
-    ![Jobs is highlighted in left-hand menu in Databricks, and the Create Job button is highlighted.](media/databricks-jobs.png "Databricks Jobs")
+   ![Jobs is highlighted in left-hand menu in Databricks, and the Create Job button is highlighted.](media/databricks-jobs.png 'Databricks Jobs')
 
 2. On the untitled job screen, complete the following steps:
 
-    - Enter a title, such as **Batch-Scoring-Job**.
+   - Enter a title, such as **Batch-Scoring-Job**.
 
-    - Select the **Select Notebook** link next to Task, and on the Select Notebook dialog select **Users --> Your user account --> CosmosDbAdvancedAnalytics --> Exercise 4** and then select the `2-Batch-Scoring-Job` notebook and select **OK**.
+   - Select the **Select Notebook** link next to Task, and on the Select Notebook dialog select **Users --> Your user account --> CosmosDbAdvancedAnalytics --> Exercise 4** and then select the `2-Batch-Scoring-Job` notebook and select **OK**.
 
-        ![The Databricks Job Select Notebook dialog is displayed, with the 2-Batch-Scoring-Job notebook highlighted under CosmosDbAdvancedAnaltyics/Exercise 4.](media/databricks-job-select-notebook-ex4.png "Select Notebook")
+     ![The Databricks Job Select Notebook dialog is displayed, with the 2-Batch-Scoring-Job notebook highlighted under CosmosDbAdvancedAnaltyics/Exercise 4.](media/databricks-job-select-notebook-ex4.png 'Select Notebook')
 
-    - Select **Add** next to Dependent Libraries, navigate to the Shared folder, select the **azure-cosmosdb-spark** library and select **OK**.
+   - Select **Add** next to Dependent Libraries, navigate to the Shared folder, select the **azure-cosmosdb-spark** library and select **OK**.
 
-    - Repeat the step above to add the **scikit-learn==0.20.1** library as well.
+   - Repeat the step above to add the **scikit-learn==0.20.1** library as well.
 
-        ![The Add Dependent Library dialog is displayed with the azure-cosmosdb-spark and scikit-learn libraries highlighted within the Shared folder.](media/databricks-job-add-dependent-library.png "Add Dependent Library")
+     ![The Add Dependent Library dialog is displayed with the azure-cosmosdb-spark and scikit-learn libraries highlighted within the Shared folder.](media/databricks-job-add-dependent-library.png 'Add Dependent Library')
 
-    - Select **Edit** next to Cluster, and select the following:
-        - Databricks Runtime Version: Runtime 5.1 (Scala 2.11, Spark 2.4.0)
-        - Python Version: 3
-        - Worker Type: Standard_D24_v2
-        - Workers: 8
-        - Driver Type: Same as worker
-        - Expand Advanced and ensure that `spark.databricks.delta.preview.enabled true` is entered into the Spark Config box.
+   - Select **Edit** next to Cluster, and select the following:
 
-            ![The Configure Cluster dialog for the jbo is displayed, with the values specified above entered into the dialog.](media/databricks-job-cluster-config.png "Configure Cluster")
+     - Databricks Runtime Version: Runtime 5.1 (Scala 2.11, Spark 2.4.0)
+     - Python Version: 3
+     - Worker Type: Standard_D24_v2
+     - Workers: 8
+     - Driver Type: Same as worker
+     - Expand Advanced and ensure that `spark.databricks.delta.preview.enabled true` is entered into the Spark Config box.
 
-    - Select **Confirm** to save the cluster configuration.
+       ![The Configure Cluster dialog for the jbo is displayed, with the values specified above entered into the dialog.](media/databricks-job-cluster-config.png 'Configure Cluster')
 
-    - Select **Edit** next to Schedule, and on the Schedule Job dialog set the schedule to Every hour starting at a minute value that is close to the current time, so you can see it triggered in a reasonable amount of time. Select your time zone, and select **Confirm**.
+   - Select **Confirm** to save the cluster configuration.
 
-    ![The Schedule Job dialog is displayed, with the schedule set to every hour starting at 00:55.](media/databricks-job-schedule-job.png "Schedule Job dialog")
+   - Select **Edit** next to Schedule, and on the Schedule Job dialog set the schedule to Every hour starting at a minute value that is close to the current time, so you can see it triggered in a reasonable amount of time. Select your time zone, and select **Confirm**.
+
+   ![The Schedule Job dialog is displayed, with the schedule set to every hour starting at 00:55.](media/databricks-job-schedule-job.png 'Schedule Job dialog')
 
 3. Your final job screen should look something like the following:
 
-    ![Screen shot of the Transactions-Batch-Scoring job.](media/databricks-job-batch-scoring.png "Transactions Batch Scoring job")
+   ![Screen shot of the Transactions-Batch-Scoring job.](media/databricks-job-batch-scoring.png 'Transactions Batch Scoring job')
 
 4. Select **< All Jobs** to return to the Jobs list when complete.
 
@@ -748,11 +756,11 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
 7. You can monitor your job progress by selecting **Clusters** from the left-hand menu in Databricks, and then selecting **Job Run** for your Job Cluster. This will display the notebook, and you can view execution times and results within the notebook.
 
-    ![The Databricks Clusters screen is displayed, with Job Run highlighted for the job cluster.](media/databricks-job-clusters-job-run.png "Clusters dialog")
+   ![The Databricks Clusters screen is displayed, with Job Run highlighted for the job cluster.](media/databricks-job-clusters-job-run.png 'Clusters dialog')
 
 ## Exercise 5: Reporting
 
-Duration: X minutes
+Duration: 30 minutes
 
 In this exercise, you create dashboards and reports in Power BI for business analysts to use, as well as within Azure Databricks for data scientists and analysts to query and visualize the data interactively.
 
@@ -823,105 +831,105 @@ In this task, you will use the JDBC URL for your Azure Databricks cluster to con
 
 15. After a few moments, you will be redirected to a blank report screen with the tables listed on the right-hand side. Select the **Donut chart** visualization on the right-hand menu under Visualizations and next to the list of tables and fields.
 
-    ![Select Donut chart under the Visualizations menu on the right.](media/power-bi-donut-chart.png "Donut Chart")
+    ![Select Donut chart under the Visualizations menu on the right.](media/power-bi-donut-chart.png 'Donut Chart')
 
 16. Expand the `scored_transactions` table, then drag `ipCountryCode` under **Legend**, and `transactionAmountUSD` under **Values**.
 
-    ![Screenshot shows the donut chart settings.](media/power-bi-donut-chart-country-transaction.png "Donut Chart settings")
+    ![Screenshot shows the donut chart settings.](media/power-bi-donut-chart-country-transaction.png 'Donut Chart settings')
 
 17. Now select the **Format** tab for the donut chart and expand the **Legend** section underneath. Select **On** to turn on the legend, and select **Right** underneath **Position**. This turns on the legend for the chart and displays it to the right.
 
-    ![Screenshot shows the donut chart format settings.](media/power-bi-donut-chart-country-transaction-format.png "Donut Chart format")
+    ![Screenshot shows the donut chart format settings.](media/power-bi-donut-chart-country-transaction-format.png 'Donut Chart format')
 
 18. Your donut chart should look similar to the following, displaying the US dollar amount of transactions by country code:
 
-    ![Screenshot of the donut chart.](media/power-bi-donut-chart-country-transaction-display.png "Donut Chart")
+    ![Screenshot of the donut chart.](media/power-bi-donut-chart-country-transaction-display.png 'Donut Chart')
 
 19. Select a blank area on the report to deselect the donut chart. Now select the **Treemap** visualization.
 
-    ![The Treemap visualization is selected.](media/power-bi-treemap-visualization.png "Treemap visualization")
+    ![The Treemap visualization is selected.](media/power-bi-treemap-visualization.png 'Treemap visualization')
 
 20. Drag the `ipCountryCode` field from the `scored_transactions` table under **Group**, then drag `isSuspicious` under **Values**.
 
-    ![Screenshot shows the treemap settings.](media/power-bi-treemap-country-suspicious-transactions.png "Treemap settings")
+    ![Screenshot shows the treemap settings.](media/power-bi-treemap-country-suspicious-transactions.png 'Treemap settings')
 
 21. The treemap should look similar to the following, displaying the number of suspicious transactions per country:
 
-    ![Screenshot of the treemap.](media/power-bi-treemap-country-suspicious-transactions-display.png "Treemap")
+    ![Screenshot of the treemap.](media/power-bi-treemap-country-suspicious-transactions-display.png 'Treemap')
 
 22. Select a blank area on the report to deselect the treemap. Now select the **Treemap** visualization once more to add a new treemap. Drag the `transactionAmountUSD` field from the `scored_transactions` table under **Group**, then drag `isSuspicious` under **Values**.
 
-    ![Screenshot shows the treemap settings.](media/power-bi-treemap-suspicious-transactions.png "Treemap settings")
+    ![Screenshot shows the treemap settings.](media/power-bi-treemap-suspicious-transactions.png 'Treemap settings')
 
 23. The new treemap should look similar to the following, displaying the US dollar amounts that tend to have suspicious transactions, with the larger boxes representing higher suspicious transactions compared to smaller boxes:
 
-    ![Screenshot of the treemap.](media/power-bi-treemap-suspicious-transactions-display.png "Treemap")
+    ![Screenshot of the treemap.](media/power-bi-treemap-suspicious-transactions-display.png 'Treemap')
 
 24. Select a blank area on the report to deselect the treemap. Now select the **Donut chart** visualization. Drag the `localHour` field from the `scored_transactions` table under **Legend**, then drag `isSuspicious` under **Values**.
 
-    ![Screenshot of the Donut chart settings.](media/power-bi-donut-chart-suspicious-hour.png "Donut Chart settings")
+    ![Screenshot of the Donut chart settings.](media/power-bi-donut-chart-suspicious-hour.png 'Donut Chart settings')
 
 25. The donut chart should look similar to the following, displaying which hours of the day tend to have a higher number of suspicious activity overall:
 
-    ![Screenshot of the donut chart highlighted.](media/power-bi-donut-chart-suspicious-hour-display.png "Donut Chart")
+    ![Screenshot of the donut chart highlighted.](media/power-bi-donut-chart-suspicious-hour-display.png 'Donut Chart')
 
 26. Select a blank area on the report to deselect the donut chart. Now select the **Map** visualization. Drag the `ipCountryCode` field from the `scored_transactions` table under **Location**, then drag `isSuspicious` under **Size**.
 
-    ![Screenshot of the Map visualization settings.](media/power-bi-map.png "Map settings")
+    ![Screenshot of the Map visualization settings.](media/power-bi-map.png 'Map settings')
 
 27. The map should look similar to the following, showing circles of varying sizes on different regions of the map. The larger the circle, the more suspicious transactions there are in that region. You may also resize the charts to optimize your layout:
 
-    ![Screenshot of the map visualization and the full report view.](media/power-bi-map-display.png "Map")
+    ![Screenshot of the map visualization and the full report view.](media/power-bi-map-display.png 'Map')
 
 28. Now add a new page to your report. Select the **+** button on the bottom-left next to **Page 1**. This will create a new blank report page to add a few more visualizations.
 
-    ![Screenshot of the button you select to add a new page to the report.](media/power-bi-new-page.png "New page button")
+    ![Screenshot of the button you select to add a new page to the report.](media/power-bi-new-page.png 'New page button')
 
 29. Select a blank area on the report, then select the **Donut chart** visualization. Drag the `cvvVerifyResult` field from the `scored_transactions` table under **Legend**, then drag `isSuspicious` under **Values**.
 
-    ![Screenshot of the Donut chart settings.](media/power-bi-donut-chart-verify-result.png "Donut Chart settings")
+    ![Screenshot of the Donut chart settings.](media/power-bi-donut-chart-verify-result.png 'Donut Chart settings')
 
 30. Now select the **Format** tab for the donut chart and expand the **Legend** section underneath. Select **On** to turn on the legend, and select **Right** underneath **Position**. This turns on the legend for the chart and displays it to the right.
 
-    ![Screenshot shows the donut chart format settings.](media/power-bi-donut-chart-country-transaction-format.png "Donut Chart format")
+    ![Screenshot shows the donut chart format settings.](media/power-bi-donut-chart-country-transaction-format.png 'Donut Chart format')
 
 31. The donut chart should look similar to the following, displaying which CVV2 credit card verification codes correlate with the most suspicious transactions:
 
-    ![Screenshot of the donut chart highlighted.](media/power-bi-donut-chart-verify-result-display.png "Donut Chart")
+    ![Screenshot of the donut chart highlighted.](media/power-bi-donut-chart-verify-result-display.png 'Donut Chart')
 
     The CVV2 codes have the following meaning in the data set:
 
-    | Code  | Meaning
-    | ----- | ---------
-    | M     | CVV2 Match
-    | N     | CVV2 No Match
-    | P     | Not Processed
-    | S     | Issuer indicates that CVV2 data should be present on the card, but the merchant has indicated data is not present on the card
-    | U     | Issuer has not certified for CVV2 or Issuer has not provided Visa with the CVV2 encryption keys
+    | Code | Meaning                                                                                                                       |
+    | ---- | ----------------------------------------------------------------------------------------------------------------------------- |
+    | M    | CVV2 Match                                                                                                                    |
+    | N    | CVV2 No Match                                                                                                                 |
+    | P    | Not Processed                                                                                                                 |
+    | S    | Issuer indicates that CVV2 data should be present on the card, but the merchant has indicated data is not present on the card |
+    | U    | Issuer has not certified for CVV2 or Issuer has not provided Visa with the CVV2 encryption keys                               |
 
 32. Select a blank area on the report, then select the **100% Stacked column chart** visualization. Drag the `isSuspicious` field from the `scored_transactions` table under **Axis**, then drag `digitalItemCount` under **Value**, and finally `physicalItemCount` under **Value** as well.
 
-    ![Screenshot of the 100% Stacked Column Chart settings.](media/power-bi-stacked-column-chart.png "100% Stacked Column Chart settings")
+    ![Screenshot of the 100% Stacked Column Chart settings.](media/power-bi-stacked-column-chart.png '100% Stacked Column Chart settings')
 
 33. The 100% stacked column chart should look similar to the following, displaying the percentage of the number of physical items and digital items purchased for transactions that were not suspicious (value of 0) in one column, and the percentage of the number of both types of items purchased with suspicious transactions (value of 1):
 
-    ![Screenshot of the 100% stacked column chart.](media/power-bi-stacked-column-chart-display.png "100% Stacked Column Chart")
+    ![Screenshot of the 100% stacked column chart.](media/power-bi-stacked-column-chart-display.png '100% Stacked Column Chart')
 
 34. Select a blank area on the report, then select the **ArcGIS Maps for Power BI** visualization. If you are prompted to accept the terms for using this visualization, please do so now. Drag the `ipCountryCode` field from the `percent_suspicious` table under **Location**, then drag `SuspiciousTransactionCount` under **Color**.
 
-    ![Screenshot of the ArcGIS Map settings.](media/power-bi-arcgis-map.png "ArcGIS Map settings")
+    ![Screenshot of the ArcGIS Map settings.](media/power-bi-arcgis-map.png 'ArcGIS Map settings')
 
 35. The ArcGIS Map should look similar to the following, displaying countries that have a higher number of suspicious transactions in darker colors than those with lower amounts:
 
-    ![Screenshot of the ArcGIS Map.](media/power-bi-arcgis-map-display.png "ArcGIS Map")
+    ![Screenshot of the ArcGIS Map.](media/power-bi-arcgis-map-display.png 'ArcGIS Map')
 
 36. Select a blank area on the report, then select the **Donut chart** visualization. Drag the `ipCountryCode` field from the `percent_suspicious` table under **Legend**, then drag `PercentSuspicious` under **Values**.
 
-    ![Screenshot of the donut chart settings.](media/power-bi-donut-chart-percent-suspicious.png "Donut Chart settings")
+    ![Screenshot of the donut chart settings.](media/power-bi-donut-chart-percent-suspicious.png 'Donut Chart settings')
 
 37. The donut chart should look similar to the following, displaying the percent of suspicious transactions by country code:
 
-    ![Screenshot of the donut chart.](media/power-bi-donut-chart-percent-suspicious-display.png "Donut Chart")
+    ![Screenshot of the donut chart.](media/power-bi-donut-chart-percent-suspicious-display.png 'Donut Chart')
 
 You may save your chart to local disk. Once saved, you are able to upload the chart to the Power BI website, making it available online with all the charts and data connections intact.
 
