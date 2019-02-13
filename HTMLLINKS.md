@@ -1,6 +1,4 @@
 ﻿# HTML Files for Workshop
-[New workshop outline - Title xxx.html](https://cloudworkshop.blob.core.windows.net/cosmos-db-real-time-advanced-analytics/Whiteboard%20design%20session/New%20workshop%20outline%20-%20Title%20xxx.html)
-
 [WDS student guide - Cosmos DB real-time advanced analytics.html](https://cloudworkshop.blob.core.windows.net/cosmos-db-real-time-advanced-analytics/Whiteboard%20design%20session/WDS%20student%20guide%20-%20Cosmos%20DB%20real-time%20advanced%20analytics.html)
 
 [WDS trainer guide - Cosmos DB real-time advanced analytics.html](https://cloudworkshop.blob.core.windows.net/cosmos-db-real-time-advanced-analytics/Whiteboard%20design%20session/WDS%20trainer%20guide%20-%20Cosmos%20DB%20real-time%20advanced%20analytics.html)
