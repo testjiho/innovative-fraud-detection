@@ -62,25 +62,7 @@ In the Before the hands-on lab exercise, you will set up your environment for us
 
 > **Important**: Most Azure resources require unique names. Throughout this lab you will see the word “SUFFIX” as part of resource names. You should replace this with your Microsoft alias, initials, or another value to ensure the resource is uniquely named.
 
-### Task 1: Provision a resource group
-
-In this task, you will create an Azure resource group for the resources used throughout this lab.
-
-1. In the [Azure portal](https://portal.azure.com), select **Resource groups** from the left-hand navigation menu, select **+Add**, and then enter the following in the Create a resource group blade:
-
-   - **Subscription**: Select the subscription you are using for this hands-on lab.
-
-   - **Resource group name**: Enter hands-on-lab-SUFFIX.
-
-   - **Region**: Select the region you would like to use for resources in this hands-on lab. Remember this location so you can use it for the other resources you'll provision throughout this lab.
-
-     ![Add Resource group Resource groups is highlighted in the navigation pane of the Azure portal, +Add is highlighted in the Resource groups blade, and "hands-on-labs" is entered into the Resource group name box on the Create an empty resource group blade.](./media/create-resource-group.png 'Create resource group')
-
-2. Select **Review + create**.
-
-3. On the Summary blade, select **Create** to provision your resource group.
-
-### Task 2: Set up a development environment
+### Task 1: Set up a development environment
 
 If you do not have a machine with Visual Studio Community 2017 (or greater) and the Azure development workload, complete this task.
 
@@ -124,7 +106,7 @@ If you do not have a machine with Visual Studio Community 2017 (or greater) and 
 
    q. Click **Create**.
 
-### Task 3: Disable IE Enhanced Security
+### Task 2: Disable IE Enhanced Security
 
 > **Note**: Sometimes this image has IE ESC disabled. Sometimes it does not.
 
@@ -144,7 +126,7 @@ If you do not have a machine with Visual Studio Community 2017 (or greater) and 
 
    ![In the Internet Explorer Enhanced Security Configuration dialog box, under Administrators, the Off button is selected.](media/ie-enhanced-security-configuration.png 'Internet Explorer Enhanced Security Configuration dialog box')
 
-### Task 4: Install Google Chrome
+### Task 3: Install Google Chrome
 
 > **Note**: Some aspects of this lab require the use of Google Chrome. You may find yourself blocked if using Internet Explorer later in the lab.
 
@@ -154,7 +136,7 @@ If you do not have a machine with Visual Studio Community 2017 (or greater) and 
 
 > **Note**: Chrome is needed for one of the labs as Internet Explorer is not supported for some specific activities.
 
-### Task 5: Validate connectivity to Azure
+### Task 4: Validate connectivity to Azure
 
 1. From within the virtual machine, launch Visual Studio and validate that you can log in with your Microsoft Account when prompted.
 
@@ -162,7 +144,7 @@ If you do not have a machine with Visual Studio Community 2017 (or greater) and 
 
    ![In Server Explorer, Azure is selected, and its right-click menu displays with options to Refresh, Connect to Microsoft Azure Subscription, Manage and Filter Subscriptions, or Open the Getting Started Page.](media/vs-server-explorer.png 'Server Explorer')
 
-### Task 6: Download the starter files
+### Task 5: Download the starter files
 
 Download a starter project that includes a payment data generator that sends real-time payment data for processing by your lab solution, as well as data files used in the lab.
 
@@ -176,11 +158,29 @@ Download a starter project that includes a payment data generator that sends rea
 
 4. Unzip the contents to the folder **C:\\CosmosMCW\\**.
 
-### Task 7: Download and install Power BI Desktop
+### Task 6: Download and install Power BI Desktop
 
 Power BI desktop is required to make a connection to your Azure Databricks environment when creating the Power BI dashboard.
 
 1. From your LabVM, download and install [Power BI Desktop](https://powerbi.microsoft.com/desktop/)
+
+### Task 7: Provision a resource group
+
+In this task, you will create an Azure resource group for the resources used throughout this lab.
+
+1. In the [Azure portal](https://portal.azure.com), select **Resource groups** from the left-hand navigation menu, select **+Add**, and then enter the following in the Create a resource group blade:
+
+   - **Subscription**: Select the subscription you are using for this hands-on lab.
+
+   - **Resource group name**: Enter hands-on-lab-SUFFIX.
+
+   - **Region**: Select the region you would like to use for resources in this hands-on lab. Remember this location so you can use it for the other resources you'll provision throughout this lab.
+
+     ![Add Resource group Resource groups is highlighted in the navigation pane of the Azure portal, +Add is highlighted in the Resource groups blade, and "hands-on-labs" is entered into the Resource group name box on the Create an empty resource group blade.](./media/create-resource-group.png 'Create resource group')
+
+2. Select **Review + create**.
+
+3. On the Summary blade, select **Create** to provision your resource group.
 
 ### Task 8: Create an Azure Databricks workspace
 
@@ -227,33 +227,7 @@ In this task, you will create an Azure Key Vault account in which you will store
 
    ![Properties is selected on the left-hand menu, and DNS Name and Resource ID are highlighted to show where to copy the values from.](media/key-vault-properties.png 'Key Vault properties')
 
-### Task 10: Configure Azure Databricks Key Vault-backed secrets
-
-In this task, you will connect to your Azure Databricks workspace and configure Azure Databricks secrets to use your Azure Key Vault account as a backing store.
-
-1. Return to the [Azure portal](https://portal.azure.com), navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
-
-   ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
-
-2. In your browser's URL bar, append **#secrets/createScope** to your Azure Databricks base URL (for example, <https://eastus.azuredatabricks.net#secrets/createScope>).
-
-3. Enter `key-vault-secrets` for the name of the secret scope.
-
-4. Select **Creator** within the Manage Principal drop-down to specify only the creator (which is you) of the secret scope has the MANAGE permission.
-
-   > MANAGE permission allows users to read and write to this secret scope, and, in the case of accounts on the Azure Databricks Premium Plan, to change permissions for the scope.
-
-   > Your account must have the Azure Databricks Premium Plan for you to be able to select Creator. This is the recommended approach: grant MANAGE permission to the Creator when you create the secret scope, and then assign more granular access permissions after you have tested the scope.
-
-5. Enter the **DNS Name** (for example, <https://woodgrove-vault.vault.azure.net/>) and **Resource ID** you copied earlier during the Key Vault creation step, for example: `/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/hands-on-lab/providers/Microsoft.KeyVault/vaults/woodgrove-vault`.
-
-   ![Create Secret Scope form](media/create-secret-scope.png 'Create Secret Scope')
-
-6. Select **Create**.
-
-After a moment, you will see a dialog verifying that the secret scope has been created.
-
-### Task 11: Provision Cosmos DB
+### Task 10: Provision Cosmos DB
 
 In this task, you will create an Azure Cosmos DB account, database, and container for ingesting streaming payment data and for serving batch processed data.
 
@@ -332,6 +306,32 @@ In this task, you will create an Azure Cosmos DB account, database, and containe
     ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-key-secret.png 'Create a secret')
 
 15. Select **Create**.
+
+### Task 11: Configure Azure Databricks Key Vault-backed secrets
+
+In this task, you will connect to your Azure Databricks workspace and configure Azure Databricks secrets to use your Azure Key Vault account as a backing store.
+
+1. Return to the [Azure portal](https://portal.azure.com), navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+
+   ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
+
+2. In your browser's URL bar, append **#secrets/createScope** to your Azure Databricks base URL (for example, <https://eastus.azuredatabricks.net#secrets/createScope>).
+
+3. Enter `key-vault-secrets` for the name of the secret scope.
+
+4. Select **Creator** within the Manage Principal drop-down to specify only the creator (which is you) of the secret scope has the MANAGE permission.
+
+   > MANAGE permission allows users to read and write to this secret scope, and, in the case of accounts on the Azure Databricks Premium Plan, to change permissions for the scope.
+
+   > Your account must have the Azure Databricks Premium Plan for you to be able to select Creator. This is the recommended approach: grant MANAGE permission to the Creator when you create the secret scope, and then assign more granular access permissions after you have tested the scope.
+
+5. Enter the **DNS Name** (for example, <https://woodgrove-vault.vault.azure.net/>) and **Resource ID** you copied earlier during the Key Vault creation step, for example: `/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/hands-on-lab/providers/Microsoft.KeyVault/vaults/woodgrove-vault`.
+
+   ![Create Secret Scope form](media/create-secret-scope.png 'Create Secret Scope')
+
+6. Select **Create**.
+
+After a moment, you will see a dialog verifying that the secret scope has been created.
 
 ### Task 12: Provision Event Hubs
 
