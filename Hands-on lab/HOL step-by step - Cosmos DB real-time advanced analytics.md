@@ -750,7 +750,7 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
 4. Select **< All Jobs** to return to the Jobs list when complete.
 
-5. While waiting for your job to start, select **Workspace** from the left-hand menu, and navigate to the `3-Batch-Score-Transactions` notebook under the Exercise 4 folder.
+5. While waiting for your job to start, select **Workspace** from the left-hand menu, and navigate to the `2-Batch-Scoring-Job` notebook under the Exercise 4 folder.
 
 6. Open the notebook, and take a few minutes to understand the steps that are being used to perform the batch scoring process. As you will see, they are almost identical to the steps you've gone through already in preparing and transforming the transaction data in the previous task.
 
