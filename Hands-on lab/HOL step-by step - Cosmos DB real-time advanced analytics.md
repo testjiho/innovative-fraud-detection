@@ -583,7 +583,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
    ![The Create Library dialog is displayed, with PyPI highlighted under Library Source, and scikit-learn==0.20.1 entered into the Package text box.](media/databricks-create-library-scikit-learn.png 'Create Library')
 
-9. On the following screen, check to box for **Install automatically on all clusters**, and select **Confirm** when prompted.
+9. On the following screen, **DO NOT** check to box for **Install automatically on all clusters**, and select **Confirm** when prompted. This library is only needed as a reference for the Job clusters. You will diretly add this scikit-learn to the lab cluster in Exercise 3.
 
 ### Task 5: Explore historical transaction data with Azure Databricks and Spark
 
