@@ -29,17 +29,17 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 - [Cosmos DB real-time advanced analytics before the hands-on lab setup guide](#cosmos-db-real-time-advanced-analytics-before-the-hands-on-lab-setup-guide)
   - [Requirements](#requirements)
   - [Before the hands-on lab](#before-the-hands-on-lab)
-    - [Task 1: Provision a resource group](#task-1-provision-a-resource-group)
-    - [Task 2: Set up a development environment](#task-2-set-up-a-development-environment)
-    - [Task 3: Disable IE Enhanced Security](#task-3-disable-ie-enhanced-security)
-    - [Task 4: Install Google Chrome](#task-4-install-google-chrome)
-    - [Task 5: Validate connectivity to Azure](#task-5-validate-connectivity-to-azure)
-    - [Task 6: Download the starter files](#task-6-download-the-starter-files)
-    - [Task 7: Download and install Power BI Desktop](#task-7-download-and-install-power-bi-desktop)
+    - [Task 1: Set up a development environment](#task-1-set-up-a-development-environment)
+    - [Task 2: Disable IE Enhanced Security](#task-2-disable-ie-enhanced-security)
+    - [Task 3: Install Google Chrome](#task-3-install-google-chrome)
+    - [Task 4: Validate connectivity to Azure](#task-4-validate-connectivity-to-azure)
+    - [Task 5: Download the starter files](#task-5-download-the-starter-files)
+    - [Task 6: Download and install Power BI Desktop](#task-6-download-and-install-power-bi-desktop)
+    - [Task 7: Provision a resource group](#task-7-provision-a-resource-group)
     - [Task 8: Create an Azure Databricks workspace](#task-8-create-an-azure-databricks-workspace)
     - [Task 9: Set up Azure Key Vault](#task-9-set-up-azure-key-vault)
-    - [Task 10: Configure Azure Databricks Key Vault-backed secrets](#task-10-configure-azure-databricks-key-vault-backed-secrets)
-    - [Task 11: Provision Cosmos DB](#task-11-provision-cosmos-db)
+    - [Task 10: Provision Cosmos DB](#task-10-provision-cosmos-db)
+    - [Task 11: Configure Azure Databricks Key Vault-backed secrets](#task-11-configure-azure-databricks-key-vault-backed-secrets)
     - [Task 12: Provision Event Hubs](#task-12-provision-event-hubs)
     - [Task 13: Create an Azure Data Lake Storage Gen2 account](#task-13-create-an-azure-data-lake-storage-gen2-account)
     - [Task 14: Create an Azure Databricks cluster](#task-14-create-an-azure-databricks-cluster)
@@ -413,6 +413,8 @@ In this task, you will create an Event Hubs namespace and add an Event Hub withi
 15. Select the **Sender** access policy.
 
 16. Copy the **Connection string-primary key** value. Save this value for the Sender policy in Notepad or similar for later.
+
+    ![The button to copy the primary connection string for the sender policy is highlighted.](media/copy-sender-policy-key.png 'Sender policy primary connection string')
 
 17. Follow the step above to copy the **Connection string-primary key** value for the Listener policy and save for later.
 
