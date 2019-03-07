@@ -162,7 +162,7 @@ _Long-term data storage_
 
 2.  How do you ensure your data is continuously optimized within your chosen long-term data storage solution, given the requirements to store inserts, updates, and deletes while avoiding generating very small, un-optimized files?
 
-3.  Woodgrove Bank wants to retain all raw data (bronze), then parse that data into query tables (silver) which can be joined with dimension tables, such as account information. They also would like to have summary tables (gold) containing business-level aggregates used for their dashboards and reports. How would you support these requirements in your long-term storage solution?
+3.  Woodgrove Bank wants to retain all raw data (bronze layer), then parse that data into query tables (silver layer) which can be joined with dimension tables, such as account information. They also would like to have summary tables (gold layer) containing business-level aggregates used for their dashboards and reports. How would you support these requirements in your long-term storage solution?
 
 _Model training and deployment_
 
