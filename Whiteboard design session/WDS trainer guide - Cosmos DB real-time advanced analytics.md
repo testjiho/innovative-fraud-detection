@@ -156,7 +156,7 @@ When participants are doing activities, you can **look ahead to refresh your mem
 
 - **Consider creating a "parking lot"** to record issues or questions raised that are outside the scope of the whiteboard design session or can be answered later. Decide how you will address these issues, so you can acknowledge them without being derailed by them.
 
-**\*Have fun**! Encourage participants to have fun and share!\*
+**Have fun**! Encourage participants to have fun and share!
 
 **Involve your participants.** Talk and share your knowledge but always involve your participants, even while you are the one speaking.
 
@@ -170,7 +170,9 @@ When participants are doing activities, you can **look ahead to refresh your mem
 
 ## Abstract and learning objectives
 
-Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a proof-of-concept (PoC) of an innovative fraud detection solution. They want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
+Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a PoC of an innovative fraud detection solution. They want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
+
+In this whiteboard design session, you will work in a group to design the data pipeline PoC that could support the needs of Woodgrove Bank.
 
 At the end of this workshop, you will be better able to design solutions that leverage the strengths of Cosmos DB in support of advanced analytics solutions that require high throughput ingest, low latency serving and global scale in combination with scalable machine learning, big data and real-time processing capabilities.
 
@@ -537,7 +539,7 @@ _Data pipeline processing_
 
     Whether you have chosen to ingest your data using Azure Cosmos DB with change feed, or Event Hubs, you can connect to either of these directly from Spark. For Cosmos DB, use the `azure-cosmosdb-spark` connector, which lets you easily read to and write from Azure Cosmos DB via Spark DataFrames in either Python or Scala. For Event Hubs, either use the `azure-eventhubs-spark` library, or enable Kafka on your event hub and use the Spark-Kafka adapter (supports Kafka v2.0+), available as of Spark v2.4.
 
-    Because the payment transactions will be arriving in real time, you will want to use Spark Structured Streaming to process the data. Think of a stream of data as a table to which data is continously appended. In streaming, the problems of traditional data pipelines are exacerbated. Specifically, with frequent meta data refreshes, table repairs and accumulation of small files in intervals measured in seconds or minutes. Many small files result because data may be streamed in at low volumes with short triggers. Databricks Delta is uniquely designed to address these needs.
+    Because the payment transactions will be arriving in real time, you will want to use Spark Structured Streaming to process the data. Think of a stream of data as a table to which data is continuously appended. In streaming, the problems of traditional data pipelines are exacerbated. Specifically, with frequent meta data refreshes, table repairs and accumulation of small files in intervals measured in seconds or minutes. Many small files result because data may be streamed in at low volumes with short triggers. Databricks Delta is uniquely designed to address these needs.
 
 4.  What configuration would you need to apply to your solution to allow it to restart any stream processing in the case the job is stopped?
 
@@ -588,7 +590,7 @@ _Long-term data storage_
     checkpointPath = basePath + "/checkpoints"
     ```
 
-    > Note: the bronze path may not be needed, depending on how you configured your data ingestion layer. For instance, if you are using Event Hubs, you can configure Event Hubs Capture to store the raw data directly to ADLS. You will process the stream in Databricks, make any transformations to the data, and store the transformed data into your query (silver) tables. If you are using Azure Cosmos DB, the collection you use for ingest will act as the bronze path containing raw data. Then, just like you do for Event Hubs, you will process the stream, this time from the Cosmos change feed, in Databricks, transform the data, and store it in the silver tables.
+    > Note: The bronze path may not be needed, depending on how you configured your data ingestion layer. For instance, if you are using Event Hubs, you can configure Event Hubs Capture to store the raw data directly to ADLS. You will process the stream in Databricks, make any transformations to the data, and store the transformed data into your query (silver) tables. If you are using Azure Cosmos DB, the collection you use for ingest will act as the bronze path containing raw data. Then, just like you do for Event Hubs, you will process the stream, this time from the Cosmos change feed, in Databricks, transform the data, and store it in the silver tables.
 
     Here is an example of creating a query table (silver) by reading a stream into a Databricks Delta query directory (`silverPath`), while also transforming the data:
 
@@ -633,7 +635,7 @@ _Model training and deployment_
 
     Azure Databricks supports machine learning training at scale. This means that it can handle the historical payment transaction data, which Woodgrove Bank said it can provide as a series of CSV files, and transform that data as needed for cleanup and feature selection. A large portion of that data will be used for training, and the rest can be used to validate the performance of the trained model.
 
-    For model deployment, use Azure Machine Learning service and the Azure Machine Learning SDK to host a trained machine learning model and automatically deploy the model to an Azure Kubernetes Service (AKS) cluster. Creating the AKS cluster is a one-time process for your workspace, whereafter you can reuse it for multiple deployments as the model gets updated through re-training. The basic steps are as follows:
+    For model deployment, use Azure Machine Learning service and the Azure Machine Learning SDK to host a trained machine learning model and automatically deploy the model to an Azure Kubernetes Service (AKS) cluster. Creating the AKS cluster is a one-time process for your workspace, where after you can reuse it for multiple deployments as the model gets updated through re-training. The basic steps are as follows:
 
     1.  Register the model in the workspace model registry.
 
@@ -689,7 +691,7 @@ _Dashboards and reporting_
 
     Azure Cosmos DB's greatest strength is that it provides a multi-model, globally available NoSQL database with high concurrency, low latency, and predictable results. The fact that it transparently synchronizes data to all regions, which can quickly and easily be added at any time, adds value by reducing the amount of development required to read and write the data and removes any need for synchronization.
 
-    The cost of all database operations, such as throughput, CPU, and memory, is normalized by Azure Cosmos DB and is expressed in terms of Request Units (RUs). The cost to read a 1-KB item is 1 Request Unit (1 RU) and the minimum RUs required to consume 1 GB of storage is 40. The cost of writing a 1-KB item is 5 RUs. Many people risk over-allocating RUs to their collections, when they may not need such high levels at all times. To save costs, a good tactic is to ramp up the number of RUs during batch processing or other read/write-heavy loads, then reduce the number of RUs afterwards. This can be done automatically or manually through the portal. An example of how this can be automatically done is to monitor Cosmos DB with Azure Monitor and set an alert rule that calls an Azure Function to scale up the number of RUs for that collection. Then you would have another process to scale down as needed. You configure Azure Monitor to monitor the total requests for a 429 HTTP status code (which means the requests are throttled), apply alert logic where the total number of these codes are greater than a pre-defined value (like 10) over the last 5 minutes.
+    The cost of all database operations, such as throughput, CPU, and memory, is normalized by Azure Cosmos DB and is expressed in terms of Request Units (RUs). The cost to read a 1-KB item is 1 Request Unit (1 RU) and the minimum RUs required to consume 1 GB of storage is 40. The cost of writing a 1-KB item is 5 RUs. Many people risk over-allocating RUs to their collections when they may not need such high levels at all times. To save costs, a good tactic is to ramp up the number of RUs during batch processing or other read/write-heavy loads, then reduce the number of RUs afterwards. This can be done automatically or manually through the portal. An example of how this can be automatically done is to monitor Cosmos DB with Azure Monitor and set an alert rule that calls an Azure Function to scale up the number of RUs for that collection. Then you would have another process to scale down as needed. You configure Azure Monitor to monitor the total requests for a 429 HTTP status code (which means the requests are throttled), apply alert logic where the total number of these codes are greater than a pre-defined value (like 10) over the last 5 minutes.
 
     ![A screenshot of Azure Monitor where the an alert is configured by selecting a status code value of 429 with a condition set to greater than, the time aggregation set to total, and threshold set to 10.](media/azure-monitor.png 'Azure Monitor')
 
