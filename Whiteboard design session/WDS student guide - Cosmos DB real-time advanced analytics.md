@@ -46,7 +46,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a proof-of-concept (PoC) of an innovative fraud detection solution. They want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
 
-In this hands-on lab session, you will implement a PoC of the data pipeline that could support the needs of Woodgrove Bank.
+In this whiteboard design session, you will work in a group to design the data pipeline PoC that could support the needs of Woodgrove Bank.
 
 At the end of this workshop, you will be better able to implement solutions that leverage the strengths of Cosmos DB in support of advanced analytics solutions that require high throughput ingest, low latency serving and global scale in combination with scalable machine learning, big data and real-time processing capabilities.
 
