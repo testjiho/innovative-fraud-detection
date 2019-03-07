@@ -78,19 +78,19 @@ If you do not have a machine with Visual Studio Community 2017 (or greater) and 
 
    d. Click **Create**.
 
-   e. Select your subscription and recently created resource group
+   e. Select your subscription and recently created resource group.
 
    f. For the name, type **MainVM**, or some other globally unique name (as indicated by the checkmark).
 
-   g. Leave the availability option as **No infrastructure redundancy required**
+   g. Leave the availability option as **No infrastructure redundancy required**.
 
-   h. Ensure the image is **Visual Studio Community 2017 (latest release) on Windows Server 2016 (x64)**
+   h. Ensure the image is **Visual Studio Community 2017 (latest release) on Windows Server 2016 (x64)**.
 
    i. Select your VM size.
 
    > **Note**: It is highly recommended to use a DS2 or D2 instance size for this VM.
 
-   j. For username, type **demouser**
+   j. For username, type **demouser**.
 
    k. For password, type **Password.1!!**
 
@@ -118,7 +118,7 @@ If you do not have a machine with Visual Studio Community 2017 (or greater) and 
 
    ![Local Server is selected from the Server Manager menu.](media/local-server.png 'Server Manager menu')
 
-4. On the side of the pane, for **IE Enhanced Security Configuration**, if it displays **On** select it
+4. On the side of the pane, for **IE Enhanced Security Configuration**, if it displays **On** select it.
 
    ![Screenshot of IE Enhanced Security Configuration, which is set to On.](media/ie-enhanced-security.png 'IE Enhanced Security Configuration')
 
@@ -162,7 +162,7 @@ Download a starter project that includes a payment data generator that sends rea
 
 Power BI desktop is required to make a connection to your Azure Databricks environment when creating the Power BI dashboard.
 
-1. From your LabVM, download and install [Power BI Desktop](https://powerbi.microsoft.com/desktop/)
+1. From your LabVM, download and install [Power BI Desktop](https://powerbi.microsoft.com/desktop/).
 
 ### Task 7: Provision a resource group
 
@@ -264,8 +264,8 @@ In this task, you will create an Azure Cosmos DB account, database, and containe
    - **Collection id**: Enter "transactions".
    - **Partition key**: Enter "/ipCountryCode".
    - **Throughput**: Enter 15000.
-
-   > The /ipCountryCode partition was selected because the data will most likely include this value, and it allows us to partition by location from which the transaction originated. This field also contains a wide range of values, which is preferable for partitions.
+   
+   >**Note**: The /ipCountryCode partition was selected because the data will most likely include this value, and it allows us to partition by location from which the transaction originated. This field also contains a wide range of values, which is preferable for partitions.
 
    ![The Add Collection blade is displayed, with the previously mentioned settings entered into the appropriate fields.](media/cosmos-db-add-collection-blade.png 'Add Collection blade')
 
@@ -345,13 +345,13 @@ In this task, you will create an Event Hubs namespace and add an Event Hub withi
 
    - **Name**: Enter a globally unique name (indicated by a green check mark).
    - **Pricing tier**: Select Standard.
-   - **Enable Kafka**: Unchecked.
-   - **Make this namespace zone redundant**: Unchecked.
+   - **Enable Kafka**: Unchecked
+   - **Make this namespace zone redundant**: Unchecked
    - **Subscription**: Select the subscription you are using for this hands-on lab.
    - **Resource group**: Choose the hands-on-lab-SUFFIX resource group.
    - **Location**: Select the region you are using for resources in this hands-on lab.
    - **Throughput Units**: Set the slider all the way to the left, setting the value to 1.
-   - **Enable Auto-Inflate**: Unchecked.
+   - **Enable Auto-Inflate**: Unchecked
 
    ![The Create Namespace blade is displayed, with the previously mentioned settings entered into the appropriate fields.](media/create-event-hubs-blade.png 'Create Namespace')
 
@@ -370,7 +370,7 @@ In this task, you will create an Event Hubs namespace and add an Event Hub withi
    - **Name**: Enter "transactions".
    - **Partition Count**: Move the slider to set the value to 10.
    - **Message Retention**: Leave at 1.
-   - **Capture**: Off.
+   - **Capture**: Off
 
    ![The Create Event Hub blade is displayed, with the previously mentioned settings entered into the appropriate fields](media/create-event-hub-blade.png 'Create Event Hub')
 
@@ -387,9 +387,9 @@ In this task, you will create an Event Hubs namespace and add an Event Hub withi
 10. In the **Add SAS Policy** blade, configure the following:
 
     - **Policy name**: Enter "Sender".
-    - **Manage**: Unchecked.
-    - **Send**: Checked.
-    - **Listen**: Unchecked.
+    - **Manage**: Unchecked
+    - **Send**: Checked
+    - **Listen**: Unchecked
 
     ![The Add SAS Plicy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-sender.png 'Add SAS Policy')
 
@@ -402,9 +402,9 @@ In this task, you will create an Event Hubs namespace and add an Event Hub withi
 13. In the **Add SAS Policy** blade, configure the following:
 
     - **Policy name**: Enter "Listener".
-    - **Manage**: Unchecked.
-    - **Send**: Unchecked.
-    - **Listen**: Checked.
+    - **Manage**: Unchecked
+    - **Send**: Unchecked
+    - **Listen**: Checked
 
     ![The Add SAS Plicy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-listener.png 'Add SAS Policy')
 
@@ -537,4 +537,4 @@ In this task, you will download the notebooks contained in the [Cosmos DB real-t
 
 6. You should now see a folder named **CosmosDbAdvancedAnalytics** in your user workspace. This folder contains all of the notebooks you will use throughout this hands-on lab.
 
-> You should follow all steps provided _before_ performing the Hands-on lab.
+You should follow all steps provided _before_ performing the Hands-on lab.
