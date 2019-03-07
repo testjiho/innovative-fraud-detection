@@ -44,7 +44,7 @@ At the end of this workshop, you will be better able to implement solutions that
 
 ## Azure solutions
 
-_This is an internal reference and will be updated by project PM._
+Globally Distributed Data
 
 ## Related references
 
