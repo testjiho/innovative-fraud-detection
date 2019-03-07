@@ -243,11 +243,11 @@ Next you will pass in the Azure Cosmos DB URI and Key values to the data generat
     - Inserted line shows successful inserts in this batch and throughput for writes/second with RU/s usage and estimated monthly ingestion rate added to Cosmos DB statistics.
     - Processing time: Shows whether the processing time for the past 1,000 requested inserts is faster or slower than the other service.
     - Total elapsed time: Running total of time taken to process all documents.
-    - If this value continues to be grow higher for Cosmos DB vs. Event Hubs, that is a good indicator that the Cosmos DB requests are being throttled. Consider increasing the RU/s for the container.
+    - If this value continues to grow higher for Cosmos DB vs. Event Hubs, that is a good indicator that the Cosmos DB requests are being throttled. Consider increasing the RU/s for the container.
     - Succeeded shows number of accumulative successful inserts to the service.
     - Pending are items in the bulkhead queue. This amount will continue to grow if the service is unable to keep up with demand.
     - Accumulative failed requests that encountered an exception.
-
+    
     > The obvious and recommended method for sending a lot of data is to do so in batches. This method can multiply the amount of data sent with each request by hundreds or thousands. However, the point of our exercise is not to maximize throughput and send as much data as possible, but to compare the relative performance between Event Hubs and Cosmos DB.
 
 13. As an experiment, scale the number of requested RU/s for your Cosmos DB collection down to 750. After doing so, you should see increasingly slower transfer rates to Cosmos DB due to throttling. You will also see the pending queue growing at a higher rate. The reason for this is because when the number of writes (remember, writes _typically_ use 5 RU/s vs. just 1 RU/s for reads on 1 KB-sized documents) exceeds the allotted amount of RU/s, Cosmos DB sends a 429 response with a _retry_after_ header value to tell the consumer that it is resource-constrained. The SDK automatically handles this by waiting for the specified amount of time, then retrying. After you are done experimenting, set the RU/s back to 15,000.
@@ -278,7 +278,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
 5. Select **Properties** on the left-hand menu.
 
-6. Drag the **Message Retention** slider all the way to the right to set the value to 7. Unfortunately, this is as long as you can set message retention for Event Hubs messages using the portal UI. It is possible to contact Microsoft to set the value to as many as 4 weeks. Unfortunately, this does not meet Woodgrove Bank's requirements for retaining this hot data for 60 days.
+6. Drag the **Message Retention** slider all the way to the right to set the value to 7. This is as long as you can set message retention for Event Hubs messages using the portal UI. It is possible to contact Microsoft to set the value to as many as 4 weeks. Unfortunately, this does not meet Woodgrove Bank's requirements for retaining this hot data for 60 days.
 
    ![Screenshot displaying the event hub properties and the Message Retention value being set to 7.](media/event-hub-message-retention.png 'Properties')
 
@@ -294,13 +294,13 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
    - **Name**: Enter a globally unique name (indicated by a green check mark).
    - **Pricing tier**: Select Standard.
-   - **Enable Kafka**: Unchecked.
-   - **Make this namespace zone redundant**: Unchecked.
+   - **Enable Kafka**: Unchecked
+   - **Make this namespace zone redundant**: Unchecked
    - **Subscription**: Select the subscription you are using for this hands-on lab.
    - **Resource group**: Choose the hands-on-lab-SUFFIX resource group.
    - **Location**: Select **UK South**. (If you already selected this for the first Event Hub namespace, select a US region)
    - **Throughput Units**: Set the slider all the way to the left, setting the value to 1.
-   - **Enable Auto-Inflate**: Unchecked.
+   - **Enable Auto-Inflate**: Unchecked
 
    ![The Create Namespace blade is displayed, with the previously mentioned settings entered into the appropriate fields.](media/create-event-hubs-blade-uk.png 'Create Namespace')
 
@@ -319,7 +319,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
     - **Name**: Enter "transactions".
     - **Partition Count**: Move the slider to set the value to 10.
     - **Message Retention**: Set to 7.
-    - **Capture**: Off.
+    - **Capture**: Off
 
     ![The Create Event Hub blade is displayed, with the previously mentioned settings entered into the appropriate fields](media/create-event-hub-blade-7-day-retention.png 'Create Event Hub')
 
@@ -336,9 +336,9 @@ In this exercise, you will use the data generator to send data to both Event Hub
 17. In the **Add SAS Policy** blade, configure the following:
 
     - **Policy name**: Enter "Sender".
-    - **Manage**: Unchecked.
-    - **Send**: Checked.
-    - **Listen**: Unchecked.
+    - **Manage**: Unchecked
+    - **Send**: Checked
+    - **Listen**: Unchecked
 
     ![The Add SAS Plicy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-sender.png 'Add SAS Policy')
 
@@ -351,9 +351,9 @@ In this exercise, you will use the data generator to send data to both Event Hub
 20. In the **Add SAS Policy** blade, configure the following:
 
     - **Policy name**: Enter "Listener".
-    - **Manage**: Unchecked.
-    - **Send**: Unchecked.
-    - **Listen**: Checked.
+    - **Manage**: Unchecked
+    - **Send**: Unchecked
+    - **Listen**: Checked
 
     ![The Add SAS Plicy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-listener.png 'Add SAS Policy')
 
@@ -369,7 +369,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
     ![Create Event Hubs Namespace blade with the East Asia Location selection highlighted.](media/create-event-hubs-blade-asia.png 'Create Namespace')
 
-26. Open Visual Studio to go back go the TransactionGenerator project.
+26. Open Visual Studio to go back to the TransactionGenerator project.
 
 27. Open the `appsettings.json` file once more. Paste your two new Event Hub connection strings into the values for `EVENT_HUB_2_CONNECTION_STRING` and `EVENT_HUB_3_CONNECTION_STRING`, respectively.
 
@@ -414,7 +414,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
     ![Map showing newly added regions for Cosmos DB.](media/replicate-data-globally-map.png 'Cosmos DB region map')
 
-    > You may have to wait several minutes for the change to take effect. In the meantime, you can feel free to continue and run the transaction generator. Cosmos DB can still ingest data as regions are being added. There should be no performance impact during this time or after the provisioning is complete.
+    > **Note**: You may have to wait several minutes for the change to take effect. In the meantime, you can feel free to continue and run the transaction generator. Cosmos DB can still ingest data as regions are being added. There should be no performance impact during this time or after the provisioning is complete.
 
 36. Open Visual Studio and debug the TransactionGenerator project. Let it run for at least 1 minute, or long enough to send 5,000 messages.
 
@@ -477,7 +477,9 @@ As an added layer of security when accessing an ADLS Gen2 filesystem using Datab
 
    ![Create new password](media/registered-app-create-key.png 'Create new password')
 
-7. Select **Save**, and then copy the key displayed under **Value**, and paste it into a text editor, such as Notepad, for use in an upcoming step to create a new secret in Key Vault. **Note**: This value will not be accessible once you navigate away from this screen, so make sure you copy it before leaving the Keys blade.
+7. Select **Save**, and then copy the key displayed under **Value**, and paste it into a text editor, such as Notepad, for use in an upcoming step to create a new secret in Key Vault. 
+
+>**Note**: This value will not be accessible once you navigate away from this screen, so make sure you copy it before leaving the Keys blade.
 
    ![Copy key value](media/registered-app-key-value.png 'Copy key value')
 
@@ -523,7 +525,7 @@ In this task, you will assign the required permissions to the service principal 
 
    ![ADLS Gen2 Add role assignment](media/add-role-assignment.png 'ADLS Gen2 Add role assignment')
 
-3. Select **Save**
+3. Select **Save**.
 
 4. You will now see the service principal listed under **Role assignments** on the Access control (IAM) blade.
 
@@ -583,7 +585,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
    ![The Create Library dialog is displayed, with PyPI highlighted under Library Source, and scikit-learn==0.20.1 entered into the Package text box.](media/databricks-create-library-scikit-learn.png 'Create Library')
 
-9. On the following screen, **DO NOT** check to box for **Install automatically on all clusters**, and select **Confirm** when prompted. This library is only needed as a reference for the Job clusters. You will diretly add this scikit-learn to the lab cluster in Exercise 3.
+9. On the following screen, **DO NOT** check to box for **Install automatically on all clusters**, and select **Confirm** when prompted. This library is only needed as a reference for the Job clusters. You will directly add this scikit-learn to the lab cluster in Exercise 3.
 
 ### Task 5: Explore historical transaction data with Azure Databricks and Spark
 
@@ -599,7 +601,7 @@ In this task, you will use an Azure Databricks notebook to download and explore 
 
 3. In the **1-Exploring-Historical-Transactions** notebook, follow the instructions to complete the remaining steps of this task.
 
-> **NOTE**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
+> **Note**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
 
 ### Task 6: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks
 
@@ -667,7 +669,7 @@ In this task, you will use an Azure Databricks notebook to explore the transacti
 
 3. In the **1-Prepare-Scoring-Web-Service** notebook, follow the instructions to complete the remaining steps of this task.
 
-> **NOTE**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
+> **Note**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
 
 ### Task 3: Prepare batch scoring model
 
@@ -729,11 +731,11 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
    - Select **Edit** next to Cluster, and select the following:
 
-     - Databricks Runtime Version: Runtime 5.1 (Scala 2.11, Spark 2.4.0)
-     - Python Version: 3
-     - Worker Type: Standard_D24_v2
-     - Workers: 8
-     - Driver Type: Same as worker
+     - **Databricks Runtime Version**: Runtime 5.1 (Scala 2.11, Spark 2.4.0)
+     - **Python Version**: 3
+     - **Worker Type**: Standard_D24_v2
+     - **Workers**: 8
+     - **Driver Type**: Same as worker
      - Expand Advanced and ensure that `spark.databricks.delta.preview.enabled true` is entered into the Spark Config box.
 
        ![The Configure Cluster dialog for the jbo is displayed, with the values specified above entered into the dialog.](media/databricks-job-cluster-config.png 'Configure Cluster')
@@ -783,9 +785,9 @@ In this task, you will use the JDBC URL for your Azure Databricks cluster to con
 4.  Now, you need to modify the JDBC URL to construct the JDBC server address that you will use to set up your Spark cluster connection in Power BI Desktop.
 
     - In the JDBC URL:
-      - Replace `jdbc:hive2` with `https`
-      - Remove everything in the path between the port number and `/sql`
-      - Remove the following string from the end of the URL: `;AuthMech=3;UID=token;PWD=<personal-access-token>`, retaining the components indicated by the highlights in the image below
+      - Replace `jdbc:hive2` with `https`.
+      - Remove everything in the path between the port number and `/sql`.
+      - Remove the following string from the end of the URL: `;AuthMech=3;UID=token;PWD=<personal-access-token>`, retaining the components indicated by the highlights in the image below.
 
     ![Parsed Cluster JDBC URL](media/databricks-cluster-jdbc-url-parsed.png 'Parsed JDBC URL')
 
@@ -821,7 +823,7 @@ In this task, you will use the JDBC URL for your Azure Databricks cluster to con
 
 12. Copy the generated token, and save it as you will need it more than once below. **NOTE**: You will not be able to access the token in Databricks once you close the Generate token dialog, so be sure to save this value to a text editor or another location you can access during this lab.
 
-13. Back in Power BI Desktop, enter "token" for the user name, and paste the access token you copied from Databricks into the password field.
+13. Back in Power BI Desktop, enter "token" for the username, and paste the access token you copied from Databricks into the password field.
 
     ![Enter "token" as the user name and paste your generated token into the password field.](media/power-bi-desktop-spark-token.png 'Enter Spark credentials')
 
