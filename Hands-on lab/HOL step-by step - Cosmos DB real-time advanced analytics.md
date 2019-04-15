@@ -9,7 +9,7 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-January 2019
+April 2019
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -137,7 +137,7 @@ In this task, you will configure the payment transaction data generator project 
 
    If the `ONLY_WRITE_TO_COSMOS_DB` property is set to `true`, no records will be sent to the Event Hubs instances. Default value is `false`.
 
-4. Copy your Event Hub connection string value you saved during the steps you completed in the before the hands-on lab setup guide. Paste this value into the double-quotes located next to `EVENT_HUB_1_CONNECTION_STRING`.
+4. Copy your Event Hub connection string value you copied from the `Sender` policy and saved during the steps you completed in the before the hands-on lab setup guide. Paste this value into the double-quotes located next to `EVENT_HUB_1_CONNECTION_STRING`.
 
    ![The Event Hub connection string is pasted in appsettings.json.](media/event-hub-connection-string.png 'appsettings.json')
 
@@ -363,21 +363,19 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
 23. Copy the **Connection string-primary key** value. Save this value for the Sender policy in Notepad or similar for later.
 
-24. Follow the step above to copy the **Connection string-primary key** value for the Listener policy and save for later.
-
-25. **Repeat steps 8 through 24 above** to create a new Event Hub namespace in the **East Asia** region.
+24. **Repeat steps 8 through 23 above** to create a new Event Hub namespace in the **East Asia** region.
 
     ![Create Event Hubs Namespace blade with the East Asia Location selection highlighted.](media/create-event-hubs-blade-asia.png 'Create Namespace')
 
-26. Open Visual Studio to go back to the TransactionGenerator project.
+25. Open Visual Studio to go back to the TransactionGenerator project.
 
-27. Open the `appsettings.json` file once more. Paste your two new Event Hub connection strings into the values for `EVENT_HUB_2_CONNECTION_STRING` and `EVENT_HUB_3_CONNECTION_STRING`, respectively.
+26. Open the `appsettings.json` file once more. Paste your two new Event Hub connection strings into the values for `EVENT_HUB_2_CONNECTION_STRING` and `EVENT_HUB_3_CONNECTION_STRING`, respectively.
 
     ![The two new Event Hub connection strings are pasted into the appsettings.json file.](media/event-hub-connection-strings.png 'appsettings.json')
 
-28. Save your changes.
+27. Save your changes.
 
-29. Open `Program.cs` and paste the below code underneath **TODO 8** to add two new Event Hub clients to the `eventHubClients` collection, using the two new connection string values:
+28. Open `Program.cs` and paste the below code underneath **TODO 8** to add two new Event Hub clients to the `eventHubClients` collection, using the two new connection string values:
 
     ```csharp
     EventHubClient.CreateFromConnectionString(
@@ -390,43 +388,43 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
     ![Screenshot displaying completed code.](media/event-hub-clients-added.png 'Program.cs')
 
-30. Now, we will add the two additional regions to Cosmos DB. Navigate to the Azure portal and select your Cosmos DB account you created for this lab.
+29. Now, we will add the two additional regions to Cosmos DB. Navigate to the Azure portal and select your Cosmos DB account you created for this lab.
 
-31. Select **Replicate data globally** underneath Settings in the left-hand menu.
+30. Select **Replicate data globally** underneath Settings in the left-hand menu.
 
     ![Left-hand menu with the Replicate data globally link highlighted.](media/replicate-data-globally-link.png 'Replicate data globally link')
 
-32. Within the Replicate data globally blade, select **+ Add region** above the listed regions in the Configure regions section.
+31. Within the Replicate data globally blade, select **+ Add region** above the listed regions in the Configure regions section.
 
     ![Screenshot with the Add region link highlighted.](media/add-region-link.png 'Add region link')
 
     > Notice that there are already two regions and they each have both reads and writes enabled. This is because you enabled the geo-redundancy and multi-region writes options when you provisioned Cosmos DB.
 
-33. Select **East Asia** in the dropdown list, then select **OK** to add the region.
+32. Select **East Asia** in the dropdown list, then select **OK** to add the region.
 
     ![East Asia is selected and highlighted in the location dropdown list.](media/add-region-east-asia.png 'East Asia')
 
-34. Select **+ Add region** again, this time selecting **UK South** in the dropdown list. Select **OK** to add the new region.
+33. Select **+ Add region** again, this time selecting **UK South** in the dropdown list. Select **OK** to add the new region.
 
     ![UK South is selected and highlighted in the location dropdown list.](media/add-region-uk-south.png 'UK South')
 
-35. Notice that the two new regions are highlighted on the world map, and each have both reads and writes enabled. Congratulations! You completed all the steps to write to and read from multiple regions around the world with Cosmos DB! Finally, select **Save** to save your changes.
+34. Notice that the two new regions are highlighted on the world map, and each have both reads and writes enabled. Congratulations! You completed all the steps to write to and read from multiple regions around the world with Cosmos DB! Finally, select **Save** to save your changes.
 
     ![Map showing newly added regions for Cosmos DB.](media/replicate-data-globally-map.png 'Cosmos DB region map')
 
     > **Note**: You may have to wait several minutes for the change to take effect. In the meantime, you can feel free to continue and run the transaction generator. Cosmos DB can still ingest data as regions are being added. There should be no performance impact during this time or after the provisioning is complete.
 
-36. Open Visual Studio and debug the TransactionGenerator project. Let it run for at least 1 minute, or long enough to send 5,000 messages.
+35. Open Visual Studio and debug the TransactionGenerator project. Let it run for at least 2 minutes, or long enough to send 10,000 messages.
 
     ![The TransactionGenerator console shows event hubs overall running slower than Cosmos DB.](media/console-output-event-hubs-slower.png 'Console output')
 
     Results will vary depending on machine specifications and network speeds, but overall, it will likely take longer to send the data to the three Event Hub instances than to Cosmos DB. You may also notice the Event Hubs pending queue filling up quite a bit more. Also notice that you did not have to make any code changes to write to the additional Cosmos DB regions.
 
-37. Open each of the three Event Hubs namespaces you have created for this lab. You should see an equal number of messages that were sent to each. The graph is shown on the bottom of the Overview blade. Select the **Messages** metric above the graph to view the number of messages received. The screenshot below is of the UK South Event Hub:
+36. Open each of the three Event Hubs namespaces you have created for this lab. You should see an equal number of messages that were sent to each. The graph is shown on the bottom of the Overview blade. Select the **Messages** metric above the graph to view the number of messages received. The screenshot below is of the UK South Event Hub:
 
     ![The Messages metric is selected for the UK South Event Hubs namespace.](media/uk-south-metrics.png 'Event Hubs Overview blade')
 
-38. View the data that was saved to Cosmos DB. Navigate to the Cosmos DB account for this lab in the Azure portal. Select **Data Explorer** on the left-hand menu. Expand the **Woodgrove** database and **transactions** collection, then select **Documents**. Select one of the documents from the list to view it. If you selected a more recently added document, notice that it contains a `ttl` value of 5,184,000 seconds, or 60 days. Also, there is a `collectionType` value of "Transaction". This allows consumers to query documents stored within the collection by the type. This is needed because a collection can contain any number of document types within, since it does not enforce any type of schema.
+37. View the data that was saved to Cosmos DB. Navigate to the Cosmos DB account for this lab in the Azure portal. Select **Data Explorer** on the left-hand menu. Expand the **Woodgrove** database and **transactions** collection, then select **Documents**. Select one of the documents from the list to view it. If you selected a more recently added document, notice that it contains a `ttl` value of 5,184,000 seconds, or 60 days. Also, there is a `collectionType` value of "Transaction". This allows consumers to query documents stored within the collection by the type. This is needed because a collection can contain any number of document types within, since it does not enforce any type of schema.
 
     ![Screenshot shows a document displayed within the Cosmos DB Data Explorer.](media/cosmos-db-document.png 'Cosmos DB Data Exporer')
 
@@ -513,7 +511,7 @@ As an added layer of security when accessing an ADLS Gen2 filesystem using Datab
 
 In this task, you will assign the required permissions to the service principal to grant access to your ADLS Gen2 account.
 
-1. In the [Azure portal](https://portal.azure.com), navigate to the ADLS Gen2 account you created above, select **Access control (IAM)** from the left-hand menu, and then select **+ Add role assignment**.
+1. In the [Azure portal](https://portal.azure.com), navigate to the ADLS Gen2 account you created above, select **Access control (IAM)** from the left-hand menu, select **+ Add**, then select **Add role assignment**.
 
    ![ADLS Gen2 Access Control blade](media/access-control.png 'ADLS Gen2 Access Control blade')
 
@@ -731,9 +729,9 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
    - Select **Edit** next to Cluster, and select the following:
 
-     - **Databricks Runtime Version**: Runtime 5.1 (Scala 2.11, Spark 2.4.0)
+     - **Databricks Runtime Version**: Runtime 5.2 (Scala 2.11, Spark 2.4.0)
      - **Python Version**: 3
-     - **Worker Type**: Standard_D24_v2
+     - **Worker Type**: Standard_DS4_v2
      - **Workers**: 8
      - **Driver Type**: Same as worker
      - Expand Advanced and ensure that `spark.databricks.delta.preview.enabled true` is entered into the Spark Config box.
@@ -785,7 +783,7 @@ In this task, you will use the JDBC URL for your Azure Databricks cluster to con
 4.  Now, you need to modify the JDBC URL to construct the JDBC server address that you will use to set up your Spark cluster connection in Power BI Desktop.
 
     - In the JDBC URL:
-      - Replace `jdbc:hive2` with `https`.
+      - Replace `jdbc:spark` with `https`.
       - Remove everything in the path between the port number and `/sql`.
       - Remove the following string from the end of the URL: `;AuthMech=3;UID=token;PWD=<personal-access-token>`, retaining the components indicated by the highlights in the image below.
 
