@@ -157,12 +157,6 @@ In this task, you will create Sender and Listener Access Policies on the Event H
 
     ![The button to copy the primary connection string for the sender policy is highlighted.](media/copy-sender-policy-key.png "Sender policy primary connection string")
 
-12. Select the **Listener** access policy.
-
-13. Copy the **Connection string-primary key** value. Save this value for the Listener policy in Notepad or similar for later.
-
-    ![The button to copy the primary connection string for the listener policy is highlighted.](media/copy-listener-policy-key.png "Listener policy primary connection string")
-
 ### Task 2: Configuring Event Hubs and the transaction generator
 
 In this task, you will configure the payment transaction data generator project by completing TODO items in the source code and adding connection information for your Event Hub.
