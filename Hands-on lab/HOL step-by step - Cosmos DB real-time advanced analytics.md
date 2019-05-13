@@ -863,19 +863,11 @@ In this task, you will configure the Key for the ADLS Gen2 Storage Account withi
 
 ### Task 2: Configure Cosmos DB Keys in Key Vault
 
-1. In the Azure Portal, navigate to the **Cosmos DB Account**, then select **Keys** from the left-hand menu.
-
-   ![Keys is selected within the left-hand menu](media/cosmos-db-keys-link.png 'Select Keys')
-
-2. Copy both the **URI** and **Primary Key** values and save to Notepad or similar text editor for later use in the TransactionGenerator console application. You will also insert these values into Key Vault in the next steps.
-
-   ![The Cosmos DB Read-write Keys blade is displayed with highlights around the copy buttons for both URI and Primary Key.](media/cosmos-db-keys.png 'Cosmos DB Read-write Keys')
-
-3. Open a new browser tab or window and navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
+1. Open a new browser tab or window and navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
 
     ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
 
-4. On the Create a secret blade, enter the following:
+2. On the Create a secret blade, enter the following:
 
     - **Upload options**: Select Manual.
     - **Name**: Enter "Cosmos-DB-URI".
@@ -883,11 +875,11 @@ In this task, you will configure the Key for the ADLS Gen2 Storage Account withi
 
     ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-uri-secret.png 'Create a secret')
 
-5. Select **Create**.
+3. Select **Create**.
 
-6. Select **+ Generate/Import** again on the top toolbar to create another secret.
+4. Select **+ Generate/Import** again on the top toolbar to create another secret.
 
-7. On the Create a secret blade, enter the following:
+5. On the Create a secret blade, enter the following:
 
     - **Upload options**: Select Manual.
     - **Name**: Enter "Cosmos-DB-Key".
@@ -895,7 +887,7 @@ In this task, you will configure the Key for the ADLS Gen2 Storage Account withi
 
     ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-key-secret.png 'Create a secret')
 
-8. Select **Create**.
+6. Select **Create**.
 
 ### Task 3: Distributing batch scored data globally using Cosmos DB
 
