@@ -201,7 +201,7 @@ In this task, you will create an Azure resource group for the resources used thr
 
     ![The Load file button is highlighted](media/deploy-deployment-load-file-button.png "The Load file button is highlighted")
 
-7. Select the `C:\CosmosMCW\Deployment\environment-template.json` ARM Template.
+7. Select the `C:\CosmosMCW\MCW-Cosmos-DB-Real-Time-Advanced-Analytics-master\Hands-on lab\Deployment\environment-template.json` ARM Template.
 
 8. Click **Save**.
 
