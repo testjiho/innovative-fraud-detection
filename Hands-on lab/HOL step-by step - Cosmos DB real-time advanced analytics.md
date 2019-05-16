@@ -39,21 +39,21 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
   - [Exercise 2: Understanding and preparing the transaction data at scale](#exercise-2-understanding-and-preparing-the-transaction-data-at-scale)
     - [Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem](#task-1-create-a-service-principal-for-oauth-access-to-the-adls-gen2-filesystem)
     - [Task 2: Add the service principal credentials and Tenant Id to Azure Key Vault](#task-2-add-the-service-principal-credentials-and-tenant-id-to-azure-key-vault)
-    - [Task 3: Create an Azure Databricks cluster](#task-3-create-an-azure-databricks-cluster)
-    - [Task 4: Open Azure Databricks and load lab notebooks](#task-4-open-azure-databricks-and-load-lab-notebooks)
-    - [Task 5: Configure Azure Databricks Key Vault-backed secrets](#task-5-configure-azure-databricks-key-vault-backed-secrets)
-    - [Task 6: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks](#task-6-install-the-azure-cosmos-db-spark-connector-and-scikit-learn-libraries-in-databricks)
-    - [Task 7: Explore historical transaction data with Azure Databricks and Spark](#task-7-explore-historical-transaction-data-with-azure-databricks-and-spark)
-    - [Task 8: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks](#task-8-responding-to-streaming-transactions-using-the-cosmos-db-change-feed-and-spark-structured-streaming-in-azure-databricks)
+    - [Task 3: Configure ADLS Gen2 Storage Account in Key Vault](#task-3-configure-adls-gen2-storage-account-in-key-vault)
+    - [Task 4: Configure Cosmos DB Keys in Key Vault](#task-4-configure-cosmos-db-keys-in-key-vault)
+    - [Task 5: Create an Azure Databricks cluster](#task-5-create-an-azure-databricks-cluster)
+    - [Task 6: Open Azure Databricks and load lab notebooks](#task-6-open-azure-databricks-and-load-lab-notebooks)
+    - [Task 7: Configure Azure Databricks Key Vault-backed secrets](#task-7-configure-azure-databricks-key-vault-backed-secrets)
+    - [Task 8: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks](#task-8-install-the-azure-cosmos-db-spark-connector-and-scikit-learn-libraries-in-databricks)
+    - [Task 9: Explore historical transaction data with Azure Databricks and Spark](#task-9-explore-historical-transaction-data-with-azure-databricks-and-spark)
+    - [Task 10: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks](#task-10-responding-to-streaming-transactions-using-the-cosmos-db-change-feed-and-spark-structured-streaming-in-azure-databricks)
   - [Exercise 3: Creating and evaluating fraud models](#exercise-3-creating-and-evaluating-fraud-models)
     - [Task 1: Install the AzureML and Scikit-Learn libraries in Databricks](#task-1-install-the-azureml-and-scikit-learn-libraries-in-databricks)
     - [Task 2: Prepare and deploy scoring web service](#task-2-prepare-and-deploy-scoring-web-service)
     - [Task 3: Prepare batch scoring model](#task-3-prepare-batch-scoring-model)
   - [Exercise 4: Scaling globally](#exercise-4-scaling-globally)
-    - [Task 1: Configure ADLS Gen2 Storage Account in Key Vault](#task-1-configure-adls-gen2-storage-account-in-key-vault)
-    - [Task 2: Configure Cosmos DB Keys in Key Vault](#task-2-configure-cosmos-db-keys-in-key-vault)
-    - [Task 3: Distributing batch scored data globally using Cosmos DB](#task-3-distributing-batch-scored-data-globally-using-cosmos-db)
-    - [Task 4: Using an Azure Databricks job to batch score transactions on a schedule](#task-4-using-an-azure-databricks-job-to-batch-score-transactions-on-a-schedule)
+    - [Task 1: Distributing batch scored data globally using Cosmos DB](#task-1-distributing-batch-scored-data-globally-using-cosmos-db)
+    - [Task 2: Using an Azure Databricks job to batch score transactions on a schedule](#task-2-using-an-azure-databricks-job-to-batch-score-transactions-on-a-schedule)
   - [Exercise 5: Reporting](#exercise-5-reporting)
     - [Task 1: Utilizing Power BI to summarize and visualize global fraud trends](#task-1-utilizing-power-bi-to-summarize-and-visualize-global-fraud-trends)
     - [Task 2: Creating dashboards in Azure Databricks](#task-2-creating-dashboards-in-azure-databricks)
@@ -599,7 +599,69 @@ As an added layer of security when accessing an ADLS Gen2 filesystem using Datab
 
 9. Select **Create**.
 
-### Task 3: Create an Azure Databricks cluster
+### Task 3: Configure ADLS Gen2 Storage Account in Key Vault
+
+In this task, you will configure the Key for the ADLS Gen2 Storage Account within Key Vault.
+
+1. In the Azure Portal, navigate to the ADLS Gen2 **Storage Account**, then select **Access keys** under Settings on the left-hand menu. You are going to copy the **Storage account name** and **Key** values and add them as secrets in your Key Vault account.
+
+   ![The storage account Access keys blade is displayed, with the storage account name highlighted.](media/storage-account-access-keys.png 'Storage account access keys')
+
+2. Open a new browser tab or window and navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
+
+   ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
+
+3. On the Create a secret blade, enter the following:
+
+   - **Upload options**: Select Manual.
+   - **Name**: Enter "ADLS-Gen2-Account-Name".
+   - **Value**: Paste the Storage account name value you copied in an earlier step.
+
+   ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-adls-gen2-account-name-secret.png 'Create a secret')
+
+4. Select **Create**.
+
+5. Select **+ Generate/Import** again on the top toolbar to create another secret.
+
+6. On the Create a secret blade, enter the following:
+
+    - **Upload options**: Select Manual.
+    - **Name**: Enter "ADLS-Gen2-Account-Key".
+    - **Value**: Paste the Storage account Key value you copied in an earlier step.
+
+    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-adls-gen2-account-key-secret.png 'Create a secret')
+
+7. Select **Create**.
+
+### Task 4: Configure Cosmos DB Keys in Key Vault
+
+1. Open a new browser tab or window and navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
+
+    ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
+
+2. On the Create a secret blade, enter the following:
+
+    - **Upload options**: Select Manual.
+    - **Name**: Enter "Cosmos-DB-URI".
+    - **Value**: Paste the Azure Cosmos DB URI value you copied in an earlier step.
+
+    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-uri-secret.png 'Create a secret')
+
+3. Select **Create**.
+
+4. Select **+ Generate/Import** again on the top toolbar to create another secret.
+
+5. On the Create a secret blade, enter the following:
+
+    - **Upload options**: Select Manual.
+    - **Name**: Enter "Cosmos-DB-Key".
+    - **Value**: Paste the Azure Cosmos DB Primary Key value you copied in an earlier step.
+
+    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-key-secret.png 'Create a secret')
+
+6. Select **Create**.
+
+### Task 5: Create an Azure Databricks cluster
 
 In this task, you will connect to your Azure Databricks workspace and create a cluster to use for this hands-on lab.
 
@@ -633,7 +695,7 @@ In this task, you will connect to your Azure Databricks workspace and create a c
 
 4. Select **Create Cluster**. It will take 3-5 minutes for the cluster to be created and started.
 
-### Task 4: Open Azure Databricks and load lab notebooks
+### Task 6: Open Azure Databricks and load lab notebooks
 
 In this task, you will import the notebooks contained in the [Cosmos DB real-time advanced analytics MCW GitHub repo](https://github.com/Microsoft/MCW-Cosmos-DB-Real-Time-Advanced-Analytics) into your Azure Databricks workspace.
 
@@ -653,7 +715,7 @@ In this task, you will import the notebooks contained in the [Cosmos DB real-tim
 
 5. You should now see a folder named **CosmosDbAdvancedAnalytics** in your user workspace. This folder contains all of the notebooks you will use throughout this hands-on lab.
 
-### Task 5: Configure Azure Databricks Key Vault-backed secrets
+### Task 7: Configure Azure Databricks Key Vault-backed secrets
 
 In this task, you will connect to your Azure Databricks workspace and configure Azure Databricks secrets to use your Azure Key Vault account as a backing store.
 
@@ -685,7 +747,7 @@ In this task, you will connect to your Azure Databricks workspace and configure 
 
 After a moment, you will see a dialog verifying that the secret scope has been created.
 
-### Task 6: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks
+### Task 8: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks
 
 In this task, you will install the [Azure Cosmos DB Spark Connector](https://github.com/Azure/azure-cosmosdb-spark) and scikit-learn libraries on your Databricks cluster. The Cosmos DB connector allows you to easily read from and write to Azure Cosmos DB via Apache Spark DataFrames.
 
@@ -721,7 +783,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
 9. On the following screen, **DO NOT** check to box for **Install automatically on all clusters**, and select **Confirm** when prompted. This library is only needed as a reference for the Job clusters. You will directly add this scikit-learn to the lab cluster in Exercise 3.
 
-### Task 7: Explore historical transaction data with Azure Databricks and Spark
+### Task 9: Explore historical transaction data with Azure Databricks and Spark
 
 In this task, you will use an Azure Databricks notebook to download and explore historical transaction data.
 
@@ -737,7 +799,7 @@ In this task, you will use an Azure Databricks notebook to download and explore 
 
 > **Note**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
 
-### Task 8: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks
+### Task 10: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks
 
 In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and query streaming data from the Cosmos DB Change Feed.
 
@@ -827,69 +889,7 @@ When you set up Cosmos DB you enabled both geo-redundancy and multi-region write
 
 In this exercise, you will score the batch transaction data stored in Databricks Delta with your trained ML model, and write any transactions that are marked as "suspicious" to Cosmos DB via the Azure Cosmos DB Spark Connector. Cosmos with automatically distribute that data globally, using the [default consistency level](https://docs.microsoft.com/en-us/azure/cosmos-db/consistency-levels). To learn more see [Global data distribution with Azure Cosmos DB - under the hood](https://docs.microsoft.com/en-us/azure/cosmos-db/global-dist-under-the-hood).
 
-### Task 1: Configure ADLS Gen2 Storage Account in Key Vault
-
-In this task, you will configure the Key for the ADLS Gen2 Storage Account within Key Vault.
-
-1. In the Azure Portal, navigate to the ADLS Gen2 **Storage Account**, then select **Access keys** under Settings on the left-hand menu. You are going to copy the **Storage account name** and **Key** values and add them as secrets in your Key Vault account.
-
-   ![The storage account Access keys blade is displayed, with the storage account name highlighted.](media/storage-account-access-keys.png 'Storage account access keys')
-
-2. Open a new browser tab or window and navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
-
-   ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
-
-3. On the Create a secret blade, enter the following:
-
-   - **Upload options**: Select Manual.
-   - **Name**: Enter "ADLS-Gen2-Account-Name".
-   - **Value**: Paste the Storage account name value you copied in an earlier step.
-
-   ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-adls-gen2-account-name-secret.png 'Create a secret')
-
-4. Select **Create**.
-
-5. Select **+ Generate/Import** again on the top toolbar to create another secret.
-
-6. On the Create a secret blade, enter the following:
-
-    - **Upload options**: Select Manual.
-    - **Name**: Enter "ADLS-Gen2-Account-Key".
-    - **Value**: Paste the Storage account Key value you copied in an earlier step.
-
-    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-adls-gen2-account-key-secret.png 'Create a secret')
-
-7. Select **Create**.
-
-### Task 2: Configure Cosmos DB Keys in Key Vault
-
-1. Open a new browser tab or window and navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
-
-    ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
-
-2. On the Create a secret blade, enter the following:
-
-    - **Upload options**: Select Manual.
-    - **Name**: Enter "Cosmos-DB-URI".
-    - **Value**: Paste the Azure Cosmos DB URI value you copied in an earlier step.
-
-    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-uri-secret.png 'Create a secret')
-
-3. Select **Create**.
-
-4. Select **+ Generate/Import** again on the top toolbar to create another secret.
-
-5. On the Create a secret blade, enter the following:
-
-    - **Upload options**: Select Manual.
-    - **Name**: Enter "Cosmos-DB-Key".
-    - **Value**: Paste the Azure Cosmos DB Primary Key value you copied in an earlier step.
-
-    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-key-secret.png 'Create a secret')
-
-6. Select **Create**.
-
-### Task 3: Distributing batch scored data globally using Cosmos DB
+### Task 1: Distributing batch scored data globally using Cosmos DB
 
 In this task, you will use an Azure Databricks notebook to batch stored the data stored in the `transactions` Databricks Delta table with your machine learning model. The scoring results will be written to a new `scored_transactions` Delta table, and any suspicious transactions will also be written back to Cosmos DB.
 
@@ -903,7 +903,7 @@ In this task, you will use an Azure Databricks notebook to batch stored the data
 
 3. In the **1-Distributing-Data-Globally** notebook, follow the instructions to complete the remaining steps of this task.
 
-### Task 4: Using an Azure Databricks job to batch score transactions on a schedule
+### Task 2: Using an Azure Databricks job to batch score transactions on a schedule
 
 In this task, you will create an Azure Databricks job, which will execute a notebook that performs batch scoring on transactions on an hourly schedule.
 
