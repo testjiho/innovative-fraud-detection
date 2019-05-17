@@ -561,11 +561,16 @@ As an added layer of security when accessing an ADLS Gen2 filesystem using Datab
 
 ### Task 2: Add the service principal credentials and Tenant Id to Azure Key Vault
 
-1. To provide access your ADLS Gen2 account from Azure Databricks you will use secrets stored in your Azure Key Vault account to provide the credentials of your newly created service principal within Databricks. Navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
+1. To provide access your ADLS Gen2 account from Azure Databricks you will use secrets stored in your Azure Key Vault account to provide the credentials of your newly created service principal within Databricks. Navigate to your Azure Key Vault account in the Azure portal, then select **Access Policies** and select the **+ Add new** button.
+
+2. Choose the account that you are currently logged into the portal with as the principal and **check Select all** under `key permissions`, `secret permissions`, and `certificate permissions`, then click OK and then click **Save**.
+
+
+3. Now select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
 
    ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png "Key Vault secrets blade")
 
-2. On the Create a secret blade, enter the following:
+4. On the Create a secret blade, enter the following:
 
     - **Upload options**: Select Manual.
     - **Name**: Enter "Woodgrove-SP-Client-ID".
@@ -573,11 +578,11 @@ As an added layer of security when accessing an ADLS Gen2 filesystem using Datab
 
     ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-woodgrove-sp-client-id-secret.png "Create a secret")
 
-3. Select **Create**.
+5. Select **Create**.
 
-4. Select **+ Generate/Import** again on the top toolbar to create another secret.
+6. Select **+ Generate/Import** again on the top toolbar to create another secret.
 
-5. On the Create a secret blade, enter the following:
+7. On the Create a secret blade, enter the following:
 
     - **Upload options**: Select Manual.
     - **Name**: Enter "Woodgrove-SP-Client-Key".
@@ -585,11 +590,11 @@ As an added layer of security when accessing an ADLS Gen2 filesystem using Datab
 
     ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-woodgrove-sp-client-key-secret.png 'Create a secret')
 
-6. Select **Create**.
+8. Select **Create**.
 
-7. To perform authentication using the service principal account in Databricks you will also need to provide your Azure AD Tenant ID. Select **+ Generate/Import** again on the top toolbar to create another secret.
+9. To perform authentication using the service principal account in Databricks you will also need to provide your Azure AD Tenant ID. Select **+ Generate/Import** again on the top toolbar to create another secret.
 
-8. On the Create a secret blade, enter the following:
+10. On the Create a secret blade, enter the following:
 
    - **Upload options**: Select Manual.
    - **Name**: Enter "Azure-Tenant-ID".
@@ -597,7 +602,7 @@ As an added layer of security when accessing an ADLS Gen2 filesystem using Datab
 
    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-azure-tenant-id-secret.png "Create a secret")
 
-9. Select **Create**.
+11. Select **Create**.
 
 ### Task 3: Configure ADLS Gen2 Storage Account in Key Vault
 
