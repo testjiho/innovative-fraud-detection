@@ -782,9 +782,9 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
 7. Select the Shared folder under your workspace again, and select **Create** and **Library** from the context menus.
 
-8. In the Create Library dialog, select **PyPI** as the Library Source, and enter **scikit-learn==0.20.1** in the Package box, and then select **Create**
+8. In the Create Library dialog, select **PyPI** as the Library Source, and enter **scikit-learn==0.21.1** in the Package box, and then select **Create**
 
-   ![The Create Library dialog is displayed, with PyPI highlighted under Library Source, and scikit-learn==0.20.1 entered into the Package text box.](media/databricks-create-library-scikit-learn.png 'Create Library')
+   ![The Create Library dialog is displayed, with PyPI highlighted under Library Source, and scikit-learn==0.21.1 entered into the Package text box.](media/databricks-create-library-scikit-learn.png 'Create Library')
 
 9. On the following screen, **DO NOT** check to box for **Install automatically on all clusters**, and select **Confirm** when prompted. This library is only needed as a reference for the Job clusters. You will directly add this scikit-learn to the lab cluster in Exercise 3.
 
@@ -848,7 +848,7 @@ In this task, you will install the required `AzureML` and `Scikit-Learn` librari
 
 6. Select **Install New** again.
 
-7. In the dialog that appears, select **PyPi** as the **Library Source**. Enter `scikit-learn==0.20.1` in the **Package** field, then select **Install**.
+7. In the dialog that appears, select **PyPi** as the **Library Source**. Enter `scikit-learn==0.21.1` in the **Package** field, then select **Install**.
 
    ![The Install Library dialog is displayed, PyPI is selected as the Library Source, and the Package field is highlighted.](media/databricks-install-scikit-learn.png 'Install Library')
 
@@ -926,7 +926,7 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
    - Select **Add** next to Dependent Libraries, navigate to the Shared folder, select the **azure-cosmosdb-spark** library and select **OK**.
 
-   - Repeat the step above to add the **scikit-learn==0.20.1** library as well.
+   - Repeat the step above to add the **scikit-learn==0.21.1** library as well.
 
      ![The Add Dependent Library dialog is displayed with the azure-cosmosdb-spark and scikit-learn libraries highlighted within the Shared folder.](media/databricks-job-add-dependent-library.png 'Add Dependent Library')
 
