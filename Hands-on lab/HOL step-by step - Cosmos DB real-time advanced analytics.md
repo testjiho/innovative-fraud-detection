@@ -9,7 +9,7 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-April 2019
+May 2019
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -32,16 +32,21 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
   - [Solution architecture](#solution-architecture)
   - [Requirements](#requirements)
   - [Exercise 1: Collecting streaming transaction data](#exercise-1-collecting-streaming-transaction-data)
-    - [Task 1: Configuring Event Hubs and the transaction generator](#task-1-configuring-event-hubs-and-the-transaction-generator)
-    - [Task 2: Ingesting streaming data into Cosmos DB](#task-2-ingesting-streaming-data-into-cosmos-db)
-    - [Task 3: Choosing between Cosmos DB and Event Hubs for ingestion](#task-3-choosing-between-cosmos-db-and-event-hubs-for-ingestion)
+    - [Task 1: Retrieve Event Hubs Connection String](#task-1-retrieve-event-hubs-connection-string)
+    - [Task 2: Configuring Event Hubs and the transaction generator](#task-2-configuring-event-hubs-and-the-transaction-generator)
+    - [Task 3: Ingesting streaming data into Cosmos DB](#task-3-ingesting-streaming-data-into-cosmos-db)
+    - [Task 4: Choosing between Cosmos DB and Event Hubs for ingestion](#task-4-choosing-between-cosmos-db-and-event-hubs-for-ingestion)
   - [Exercise 2: Understanding and preparing the transaction data at scale](#exercise-2-understanding-and-preparing-the-transaction-data-at-scale)
     - [Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem](#task-1-create-a-service-principal-for-oauth-access-to-the-adls-gen2-filesystem)
-    - [Task 2: Grant ADLS Gen2 access permissions to the service principal](#task-2-grant-adls-gen2-access-permissions-to-the-service-principal)
-    - [Task 3: Retrieve your Azure AD tenant ID](#task-3-retrieve-your-azure-ad-tenant-id)
-    - [Task 4: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks](#task-4-install-the-azure-cosmos-db-spark-connector-and-scikit-learn-libraries-in-databricks)
-    - [Task 5: Explore historical transaction data with Azure Databricks and Spark](#task-5-explore-historical-transaction-data-with-azure-databricks-and-spark)
-    - [Task 6: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks](#task-6-responding-to-streaming-transactions-using-the-cosmos-db-change-feed-and-spark-structured-streaming-in-azure-databricks)
+    - [Task 2: Add the service principal credentials and Tenant Id to Azure Key Vault](#task-2-add-the-service-principal-credentials-and-tenant-id-to-azure-key-vault)
+    - [Task 3: Configure ADLS Gen2 Storage Account in Key Vault](#task-3-configure-adls-gen2-storage-account-in-key-vault)
+    - [Task 4: Configure Cosmos DB Keys in Key Vault](#task-4-configure-cosmos-db-keys-in-key-vault)
+    - [Task 5: Create an Azure Databricks cluster](#task-5-create-an-azure-databricks-cluster)
+    - [Task 6: Open Azure Databricks and load lab notebooks](#task-6-open-azure-databricks-and-load-lab-notebooks)
+    - [Task 7: Configure Azure Databricks Key Vault-backed secrets](#task-7-configure-azure-databricks-key-vault-backed-secrets)
+    - [Task 8: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks](#task-8-install-the-azure-cosmos-db-spark-connector-and-scikit-learn-libraries-in-databricks)
+    - [Task 9: Explore historical transaction data with Azure Databricks and Spark](#task-9-explore-historical-transaction-data-with-azure-databricks-and-spark)
+    - [Task 10: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks](#task-10-responding-to-streaming-transactions-using-the-cosmos-db-change-feed-and-spark-structured-streaming-in-azure-databricks)
   - [Exercise 3: Creating and evaluating fraud models](#exercise-3-creating-and-evaluating-fraud-models)
     - [Task 1: Install the AzureML and Scikit-Learn libraries in Databricks](#task-1-install-the-azureml-and-scikit-learn-libraries-in-databricks)
     - [Task 2: Prepare and deploy scoring web service](#task-2-prepare-and-deploy-scoring-web-service)
@@ -100,7 +105,59 @@ Duration: 30 minutes
 
 In this exercise, you will configure a payment transaction generator to write real-time streaming online payments to both Event Hubs and Azure Cosmos DB. By the end, you will have selected the best ingest option before continuing to the following exercise where you will process the generated data.
 
-### Task 1: Configuring Event Hubs and the transaction generator
+### Task 1: Retrieve Event Hubs Connection String
+
+In this task, you will create Sender and Listener Access Policies on the Event Hub Namespace for this lab, and then copy the Connection Strings for them to be used later.
+
+1. In the Azure Portal, navigate to the **Resource Group** created for this hands-on lab, then navigate to the **Event Hubs Namespace** resource.
+
+    ![The Event Hubs Namespace within the Resource Group is highlighted.](media/resource-group-hands-on-lab-event-hubs.png "The Event Hubs Namespace within the Resource Group is highlighted.")
+
+2. Select **Event Hubs**, then select the **transactions** Event Hub from the list.
+
+    ![The Event Hubs link is highlighted, as well as the transactions event hub in the list of event hubs.](media/event-hubs-list-transactions-event-hub.png "The Event Hubs link is highlighted, as well as the transactions event hub in the list of event hubs")
+
+3.  Select it then select **Shared access policies** under Settings in the left-hand menu.
+
+    ![Shared access policies is selected within the left-hand menu](media/select-shared-access-policies.png 'Select Shared access policies')
+
+4. Select **+ Add** in the top toolbar.
+
+   ![Select the + Add button in the top toolbar](media/add-shared-access-policy.png 'Add Shared Access Policy')
+
+5. In the **Add SAS Policy** blade, configure the following:
+
+    - **Policy name**: Enter "Sender".
+    - **Manage**: Unchecked
+    - **Send**: Checked
+    - **Listen**: Unchecked
+
+    ![The Add SAS Plicy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-sender.png 'Add SAS Policy')
+
+6. Select **Create**.
+
+7. Select **+ Add** in the top toolbar to add another policy.
+
+    ![Select the + Add button in the top toolbar](media/add-shared-access-policy.png 'Add Shared Access Policy')
+
+8. In the **Add SAS Policy** blade, configure the following:
+
+    - **Policy name**: Enter "Listener".
+    - **Manage**: Unchecked
+    - **Send**: Unchecked
+    - **Listen**: Checked
+
+    ![The Add SAS Policy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-listener.png 'Add SAS Policy')
+
+9. Select **Create**.
+
+10. Select the **Sender** access policy.
+
+11. Copy the **Connection string-primary key** value. Save this value for the Sender policy in Notepad or similar for later.
+
+    ![The button to copy the primary connection string for the sender policy is highlighted.](media/copy-sender-policy-key.png "Sender policy primary connection string")
+
+### Task 2: Configuring Event Hubs and the transaction generator
 
 In this task, you will configure the payment transaction data generator project by completing TODO items in the source code and adding connection information for your Event Hub.
 
@@ -164,6 +221,8 @@ In this task, you will configure the payment transaction data generator project 
 
    ![Screenshot of completed TODO 1 code.](media/completed-todo-1-code.png 'Completed code')
 
+   >**Note**: The /ipCountryCode partition was selected because the data will most likely include this value, and it allows us to partition by location from which the transaction originated. This field also contains a wide range of values, which is preferable for partitions.
+
 9. Paste the code below under **TODO 2** to increment the count of the number of Event Hub requests that succeeded:
 
    ```csharp
@@ -180,7 +239,7 @@ In this task, you will configure the payment transaction data generator project 
 
 11. Save your changes.
 
-### Task 2: Ingesting streaming data into Cosmos DB
+### Task 3: Ingesting streaming data into Cosmos DB
 
 In this task, you will configure Cosmos DB's time-to-live (TTL) settings to On with no default. This will allow the data generator to expire, or delete, the ingested messages after any desired period of time by setting the TTL value (object property of `ttl`) on individual messages as they are sent.
 
@@ -198,34 +257,42 @@ Next you will pass in the Azure Cosmos DB URI and Key values to the data generat
 
 4. Select **Save** to apply your settings.
 
-5. Open Visual Studio to go back to the TransactionGenerator project.
+5. On the **Azure Cosmos DB Account** blade, select **Keys** under **Settings**.
 
-6. Open the `appsettings.json` file once more. Paste your Cosmos DB endpoint value next to `COSMOS_DB_ENDPOINT`, and the Cosmos DB authorization key next to `COSMOS_DB_AUTH_KEY`. You recorded these values during the Cosmos DB provisioning steps in the before the hands-on lab setup guide. For example:
+    ![The Keys option under Settings for the Cosmos DB Account is highlighted.](media/cosmos-db-settings-keys.png "The Keys option under Settings for the Cosmos DB Account is highlighted.")
+
+6. Copy the endpoint **URI** and **Primary Key** for Cosmos DB. Save this value to notepad or similar for use later.
+
+    ![The URI and Primary Key for Cosmos DB are highlighted.](media/cosmos-db-settings-keys-uri-primary-key.png "The URI and Primary Key for Cosmos DB are highlighted.")
+
+7. Open Visual Studio to go back to the TransactionGenerator project.
+
+8. Open the `appsettings.json` file once more. Paste your Cosmos DB endpoint value next to `COSMOS_DB_ENDPOINT`, and the Cosmos DB authorization key next to `COSMOS_DB_AUTH_KEY`. For example:
 
    ![The Cosmos DB values have been added to appsettings.json](media/cosmos-db-values.png 'appsettings.json')
 
-7. Open `Program.cs` and paste the code below under **TODO 4** to send the generated transaction data to Cosmos DB and store the returned `ResourceResponse` object into a new variable for statistics about RU/s used:
+9. Open `Program.cs` and paste the code below under **TODO 4** to send the generated transaction data to Cosmos DB and store the returned `ResourceResponse` object into a new variable for statistics about RU/s used:
 
    ```csharp
    var response = await _cosmosDbClient.CreateDocumentAsync(collectionUri, transaction)
        .ConfigureAwait(false);
    ```
 
-8. Paste the code below under **TODO 5** to append the number of RU/s consumed to the `_cosmosRUsPerBatch` variable:
+10. Paste the code below under **TODO 5** to append the number of RU/s consumed to the `_cosmosRUsPerBatch` variable:
 
-   ```csharp
-   _cosmosRUsPerBatch += response.RequestCharge;
-   ```
+    ```csharp
+    _cosmosRUsPerBatch += response.RequestCharge;
+    ```
 
-9. Paste the code below under **TODO 6** to set the Cosmos DB connection policy:
+11. Paste the code below under **TODO 6** to set the Cosmos DB connection policy:
 
-   ```csharp
-   var connectionPolicy = new ConnectionPolicy
-   {
-       ConnectionMode = ConnectionMode.Direct,
-       ConnectionProtocol = Protocol.Tcp
-   };
-   ```
+    ```csharp
+    var connectionPolicy = new ConnectionPolicy
+    {
+        ConnectionMode = ConnectionMode.Direct,
+        ConnectionProtocol = Protocol.Tcp
+    };
+    ```
 
 10. Save your changes.
 
@@ -247,12 +314,12 @@ Next you will pass in the Azure Cosmos DB URI and Key values to the data generat
     - Succeeded shows number of accumulative successful inserts to the service.
     - Pending are items in the bulkhead queue. This amount will continue to grow if the service is unable to keep up with demand.
     - Accumulative failed requests that encountered an exception.
-    
+
     > The obvious and recommended method for sending a lot of data is to do so in batches. This method can multiply the amount of data sent with each request by hundreds or thousands. However, the point of our exercise is not to maximize throughput and send as much data as possible, but to compare the relative performance between Event Hubs and Cosmos DB.
 
 13. As an experiment, scale the number of requested RU/s for your Cosmos DB collection down to 700. After doing so, you should see increasingly slower transfer rates to Cosmos DB due to throttling. You will also see the pending queue growing at a higher rate. The reason for this is because when the number of writes (remember, writes _typically_ use 5 RU/s vs. just 1 RU/s for reads on 1 KB-sized documents) exceeds the allotted amount of RU/s, Cosmos DB sends a 429 response with a _retry_after_ header value to tell the consumer that it is resource-constrained. The SDK automatically handles this by waiting for the specified amount of time, then retrying. After you are done experimenting, set the RU/s back to 15,000.
 
-### Task 3: Choosing between Cosmos DB and Event Hubs for ingestion
+### Task 4: Choosing between Cosmos DB and Event Hubs for ingestion
 
 Woodgrove Bank has a number of requirements around ingesting payment data, including data retention of the hot data and geographic locations to which the data is replicated for high availability and global distribution of the data for processing. There are many similarities between Event Hubs and Cosmos DB that allow both to work well for data ingestion. However, these services have some significant differences in their overall feature set that you need to evaluate to choose the best option for this customer situation.
 
@@ -340,7 +407,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
     - **Send**: Checked
     - **Listen**: Unchecked
 
-    ![The Add SAS Plicy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-sender.png 'Add SAS Policy')
+    ![The Add SAS Policy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-sender.png 'Add SAS Policy')
 
 18. Select **Create**.
 
@@ -355,7 +422,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
     - **Send**: Unchecked
     - **Listen**: Checked
 
-    ![The Add SAS Plicy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-listener.png 'Add SAS Policy')
+    ![The Add SAS Policy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-listener.png 'Add SAS Policy')
 
 21. Select **Create**.
 
@@ -426,7 +493,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
 37. View the data that was saved to Cosmos DB. Navigate to the Cosmos DB account for this lab in the Azure portal. Select **Data Explorer** on the left-hand menu. Expand the **Woodgrove** database and **transactions** collection, then select **Documents**. Select one of the documents from the list to view it. If you selected a more recently added document, notice that it contains a `ttl` value of 5,184,000 seconds, or 60 days. Also, there is a `collectionType` value of "Transaction". This allows consumers to query documents stored within the collection by the type. This is needed because a collection can contain any number of document types within, since it does not enforce any type of schema.
 
-    ![Screenshot shows a document displayed within the Cosmos DB Data Explorer.](media/cosmos-db-document.png 'Cosmos DB Data Exporer')
+    ![Screenshot shows a document displayed within the Cosmos DB Data Explorer.](media/cosmos-db-document.png 'Cosmos DB Data Explorer')
 
 Given the requirements provided by the customer, Cosmos DB is the best choice for ingesting data for this PoC. Cosmos DB allows for more flexible, and longer, TTL (message retention) than Event Hubs, which is capped at 7 days, or 4 weeks when you contact Microsoft to request the extra capacity. Another option for Event Hubs is to use Event Hubs Capture to simultaneously save ingested data to Blob Storage or Azure Data Lake Store for longer retention and cold storage. However, this will require additional development, including automatic clearing of the data after a period of time. In addition, Woodgrove Bank wanted to be able to easily query this data during the 60-day message retention period, from a database. This could also be accomplished through Azure Data Warehouse using Polybase to query the files, but that requires yet another service they may otherwise not need, as well as additional development, administration, and cost.
 
@@ -442,114 +509,250 @@ In this exercise, you will create connections from your Databricks workspace to 
 
 ### Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem
 
-As an added layer of security when accessing an ADLS Gen2 filesystem using Databricks you can use OAuth 2.0 for authentication. In this task, you will create an identity in Azure Active Directory (Azure AD) known as a service principal to facilitate the use of OAuth authentication.
+As an added layer of security when accessing an ADLS Gen2 filesystem using Databricks you can use OAuth 2.0 for authentication. In this task, you will use the Azure CLI to create an identity in Azure Active Directory (Azure AD) known as a service principal to facilitate the use of OAuth authentication.
 
 > **IMPORTANT**: You must have permissions within your Azure subscription to create an App registration and service principal within Azure Active Directory to complete this task.
 
-1. In the [Azure portal](https://portal.azure.com), select **Azure Active Directory** from the left-hand navigation menu, select **App registrations**, and then select **+ New application registration**.
+1. In the [Azure portal](https://portal.azure.com), select the **Cloud Shell** icon in the top toolbar.
 
-   ![Register new app in Azure Active Directory](media/aad-app-registration.png 'Register new app in Azure Active Directory')
+    ![The Cloud Shell icon is highlighted on the Azure toolbar.](media/azure-toolbar-cloud-shell.png "Azure Toolbar")
 
-2. On the Create blade, enter the following:
+2. Ensure **PowerShell** is selected in the Cloud Shell pane.
 
-   - **Name**: Enter a unique name, such as woodgrove-sp (this name must be unique within your Azure AD subscription, as indicated by a green check mark).
-   - **Application type**: Select Web app / API.
-   - **Sign-on URL**: Enter <https://woodgrove.com>.
+    ![PowerShell is highlighted in the Cloud Shell pane.](media/cloud-shell-powershell.png "Cloud Shell")
 
-   ![Create a new app registration](media/aad-app-create.png 'Create a new app registration')
+3. Next, you will issue a command to create a service principal named **woodgrove-sp** and assign it to the _Storage Blob Data Contributor_ role on your **ADLS Gen2 Storage account**. The command will be in the following format:
 
-3. Select **Create**.
+    ```bash
+    az ad sp create-for-rbac -n "woodgrove-sp" --role "Storage Blob Data Contributor" --scopes {adls-gen2-storage-account-resource-id}
+    ```
 
-4. To provide access your ADLS Gen2 account from Azure Databricks you will use secrets stored in your Azure Key Vault account to provide the credentials of your newly created service principal within Databricks. On the Registered app blade that appears, copy the **Application ID** and paste it into a text editor, such as Notepad, for use in an upcoming step to create a new secret in Key Vault.
+    > **IMPORTANT**: You will need to replace the `{adls-gen2-storage-account-resource-id}` value with the resource ID of your ADLS Gen2 Storage account.
 
-   ![Copy the Registered App Application ID](media/registered-app-id.png 'Copy the Registered App Application ID')
+4. To retrieve the ADLS Gen2 Storage account resource ID you need to replace above, navigate to **Resource groups** in the Azure navigation menu, enter "hands-on-lab-SUFFIX" into the filter box, and select the hands-on-lab-SUFFIX resource group from the list.
 
-5. Next, select **Settings** on the Registered app blade, and then select **Keys**.
+5. In your hands-on-lab-SUFFIX resource group, select the ADLS Gen2 Storage account you provisioned previously, and on the ADLS Gen2 Storage account blade select **Properties** under **Settings** in the left-hand menu, and then select the copy to clipboard button to the right of the **Storage account resource ID** value.
 
-   ![Open Keys blade for the Registered App](media/registered-app-settings-keys.png 'Open Keys blade for the Registered App')
+    ![On the ADLS Gen2 Storage account blade, Properties is selected and highlighted in the left-hand menu, and the copy to clipboard button is highlighted next to Storage account resource ID.](media/adls-gen2-properties.png "ADLS Gen2 Storage account properties")
 
-6. On the Keys blade, you will create a new password by doing the following under Passwords:
+6. Paste the Storage account resource ID into the command above, and then copy and paste the updated `az ad sp create-for-rbac` command at the Cloud Shell prompt and press `Enter`. The command should be similar to the following, with your subscription ID and resource group name:
 
-   - **Description**: Enter a description, such as Databricks-ADLS.
-   - **Expires**: Select a duration, such as **In 1 year**.
+    ```bash
+    az ad sp create-for-rbac -n "woodgrove-sp" --role "Storage Blob Data Contributor" --scope /subscriptions/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX/resourceGroups/hands-on-lab/providers/Microsoft.Storage/storageAccounts/aldsgen2store
+    ```
 
-   ![Create new password](media/registered-app-create-key.png 'Create new password')
+    ![The az ad sp create-for-rbac command is entered into the Cloud Shell, and the output of the command is displayed.](media/azure-cli-create-sp.png "Azure CLI")
 
-7. Select **Save**, and then copy the key displayed under **Value**, and paste it into a text editor, such as Notepad, for use in an upcoming step to create a new secret in Key Vault. 
+7. Copy the output from the command into a text editor, as you will need it in the following steps. The output should be similar to:
 
->**Note**: This value will not be accessible once you navigate away from this screen, so make sure you copy it before leaving the Keys blade.
+    ```json
+    {
+      "appId": "68b7968d-d0e6-4dbf-83f9-3da68cba4719",
+      "displayName": "woodgrove-sp",
+      "name": "http://woodgrove-sp",
+      "password": "2c2d601b-5b44-4ae9-8cb4-8ad90e533658",
+      "tenant": "9c37bff0-cd20-XXXX-XXXX-XXXXXXXXXXXX"
+    }
+    ```
 
-   ![Copy key value](media/registered-app-key-value.png 'Copy key value')
+8. To verify the role assignment, select **Access control (IAM)** from the left-hand menu of the **ADLS Gen2 Storage account** blade, and then select the **Role assignments** tab and locate **woodgrove-sp** under the _STORAGE BLOB DATA CONTRIBUTOR_ role.
 
-8. Navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
+    ![The Role assignments tab is displayed, with woodgrove-sp account highlighted under STORAGE BLOB DATA CONTRIBUTOR role in the list.](media/storage-account-role-assignments.png "Role assignments")
 
-   ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
+### Task 2: Add the service principal credentials and Tenant Id to Azure Key Vault
 
-9. On the Create a secret blade, enter the following:
+1. To provide access your ADLS Gen2 account from Azure Databricks you will use secrets stored in your Azure Key Vault account to provide the credentials of your newly created service principal within Databricks. Navigate to your Azure Key Vault account in the Azure portal, then select **Access Policies** and select the **+ Add new** button.
 
-   - **Upload options**: Select Manual.
-   - **Name**: Enter "Woodgrove-SP-Client-ID".
-   - **Value**: Paste the Application ID value you copied in an earlier step.
+2. Choose the account that you are currently logged into the portal with as the principal and **check Select all** under `key permissions`, `secret permissions`, and `certificate permissions`, then click OK and then click **Save**.
 
-   ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-woodgrove-sp-client-id-secret.png 'Create a secret')
 
-10. Select **Create**.
+3. Now select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
 
-11. Select **+ Generate/Import** again on the top toolbar to create another secret.
+   ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png "Key Vault secrets blade")
 
-12. On the Create a secret blade, enter the following:
+4. On the Create a secret blade, enter the following:
+
+    - **Upload options**: Select Manual.
+    - **Name**: Enter "Woodgrove-SP-Client-ID".
+    - **Value**: Paste the **appId** value from the Azure CLI output you copied in an earlier step.
+
+    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-woodgrove-sp-client-id-secret.png "Create a secret")
+
+5. Select **Create**.
+
+6. Select **+ Generate/Import** again on the top toolbar to create another secret.
+
+7. On the Create a secret blade, enter the following:
 
     - **Upload options**: Select Manual.
     - **Name**: Enter "Woodgrove-SP-Client-Key".
-    - **Value**: Paste the Password value you copied in an earlier step.
+    - **Value**: Paste the **password** value from the Azure CLI output you copied in an earlier step.
 
     ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-woodgrove-sp-client-key-secret.png 'Create a secret')
 
-13. Select **Create**.
+8. Select **Create**.
 
-### Task 2: Grant ADLS Gen2 access permissions to the service principal
+9. To perform authentication using the service principal account in Databricks you will also need to provide your Azure AD Tenant ID. Select **+ Generate/Import** again on the top toolbar to create another secret.
 
-In this task, you will assign the required permissions to the service principal to grant access to your ADLS Gen2 account.
+10. On the Create a secret blade, enter the following:
 
-1. In the [Azure portal](https://portal.azure.com), navigate to the ADLS Gen2 account you created above, select **Access control (IAM)** from the left-hand menu, select **+ Add**, then select **Add role assignment**.
+   - **Upload options**: Select Manual.
+   - **Name**: Enter "Azure-Tenant-ID".
+   - **Value**: Paste the **tenant** value from the Azure CLI output you copied in an earlier step.
 
-   ![ADLS Gen2 Access Control blade](media/access-control.png 'ADLS Gen2 Access Control blade')
+   ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-azure-tenant-id-secret.png "Create a secret")
 
-2. On the Add role assignment blade, set the following:
+11. Select **Create**.
 
-   - **Role**: Select **Storage Blob Data Contributor (Preview)** from the list.
-   - **Assign access to**: Choose **Azure AD user, group, or service principal**.
-   - **Select**: Enter the name of the service principal you created above, and then select it from the list.
+### Task 3: Configure ADLS Gen2 Storage Account in Key Vault
 
-   ![ADLS Gen2 Add role assignment](media/add-role-assignment.png 'ADLS Gen2 Add role assignment')
+In this task, you will configure the Key for the ADLS Gen2 Storage Account within Key Vault.
 
-3. Select **Save**.
+1. In the Azure Portal, navigate to the ADLS Gen2 **Storage Account**, then select **Access keys** under Settings on the left-hand menu. You are going to copy the **Storage account name** and **Key** values and add them as secrets in your Key Vault account.
 
-4. You will now see the service principal listed under **Role assignments** on the Access control (IAM) blade.
+   ![The storage account Access keys blade is displayed, with the storage account name highlighted.](media/storage-account-access-keys.png 'Storage account access keys')
 
-### Task 3: Retrieve your Azure AD tenant ID
-
-To perform authentication using the service principal account in Databricks you will also need to provide your Azure AD Tenant ID.
-
-1. To retrieve your tenant ID, select **Azure Active Directory** from the left-hand navigation menu in the Azure portal, then select **Properties**, and select the copy button next to **Directory ID** on the Directory Properties blade.
-
-   ![Azure Active Directory is selected in the left-hand menu on the Azure portal, and the properties menu is selected. The Directory ID field is highlighted.](media/aad-tenant-id.png 'Retrieve Tenant ID')
-
-2. Navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
+2. Open a new browser tab or window and navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
 
    ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
 
 3. On the Create a secret blade, enter the following:
 
    - **Upload options**: Select Manual.
-   - **Name**: Enter "Azure-Tenant-ID".
-   - **Value**: Paste the Directory ID value you copied in an earlier step.
+   - **Name**: Enter "ADLS-Gen2-Account-Name".
+   - **Value**: Paste the Storage account name value you copied in an earlier step.
 
-   ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-azure-tenant-id-secret.png 'Create a secret')
+   ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-adls-gen2-account-name-secret.png 'Create a secret')
 
 4. Select **Create**.
 
-### Task 4: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks
+5. Select **+ Generate/Import** again on the top toolbar to create another secret.
+
+6. On the Create a secret blade, enter the following:
+
+    - **Upload options**: Select Manual.
+    - **Name**: Enter "ADLS-Gen2-Account-Key".
+    - **Value**: Paste the Storage account Key value you copied in an earlier step.
+
+    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-adls-gen2-account-key-secret.png 'Create a secret')
+
+7. Select **Create**.
+
+### Task 4: Configure Cosmos DB Keys in Key Vault
+
+1. Open a new browser tab or window and navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
+
+    ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
+
+2. On the Create a secret blade, enter the following:
+
+    - **Upload options**: Select Manual.
+    - **Name**: Enter "Cosmos-DB-URI".
+    - **Value**: Paste the Azure Cosmos DB URI value you copied in an earlier step.
+
+    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-uri-secret.png 'Create a secret')
+
+3. Select **Create**.
+
+4. Select **+ Generate/Import** again on the top toolbar to create another secret.
+
+5. On the Create a secret blade, enter the following:
+
+    - **Upload options**: Select Manual.
+    - **Name**: Enter "Cosmos-DB-Key".
+    - **Value**: Paste the Azure Cosmos DB Primary Key value you copied in an earlier step.
+
+    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-key-secret.png 'Create a secret')
+
+6. Select **Create**.
+
+### Task 5: Create an Azure Databricks cluster
+
+In this task, you will connect to your Azure Databricks workspace and create a cluster to use for this hands-on lab.
+
+1. Return to the [Azure portal](https://portal.azure.com), navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+
+   ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
+
+2. Select **Clusters** from the left-hand navigation menu, and then select **+ Create Cluster**.
+
+   ![The Clusters option in the left-hand menu is selected and highlighted, and the Create Cluster button is highlighted on the clusters page.](media/databricks-clusters.png 'Databricks Clusters')
+
+3. On the Create Cluster screen, enter the following:
+
+   - **Cluster Name**: Enter a name for your cluster, such as lab-cluster.
+   - **Cluster Mode**: Select Standard.
+   - **Databricks Runtime Version**: Select Runtime: 5.2 (Scala 2.11, Spark 2.4.0).
+   - **Python Version**: Select 3.
+   - **Enable autoscaling**: Ensure this is checked.
+   - **Terminate after XX minutes of inactivity**: Leave this checked, and the number of minutes set to 120.
+   - **Worker Type**: Select Standard_DS4_v2.
+     - **Min Workers**: Leave set to 2.
+     - **Max Workers**: Leave set to 8.
+   - **Driver Type**: Set to Same as worker.
+   - Expand Advanced Options and enter the following into the Spark Config box:
+
+       ```bash
+       spark.databricks.delta.preview.enabled true
+       ```
+
+   ![The Create Cluster screen is displayed, with the values specified above entered into the appropriate fields.](media/databricks-create-new-cluster.png 'Create a new Databricks cluster')
+
+4. Select **Create Cluster**. It will take 3-5 minutes for the cluster to be created and started.
+
+### Task 6: Open Azure Databricks and load lab notebooks
+
+In this task, you will import the notebooks contained in the [Cosmos DB real-time advanced analytics MCW GitHub repo](https://github.com/Microsoft/MCW-Cosmos-DB-Real-Time-Advanced-Analytics) into your Azure Databricks workspace.
+
+1. Navigate to your Azure Databricks workspace in the Azure portal, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+
+   ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
+
+2. Select **Workspace** from the left-hand menu, then select **Users** and select your user account (email address), and then select the down arrow on top of your user workspace and select **Import** from the context menu.
+
+   ![The Workspace menu is highlighted in the Azure Databricks workspace, and Users is selected with the current user's account selected and highlighted. Import is selected in the user's context menu.](media/databricks-workspace-import.png 'Import files into user workspace')
+
+3. Within the Import Notebooks dialog, select **URL** for Import from, and then paste the following into the box: `https://github.com/Microsoft/MCW-Cosmos-DB-real-time-advanced-analytics/blob/master/Hands-on%20lab/lab-files/CosmosDbAdvancedAnalytics.dbc`
+
+   ![The Import Notebooks dialog is displayed](media/databricks-import-notebooks.png 'Import Notebooks dialog')
+
+4. Select **Import**.
+
+5. You should now see a folder named **CosmosDbAdvancedAnalytics** in your user workspace. This folder contains all of the notebooks you will use throughout this hands-on lab.
+
+### Task 7: Configure Azure Databricks Key Vault-backed secrets
+
+In this task, you will connect to your Azure Databricks workspace and configure Azure Databricks secrets to use your Azure Key Vault account as a backing store.
+
+1. Return to the [Azure portal](https://portal.azure.com), navigate to your newly provisioned Key Vault account and select **Properties** on the left-hand menu.
+
+2. Copy the **DNS Name** and **Resource ID** property values and paste them to Notepad or some other text application that you can reference later. These values will be used in the next section.
+
+   ![Properties is selected on the left-hand menu, and DNS Name and Resource ID are highlighted to show where to copy the values from.](media/key-vault-properties.png 'Key Vault properties')
+
+3. Navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+
+   ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
+
+4. In your browser's URL bar, append **#secrets/createScope** to your Azure Databricks base URL (for example, <https://eastus.azuredatabricks.net#secrets/createScope>).
+
+5. Enter `key-vault-secrets` for the name of the secret scope.
+
+6. Select **Creator** within the Manage Principal drop-down to specify only the creator (which is you) of the secret scope has the MANAGE permission.
+
+   > MANAGE permission allows users to read and write to this secret scope, and, in the case of accounts on the Azure Databricks Premium Plan, to change permissions for the scope.
+
+   > Your account must have the Azure Databricks Premium Plan for you to be able to select Creator. This is the recommended approach: grant MANAGE permission to the Creator when you create the secret scope, and then assign more granular access permissions after you have tested the scope.
+
+7. Enter the **DNS Name** (for example, <https://woodgrove-vault.vault.azure.net/>) and **Resource ID** you copied earlier during the Key Vault creation step, for example: `/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/hands-on-lab/providers/Microsoft.KeyVault/vaults/woodgrove-vault`.
+
+   ![Create Secret Scope form](media/create-secret-scope.png 'Create Secret Scope')
+
+8. Select **Create**.
+
+After a moment, you will see a dialog verifying that the secret scope has been created.
+
+### Task 8: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks
 
 In this task, you will install the [Azure Cosmos DB Spark Connector](https://github.com/Azure/azure-cosmosdb-spark) and scikit-learn libraries on your Databricks cluster. The Cosmos DB connector allows you to easily read from and write to Azure Cosmos DB via Apache Spark DataFrames.
 
@@ -559,7 +762,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
 2. Select **Workspace** from the left-hand menu, then select the drop down arrow next to **Shared** and select **Create** and **Library** from the context menus.
 
-   ![The Workspace items is selected in the left-hand menu, and the shared workspace is highlighted. In the Shared workspace context menu, Create and Library are selected.](media/databrick-create-shared-library.png 'Create Shared Library')
+   ![The Workspace items is selected in the left-hand menu, and the shared workspace is highlighted. In the Shared workspace context menu, Create and Library are selected.](media/databricks-create-shared-library.png 'Create Shared Library')
 
 3. On the Create Library page, select **Maven** under Library Source, and then select **Search Packages** next to the Coordinates text box.
 
@@ -575,7 +778,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
 6. On the following screen, check the box for **Install automatically on all clusters**, and select **Confirm** when prompted.
 
-   ![The Install automatically on all clusters box is checked and highlighted on the library dialog.](media/datbricks-install-library-on-all-clusters.png 'Install library on all clusters')
+   ![The Install automatically on all clusters box is checked and highlighted on the library dialog.](media/databricks-install-library-on-all-clusters.png 'Install library on all clusters')
 
 7. Select the Shared folder under your workspace again, and select **Create** and **Library** from the context menus.
 
@@ -585,7 +788,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
 9. On the following screen, **DO NOT** check to box for **Install automatically on all clusters**, and select **Confirm** when prompted. This library is only needed as a reference for the Job clusters. You will directly add this scikit-learn to the lab cluster in Exercise 3.
 
-### Task 5: Explore historical transaction data with Azure Databricks and Spark
+### Task 9: Explore historical transaction data with Azure Databricks and Spark
 
 In this task, you will use an Azure Databricks notebook to download and explore historical transaction data.
 
@@ -601,7 +804,7 @@ In this task, you will use an Azure Databricks notebook to download and explore 
 
 > **Note**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
 
-### Task 6: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks
+### Task 10: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks
 
 In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and query streaming data from the Cosmos DB Change Feed.
 
@@ -719,7 +922,7 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
    - Select the **Select Notebook** link next to Task, and on the Select Notebook dialog select **Users --> Your user account --> CosmosDbAdvancedAnalytics --> Exercise 4** and then select the `2-Batch-Scoring-Job` notebook and select **OK**.
 
-     ![The Databricks Job Select Notebook dialog is displayed, with the 2-Batch-Scoring-Job notebook highlighted under CosmosDbAdvancedAnaltyics/Exercise 4.](media/databricks-job-select-notebook-ex4.png 'Select Notebook')
+     ![The Databricks Job Select Notebook dialog is displayed, with the 2-Batch-Scoring-Job notebook highlighted under CosmosDbAdvancedAnalytics/Exercise 4.](media/databricks-job-select-notebook-ex4.png 'Select Notebook')
 
    - Select **Add** next to Dependent Libraries, navigate to the Shared folder, select the **azure-cosmosdb-spark** library and select **OK**.
 
@@ -768,19 +971,19 @@ In this exercise, you create dashboards and reports in Power BI for business ana
 
 In this task, you will use the JDBC URL for your Azure Databricks cluster to connect to from Power BI desktop. Then you will create reports and add them to a dashboard to summarize and visualize global fraud trends to gain more insight into the data.
 
-1.  Navigate to your Azure Databricks workspace in the [Azure portal](https://portal.azure.com/), and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+1. Navigate to your Azure Databricks workspace in the [Azure portal](https://portal.azure.com/), and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
 
     ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
 
-2.  Select **Clusters** from the left-hand menu, then select your cluster in the list of interactive clusters.
+2. Select **Clusters** from the left-hand menu, then select your cluster in the list of interactive clusters.
 
     ![The cluster is listed and selected](media/databricks-select-cluster.png 'Select cluster')
 
-3.  Scroll down and expand the **Advanced Options** section, then select the **JDBC/ODBC** tab. Copy the first **JDBC URL** value.
+3. Scroll down and expand the **Advanced Options** section, then select the **JDBC/ODBC** tab. Copy the first **JDBC URL** value.
 
     ![The cluster is displayed with the JDBC/ODBC tab selected, and the first JDBC URL value is highlighted.](media/databricks-jdbc.png 'JDBC/ODBC')
 
-4.  Now, you need to modify the JDBC URL to construct the JDBC server address that you will use to set up your Spark cluster connection in Power BI Desktop.
+4. Now, you need to modify the JDBC URL to construct the JDBC server address that you will use to set up your Spark cluster connection in Power BI Desktop.
 
     - In the JDBC URL:
       - Replace `jdbc:spark` with `https`.
@@ -793,19 +996,19 @@ In this task, you will use the JDBC URL for your Azure Databricks cluster to con
 
     - Copy your server address.
 
-5.  Open Power BI Desktop, then select **Get data**.
+5. Open Power BI Desktop, then select **Get data**.
 
     ![Select Get Data on the Power BI Desktop home screen.](media/power-bi-desktop-home.png 'Power BI Desktop')
 
-6.  In the Get Data dialog, search for `spark`, then select **Spark** from the list of results.
+6. In the Get Data dialog, search for `spark`, then select **Spark** from the list of results.
 
     ![Search for Spark in the Get Data dialog, then select Spark from the list results.](media/power-bi-desktop-get-data.png 'Get Data')
 
-7.  Enter the Databricks server address you created above into the Server field.
+7. Enter the Databricks server address you created above into the Server field.
 
-8.  Set the Protocol to HTTP.
+8. Set the Protocol to HTTP.
 
-9.  Select DirectQuery as the data connectivity mode, then select OK.
+9. Select DirectQuery as the data connectivity mode, then select OK.
 
     ![The Spark connection dialog is displayed with the previously mentioned values.](media/power-bi-desktop-spark-connection.png 'Spark connection dialog')
 
