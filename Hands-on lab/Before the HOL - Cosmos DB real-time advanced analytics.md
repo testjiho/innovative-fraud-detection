@@ -195,7 +195,7 @@ In this task, you will create an Azure resource group for the resources used thr
 
 5. On the **Custom deployment** blade, select the **Build your own template in the editor** link.
 
-   ![](media/deploy-deployment-build-your-own-link.png)
+   ![The Build your own template in the editor link is highlighted.](media/deploy-deployment-build-your-own-link.png 'Custom deployment')
 
 6. On the **Edit template** blade, click the **Load file** button to select the ARM Template to use.
 
