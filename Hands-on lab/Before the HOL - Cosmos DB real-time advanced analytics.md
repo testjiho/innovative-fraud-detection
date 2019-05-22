@@ -9,7 +9,7 @@ Before the hands-on lab setup guide
 </div>
 
 <div class="MCWHeader3">
-May 2019
+June 2019
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -179,47 +179,47 @@ In this task, you will create an Azure resource group for the resources used thr
 
 1. In the Azure Portal, navigate to **Azure Active Directory**, then select **Users** under Manage.
 
-    ![Azure Active Directory blade with Users highlighted](media/deploy-azure-ad-users-link.png "Azure Active Directory blade with Users highlighted")
+   ![Azure Active Directory blade with Users highlighted](media/deploy-azure-ad-users-link.png 'Azure Active Directory blade with Users highlighted')
 
 2. Select the user your currently logged into the Azure Portal with.
 
-    ![All users list with user highlighted](media/deploy-azure-ad-user-list.png "All users list with user highlighted")
+   ![All users list with user highlighted](media/deploy-azure-ad-user-list.png 'All users list with user highlighted')
 
 3. On the **User** blade, copy the **Object ID** for this user.
 
-    ![User blade is shown with Object ID highlighted](media/deploy-azure-ad-user-object-id.png "User blade is shown with Object ID highlighted")
+   ![User blade is shown with Object ID highlighted](media/deploy-azure-ad-user-object-id.png 'User blade is shown with Object ID highlighted')
 
 4. Select **Create a resource**, then search for and select **Template Deployment**.
 
-    ![Create a resource is highlighted as step 1, and the search box is highlighted a step 2 with template deployment entered](media/deploy-create-resource-search-template-deployment.png "Create a resource is highlighted as step 1, and the search box is highlighted a step 2 with template deployment entered")
+   ![Create a resource is highlighted as step 1, and the search box is highlighted a step 2 with template deployment entered](media/deploy-create-resource-search-template-deployment.png 'Create a resource is highlighted as step 1, and the search box is highlighted a step 2 with template deployment entered')
 
 5. On the **Custom deployment** blade, select the **Build your own template in the editor** link.
 
-    ![](media/deploy-deployment-build-your-own-link.png)
+   ![](media/deploy-deployment-build-your-own-link.png)
 
 6. On the **Edit template** blade, click the **Load file** button to select the ARM Template to use.
 
-    ![The Load file button is highlighted](media/deploy-deployment-load-file-button.png "The Load file button is highlighted")
+   ![The Load file button is highlighted](media/deploy-deployment-load-file-button.png 'The Load file button is highlighted')
 
 7. Select the `C:\CosmosMCW\MCW-Cosmos-DB-Real-Time-Advanced-Analytics-master\Hands-on lab\Deployment\environment-template.json` ARM Template.
 
 8. Click **Save**.
 
-    ![The Save button is highlighted](media/deploy-deployment-arm-template-save.png "The Save button is highlighted")
+   ![The Save button is highlighted](media/deploy-deployment-arm-template-save.png 'The Save button is highlighted')
 
 9. Enter the following values:
 
-    - Resource group: **select the Resource Group created previously for the lab**
-    - Key Vault Access Policy User Object Id: **paste in the User Object ID that was copied previously from Azure Active Directory**
+   - Resource group: **select the Resource Group created previously for the lab**
+   - Key Vault Access Policy User Object Id: **paste in the User Object ID that was copied previously from Azure Active Directory**
 
-    ![The parameters specified are highlighted](media/deploy-deployment-parameter-fields.png "The parameters specified are highlighted")
+   ![The parameters specified are highlighted](media/deploy-deployment-parameter-fields.png 'The parameters specified are highlighted')
 
 10. Check the **I agree...** check box, then click **Purchase**.
 
-    ![The I agree checkbox and the purchase button are highlighted](media/deploy-deployment-purchase-button.png "The I agree checkbox and the purchase button are highlighted")
+    ![The I agree checkbox and the purchase button are highlighted](media/deploy-deployment-purchase-button.png 'The I agree checkbox and the purchase button are highlighted')
 
 11. The deployment will likely take 5 - 10 minutes to deploy.
 
-    ![The deployment progress is shown](media/deploy-deployment-progress.png "The deployment progress is shown")
+    ![The deployment progress is shown](media/deploy-deployment-progress.png 'The deployment progress is shown')
 
 You should follow all steps provided _before_ performing the Hands-on lab.
