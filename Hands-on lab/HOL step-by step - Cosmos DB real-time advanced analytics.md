@@ -9,7 +9,7 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-June 2019
+September 2019
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -94,7 +94,7 @@ Finally, Azure Key Vault is used to securely store secrets, such as account keys
 ## Requirements
 
 1. Microsoft Azure subscription (non-Microsoft subscription, must be a pay-as-you subscription).
-2. An Azure Databricks cluster running Databricks Runtime 5.1 or above. Azure Databricks integration with Azure Data Lake Storage Gen2 is **fully supported in Databricks Runtime 5.1**.
+2. An Azure Databricks cluster running Databricks Runtime 5.1 or above. Azure Databricks integration with Azure Data Lake Storage Gen2 is **fully supported in Databricks Runtime 5.1 and greater**.
    - **IMPORTANT**: To complete the OAuth 2.0 access components of this hands-on lab you must:
      - Have a cluster running Databricks Runtime 5.1 and above.
      - Have permissions within your Azure subscription to create an App Registration and service principal within Azure Active Directory.
@@ -173,20 +173,20 @@ In this task, you will configure the payment transaction data generator project 
 
    The `appsettings.json` file contains the following:
 
-   ```javascript
-   {
-       "EVENT_HUB_1_CONNECTION_STRING": "",
-       "EVENT_HUB_2_CONNECTION_STRING": "",
-       "EVENT_HUB_3_CONNECTION_STRING": "",
+    ```javascript
+    {
+        "EVENT_HUB_1_CONNECTION_STRING": "",
+        "EVENT_HUB_2_CONNECTION_STRING": "",
+        "EVENT_HUB_3_CONNECTION_STRING": "",
 
-       "COSMOS_DB_ENDPOINT": "",
-       "COSMOS_DB_AUTH_KEY": "",
+        "COSMOS_DB_ENDPOINT": "",
+        "COSMOS_DB_AUTH_KEY": "",
 
-       "SECONDS_TO_LEAD": "0",
-       "SECONDS_TO_RUN": "600",
-       "ONLY_WRITE_TO_COSMOS_DB": "false"
-   }
-   ```
+        "SECONDS_TO_LEAD": "0",
+        "SECONDS_TO_RUN": "600",
+        "ONLY_WRITE_TO_COSMOS_DB": "false"
+    }
+    ```
 
    `SECONDS_TO_LEAD` is the amount of time to wait before sending payment transaction data. Default value is `0`.
 
@@ -212,10 +212,10 @@ In this task, you will configure the payment transaction data generator project 
 
 8. Go to **TODO 1** located in `Program.cs` by double-clicking the item in the Task List. Paste the following code under TODO 1, which uses the Event Hub client to send the event data, setting the partition key to `IpCountryCode`:
 
-   ```csharp
-   await eventHubClient.SendAsync(eventData: eventData,
-       partitionKey: transaction.IpCountryCode).ConfigureAwait(false);
-   ```
+    ```csharp
+    await eventHubClient.SendAsync(eventData: eventData,
+        partitionKey: transaction.IpCountryCode).ConfigureAwait(false);
+    ```
 
    Your completed code should look like the following:
 
@@ -225,9 +225,9 @@ In this task, you will configure the payment transaction data generator project 
 
 9. Paste the code below under **TODO 2** to increment the count of the number of Event Hub requests that succeeded:
 
-   ```csharp
-   _eventHubRequestsSucceededInBatch++;
-   ```
+    ```csharp
+    _eventHubRequestsSucceededInBatch++;
+    ```
 
 10. Paste the code below under **TODO 3** to instantiate a new Event Hub client and add it to the `eventHubClients` collection:
 
@@ -273,10 +273,10 @@ Next you will pass in the Azure Cosmos DB URI and Key values to the data generat
 
 9. Open `Program.cs` and paste the code below under **TODO 4** to send the generated transaction data to Cosmos DB and store the returned `ResourceResponse` object into a new variable for statistics about RU/s used:
 
-   ```csharp
-   var response = await _cosmosDbClient.CreateDocumentAsync(collectionUri, transaction)
-       .ConfigureAwait(false);
-   ```
+    ```csharp
+    var response = await _cosmosDbClient.CreateDocumentAsync(collectionUri, transaction)
+        .ConfigureAwait(false);
+    ```
 
 10. Paste the code below under **TODO 5** to append the number of RU/s consumed to the `_cosmosRUsPerBatch` variable:
 
@@ -682,7 +682,7 @@ In this task, you will connect to your Azure Databricks workspace and create a c
 
    - **Cluster Name**: Enter a name for your cluster, such as lab-cluster.
    - **Cluster Mode**: Select Standard.
-   - **Databricks Runtime Version**: Select Runtime: 5.2 (Scala 2.11, Spark 2.4.0).
+   - **Databricks Runtime Version**: Select Runtime: 5.5 LTS (Scala 2.11, Spark 2.4.3).
    - **Python Version**: Select 3.
    - **Enable autoscaling**: Ensure this is checked.
    - **Terminate after XX minutes of inactivity**: Leave this checked, and the number of minutes set to 120.
@@ -768,7 +768,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
    ![The Databricks Create Library dialog is displayed, with Maven selected under Library Source and the Search Packages link highlighted.](media/databricks-create-maven-library.png 'Create Library')
 
-4. On the Search Packages dialog, select **Maven Central** from the source drop down, enter **azure-cosmosdb-spark** into the search box, and click **Select** next to Artifact Id `azure-cosmosdb-spark_2.4.0_2.11` release `1.3.5`.
+4. On the Search Packages dialog, select **Maven Central** from the source drop down, enter **azure-cosmosdb-spark** into the search box, and click **Select** next to Artifact Id `azure-cosmosdb-spark_2.4.0_2.11` release `1.4.1`.
 
    ![The Search Packages dialog is displayed, with Maven Central specified as the source and azure-cosmosdb-spark entered into the search box. The most recent version of the Cosmos DB Spark Connector is highlighted.](media/databricks-maven-search-packages.png)
 
@@ -786,7 +786,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
    ![The Create Library dialog is displayed, with PyPI highlighted under Library Source, and scikit-learn==0.21.1 entered into the Package text box.](media/databricks-create-library-scikit-learn.png 'Create Library')
 
-9. On the following screen, **DO NOT** check to box for **Install automatically on all clusters**, and select **Confirm** when prompted. This library is only needed as a reference for the Job clusters. You will directly add this scikit-learn to the lab cluster in Exercise 3.
+9. On the following screen, **DO NOT** check to box for **Install automatically on all clusters**. This library is only needed as a reference for the Job clusters. You will directly add this scikit-learn to the lab cluster in Exercise 3.
 
 ### Task 9: Explore historical transaction data with Azure Databricks and Spark
 
@@ -932,7 +932,7 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
    - Select **Edit** next to Cluster, and select the following:
 
-     - **Databricks Runtime Version**: Runtime 5.2 (Scala 2.11, Spark 2.4.0)
+     - **Databricks Runtime Version**: Runtime 5.5 LTS (Scala 2.11, Spark 2.4.3)
      - **Python Version**: 3
      - **Worker Type**: Standard_DS4_v2
      - **Workers**: 8
@@ -1018,7 +1018,7 @@ In this task, you will use the JDBC URL for your Azure Databricks cluster to con
 
     ![Select User Settings from the Account menu.](media/databricks-user-settings.png 'User Settings menu')
 
-11. On the User Settings page, select Generate New Token, enter "Power BI Desktop" in the comment, and select Generate.
+11. On the User Settings page, select **Generate New Token**, enter "Power BI Desktop" in the comment, and select Generate.
 
     ![Enter Power BI Desktop as the comment then select Generate.](media/databricks-generate-token.png 'Generate New Token')
 
@@ -1126,11 +1126,11 @@ In this task, you will use the JDBC URL for your Azure Databricks cluster to con
 
     ![Screenshot of the ArcGIS Map.](media/power-bi-arcgis-map-display.png 'ArcGIS Map')
 
-36. Select a blank area on the report, then select the **Donut chart** visualization. Drag the `ipCountryCode` field from the `percent_suspicious` table under **Legend**, then drag `PercentSuspicious` under **Values**.
+36. Select a blank area on the report, then select the **Pie chart** visualization. Drag the `ipCountryCode` field from the `percent_suspicious` table under **Legend**, then drag `PercentSuspicious` under **Values**.
 
     ![Screenshot of the donut chart settings.](media/power-bi-donut-chart-percent-suspicious.png 'Donut Chart settings')
 
-37. The donut chart should look similar to the following, displaying the percent of suspicious transactions by country code:
+37. The pie chart should look similar to the following, displaying the percent of suspicious transactions by country code:
 
     ![Screenshot of the donut chart.](media/power-bi-donut-chart-percent-suspicious-display.png 'Donut Chart')
 
