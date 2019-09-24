@@ -2,13 +2,15 @@
 
 Woodgrove Bank, who provides payment processing services for commerce, is looking to design and implement a proof-of-concept (PoC) of an innovative fraud detection solution. They want to provide new services to their merchant customers, helping them save costs by applying machine learning and advanced analytics to detect fraudulent transactions. Their customers are around the world, and the right solutions for them would minimize any latencies experienced using their service by distributing as much of the solution as possible, as closely as possible, to the regions in which their customers use the service.
 
+September 2019
+
 ## Target audience
 
 - Application developer
 - AI developer
 - Data scientist
 
-## Abstract
+## Abstracts
 
 ### Workshop
 
@@ -49,3 +51,16 @@ Globally Distributed Data
 ## Related references
 
 - [MCW](https://github.com/Microsoft/MCW)
+
+## Help & Support
+
+We welcome feedback and comments from Microsoft SMEs & learning partners who deliver MCWs.  
+
+***Having trouble?***
+- First, verify you have followed all written lab instructions (including the Before the Hands-on lab document).
+- Next, submit an issue with a detailed description of the problem.
+- Please do not submit pull requests. Our authors will review open issues and submit pull requests, as needed, for approval.  
+
+If you are planning to present a workshop, *review and test the materials early*! We recommend at least two weeks prior.
+
+### Please allow 5 - 10 business days for review and resolution of issues.
