@@ -9,7 +9,7 @@ Before the hands-on lab setup guide
 </div>
 
 <div class="MCWHeader3">
-September 2019
+October 2019
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -132,7 +132,7 @@ In this task, you will create an Azure resource group for the resources used thr
 
     ![The I agree checkbox and the purchase button are highlighted](media/deploy-deployment-purchase-button.png 'The I agree checkbox and the purchase button are highlighted')
 
-11. The deployment will take approximately 5 - 10 minutes to deploy.
+11. The deployment will take approximately 5 - 10 minutes to complete.
 
     ![The deployment progress is shown](media/deploy-deployment-progress.png 'The deployment progress is shown')
 

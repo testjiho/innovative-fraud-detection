@@ -9,7 +9,7 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-September 2019
+October 2019
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -561,10 +561,9 @@ As an added layer of security when accessing an ADLS Gen2 filesystem using Datab
 
 ### Task 2: Add the service principal credentials and Tenant Id to Azure Key Vault
 
-1. To provide access your ADLS Gen2 account from Azure Databricks you will use secrets stored in your Azure Key Vault account to provide the credentials of your newly created service principal within Databricks. Navigate to your Azure Key Vault account in the Azure portal, then select **Access Policies** and select the **+ Add new** button.
+1. To provide access your ADLS Gen2 account from Azure Databricks you will use secrets stored in your Azure Key Vault account to provide the credentials of your newly created service principal within Databricks. Navigate to your Azure Key Vault account in the Azure portal, then select **Access Policies** and select the **+ Add Access Policy** button.
 
-2. Choose the account that you are currently logged into the portal with as the principal and **check Select all** under `key permissions`, `secret permissions`, and `certificate permissions`, then click OK and then click **Save**.
-
+2. Choose the account that you are currently logged into the portal with as the principal and **check Select all** under `key permissions`, `secret permissions`, and `certificate permissions`, then click OK and then click **Save**
 
 3. Now select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
 
@@ -683,14 +682,13 @@ In this task, you will connect to your Azure Databricks workspace and create a c
    - **Cluster Name**: Enter a name for your cluster, such as lab-cluster.
    - **Cluster Mode**: Select Standard.
    - **Databricks Runtime Version**: Select Runtime: 5.5 LTS (Scala 2.11, Spark 2.4.3).
-   - **Python Version**: Select 3.
    - **Enable autoscaling**: Ensure this is checked.
    - **Terminate after XX minutes of inactivity**: Leave this checked, and the number of minutes set to 120.
    - **Worker Type**: Select Standard_DS4_v2.
      - **Min Workers**: Leave set to 2.
      - **Max Workers**: Leave set to 8.
    - **Driver Type**: Set to Same as worker.
-   - Expand Advanced Options and enter the following into the Spark Config box:
+   - Expand _Advanced Options_ and enter the following into the Spark Config box:
 
        ```bash
        spark.databricks.delta.preview.enabled true
@@ -724,7 +722,7 @@ In this task, you will import the notebooks contained in the [Cosmos DB real-tim
 
 In this task, you will connect to your Azure Databricks workspace and configure Azure Databricks secrets to use your Azure Key Vault account as a backing store.
 
-1. Return to the [Azure portal](https://portal.azure.com), navigate to your newly provisioned Key Vault account and select **Properties** on the left-hand menu.
+1. Return to the [Azure portal](https://portal.azure.com), navigate to your Key Vault account and select **Properties** on the left-hand menu.
 
 2. Copy the **DNS Name** and **Resource ID** property values and paste them to Notepad or some other text application that you can reference later. These values will be used in the next section.
 
@@ -752,7 +750,7 @@ In this task, you will connect to your Azure Databricks workspace and configure 
 
 After a moment, you will see a dialog verifying that the secret scope has been created.
 
-### Task 8: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks
+### Task 8: Install the Azure Cosmos DB Spark Connector library in Databricks
 
 In this task, you will install the [Azure Cosmos DB Spark Connector](https://github.com/Azure/azure-cosmosdb-spark) and scikit-learn libraries on your Databricks cluster. The Cosmos DB connector allows you to easily read from and write to Azure Cosmos DB via Apache Spark DataFrames.
 
@@ -764,29 +762,19 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
    ![The Workspace items is selected in the left-hand menu, and the shared workspace is highlighted. In the Shared workspace context menu, Create and Library are selected.](media/databricks-create-shared-library.png 'Create Shared Library')
 
-3. On the Create Library page, select **Maven** under Library Source, and then select **Search Packages** next to the Coordinates text box.
+3. On the Create Library page, select **Maven** under Library Source, and then paste the following into the **Coordinates** textbox:
+
+    `com.microsoft.azure:azure-cosmosdb-spark_2.4.0_2.11:1.4.1`
 
    ![The Databricks Create Library dialog is displayed, with Maven selected under Library Source and the Search Packages link highlighted.](media/databricks-create-maven-library.png 'Create Library')
 
-4. On the Search Packages dialog, select **Maven Central** from the source drop down, enter **azure-cosmosdb-spark** into the search box, and click **Select** next to Artifact Id `azure-cosmosdb-spark_2.4.0_2.11` release `1.4.1`.
-
-   ![The Search Packages dialog is displayed, with Maven Central specified as the source and azure-cosmosdb-spark entered into the search box. The most recent version of the Cosmos DB Spark Connector is highlighted.](media/databricks-maven-search-packages.png)
-
-5. Select **Create** to finish installing the library.
+4. Select **Create** to finish installing the library.
 
    ![The Create button is highlighted on the Create Library dialog.](media/databricks-create-library-cosmosdb-spark.png 'Create Library')
 
-6. On the following screen, check the box for **Install automatically on all clusters**, and select **Confirm** when prompted.
+5. On the following screen, check the box for **Install automatically on all clusters**, and select **Confirm** when prompted.
 
    ![The Install automatically on all clusters box is checked and highlighted on the library dialog.](media/databricks-install-library-on-all-clusters.png 'Install library on all clusters')
-
-7. Select the Shared folder under your workspace again, and select **Create** and **Library** from the context menus.
-
-8. In the Create Library dialog, select **PyPI** as the Library Source, and enter **scikit-learn==0.21.1** in the Package box, and then select **Create**
-
-   ![The Create Library dialog is displayed, with PyPI highlighted under Library Source, and scikit-learn==0.21.1 entered into the Package text box.](media/databricks-create-library-scikit-learn.png 'Create Library')
-
-9. On the following screen, **DO NOT** check to box for **Install automatically on all clusters**. This library is only needed as a reference for the Job clusters. You will directly add this scikit-learn to the lab cluster in Exercise 3.
 
 ### Task 9: Explore historical transaction data with Azure Databricks and Spark
 
@@ -822,41 +810,7 @@ Duration: 45 minutes
 
 In this exercise, you create and evaluate a fraud model that is used for real-time scoring of transactions as they occur at the web front-end. The goal is to block fraudulent transactions before they are processed. You will then create a model for detecting suspicious transactions, which gets executed during batch processing that will take place in Exercise 4. Finally, you will deploy the fraudulent transactions model and test it through HTTP REST calls, all within Databricks notebooks.
 
-### Task 1: Install the AzureML and Scikit-Learn libraries in Databricks
-
-In this task, you will install the required `AzureML` and `Scikit-Learn` libraries on your Databricks cluster. These libraries are used when training and deploying your machine learning models. It is important to install these in the order shown.
-
-1. Navigate to your Azure Databricks workspace in the [Azure portal](https://portal.azure.com/), and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
-
-   ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
-
-2. Select **Clusters** from the left-hand menu, then select your cluster in the list of interactive clusters.
-
-   ![The cluster is listed and selected](media/databricks-select-cluster.png 'Select cluster')
-
-3. Select the **Libraries** tab, which displays the list of libraries installed on the cluster. You should see the Azure Cosmos DB Spark connector installed. Select **Install New** above the list of libraries.
-
-   ![The Libraries tab is selected, and the Install New button is highlighted](media/databricks-cluster-libraries.png 'Cluster')
-
-4. In the dialog that appears, select **PyPI** as the **Library Source**. Enter `azureml-sdk[automl_databricks]` in the **Package** field, then select **Install**.
-
-   ![The Install Library dialog is displayed, PyPI is selected as the Library Source, and the Package field is highlighted.](media/databricks-install-azureml.png 'Install Library')
-
-5. Important: **Wait** until the status for the AzureML library shows **Installed**. This must be completed prior to installing Scikit-Learn.
-
-   ![The Status of the AzureML library is Installed.](media/databricks-library-installed.png 'AzureML Library Installed')
-
-6. Select **Install New** again.
-
-7. In the dialog that appears, select **PyPi** as the **Library Source**. Enter `scikit-learn==0.21.1` in the **Package** field, then select **Install**.
-
-   ![The Install Library dialog is displayed, PyPI is selected as the Library Source, and the Package field is highlighted.](media/databricks-install-scikit-learn.png 'Install Library')
-
-8. After the Scikit-Learn library is installed, your list of libraries should look like the following:
-
-   ![All three libraries are listed as installed.](media/databricks-libraries-installed.png 'Cluster Libraries')
-
-### Task 2: Prepare and deploy scoring web service
+### Task 1: Prepare and deploy scoring web service
 
 In this task, you will use an Azure Databricks notebook to explore the transaction and account data. You will also do some data cleanup and create a feature engineering pipeline that applies these transformations each time data is passed to the model for scoring. Finally, you will train and deploy a machine learning model that detects fraudulent transactions.
 
@@ -872,7 +826,7 @@ In this task, you will use an Azure Databricks notebook to explore the transacti
 
 > **Note**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
 
-### Task 3: Prepare batch scoring model
+### Task 2: Prepare batch scoring model
 
 In this task, you will use an Azure Databricks notebook to prepare a model used to detect suspicious activity that will be used for batch scoring.
 
@@ -926,9 +880,7 @@ In this task, you will create an Azure Databricks job, which will execute a note
 
    - Select **Add** next to Dependent Libraries, navigate to the Shared folder, select the **azure-cosmosdb-spark** library and select **OK**.
 
-   - Repeat the step above to add the **scikit-learn==0.21.1** library as well.
-
-     ![The Add Dependent Library dialog is displayed with the azure-cosmosdb-spark and scikit-learn libraries highlighted within the Shared folder.](media/databricks-job-add-dependent-library.png 'Add Dependent Library')
+     ![The Add Dependent Library dialog is displayed with the azure-cosmosdb-spark library highlighted within the Shared folder.](media/databricks-job-add-dependent-library.png 'Add Dependent Library')
 
    - Select **Edit** next to Cluster, and select the following:
 
