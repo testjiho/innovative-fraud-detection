@@ -123,8 +123,8 @@ In this task, you will create an Azure resource group for the resources used thr
 
 9. Enter the following values:
 
-   - Resource group: **select the Resource Group created previously for the lab**
-   - Key Vault Access Policy User Object Id: **paste in the User Object ID that was copied previously from Azure Active Directory**
+   - Resource group: **Select the Resource Group created previously for the lab**.
+   - Key Vault Access Policy User Object Id: **Paste in the User Object ID that was copied previously from Azure Active Directory**.
 
    ![The parameters specified are highlighted](media/deploy-deployment-parameter-fields.png 'The parameters specified are highlighted')
 
