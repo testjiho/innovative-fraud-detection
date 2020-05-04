@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using System.Security;
 using Newtonsoft.Json;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Configuration;
@@ -420,7 +421,8 @@ namespace TransactionGenerator
             };
 
             // Instantiate Cosmos DB client and start sending messages to Event Hubs and Cosmos DB:
-            using (_cosmosDbClient = new DocumentClient(new Uri(arguments.CosmosDbEndpointUrl), arguments.CosmosDbAuthorizationKey, connectionPolicy))
+            using (_cosmosDbClient = new DocumentClient(new Uri(arguments.CosmosDbEndpointUrl),
+                ConvertToSecureString(arguments.CosmosDbAuthorizationKey), connectionPolicy))
             {
                 InitializeCosmosDb().Wait();
 
@@ -544,6 +546,20 @@ namespace TransactionGenerator
             {
                 yield return got;
             }
+        }
+
+        private static SecureString ConvertToSecureString(string password)
+        {
+            if (password == null)
+                throw new ArgumentNullException("password");
+
+            var securePassword = new SecureString();
+
+            foreach (char c in password)
+                securePassword.AppendChar(c);
+
+            securePassword.MakeReadOnly();
+            return securePassword;
         }
     }
 }
