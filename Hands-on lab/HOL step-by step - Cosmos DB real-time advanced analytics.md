@@ -44,13 +44,12 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 5: Create an Azure Databricks cluster](#task-5-create-an-azure-databricks-cluster)
     - [Task 6: Open Azure Databricks and load lab notebooks](#task-6-open-azure-databricks-and-load-lab-notebooks)
     - [Task 7: Configure Azure Databricks Key Vault-backed secrets](#task-7-configure-azure-databricks-key-vault-backed-secrets)
-    - [Task 8: Install the Azure Cosmos DB Spark Connector and scikit-learn libraries in Databricks](#task-8-install-the-azure-cosmos-db-spark-connector-and-scikit-learn-libraries-in-databricks)
+    - [Task 8: Install the Azure Cosmos DB Spark Connector library in Databricks](#task-8-install-the-azure-cosmos-db-spark-connector-library-in-databricks)
     - [Task 9: Explore historical transaction data with Azure Databricks and Spark](#task-9-explore-historical-transaction-data-with-azure-databricks-and-spark)
     - [Task 10: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks](#task-10-responding-to-streaming-transactions-using-the-cosmos-db-change-feed-and-spark-structured-streaming-in-azure-databricks)
   - [Exercise 3: Creating and evaluating fraud models](#exercise-3-creating-and-evaluating-fraud-models)
-    - [Task 1: Install the AzureML and Scikit-Learn libraries in Databricks](#task-1-install-the-azureml-and-scikit-learn-libraries-in-databricks)
-    - [Task 2: Prepare and deploy scoring web service](#task-2-prepare-and-deploy-scoring-web-service)
-    - [Task 3: Prepare batch scoring model](#task-3-prepare-batch-scoring-model)
+    - [Task 1: Prepare and deploy scoring web service](#task-1-prepare-and-deploy-scoring-web-service)
+    - [Task 2: Prepare batch scoring model](#task-2-prepare-batch-scoring-model)
   - [Exercise 4: Scaling globally](#exercise-4-scaling-globally)
     - [Task 1: Distributing batch scored data globally using Cosmos DB](#task-1-distributing-batch-scored-data-globally-using-cosmos-db)
     - [Task 2: Using an Azure Databricks job to batch score transactions on a schedule](#task-2-using-an-azure-databricks-job-to-batch-score-transactions-on-a-schedule)
@@ -681,18 +680,14 @@ In this task, you will connect to your Azure Databricks workspace and create a c
 
    - **Cluster Name**: Enter a name for your cluster, such as lab-cluster.
    - **Cluster Mode**: Select Standard.
-   - **Databricks Runtime Version**: Select Runtime: 5.5 LTS (Scala 2.11, Spark 2.4.3).
+   - **Pool**: Select None.
+   - **Databricks Runtime Version**: Select Runtime: 6.4 (Scala 2.11, Spark 2.4.5).
    - **Enable autoscaling**: Ensure this is checked.
    - **Terminate after XX minutes of inactivity**: Leave this checked, and the number of minutes set to 120.
    - **Worker Type**: Select Standard_DS4_v2.
      - **Min Workers**: Leave set to 2.
      - **Max Workers**: Leave set to 8.
    - **Driver Type**: Set to Same as worker.
-   - Expand _Advanced Options_ and enter the following into the Spark Config box:
-
-       ```bash
-       spark.databricks.delta.preview.enabled true
-       ```
 
    ![The Create Cluster screen is displayed, with the values specified above entered into the appropriate fields.](media/databricks-create-new-cluster.png 'Create a new Databricks cluster')
 
@@ -764,7 +759,7 @@ In this task, you will install the [Azure Cosmos DB Spark Connector](https://git
 
 3. On the Create Library page, select **Maven** under Library Source, and then paste the following into the **Coordinates** textbox:
 
-    `com.microsoft.azure:azure-cosmosdb-spark_2.4.0_2.11:1.4.1`
+    `com.microsoft.azure:azure-cosmosdb-spark_2.4.0_2.11:2.1.5`
 
    ![The Databricks Create Library dialog is displayed, with Maven selected under Library Source and the Search Packages link highlighted.](media/databricks-create-maven-library.png 'Create Library')
 
