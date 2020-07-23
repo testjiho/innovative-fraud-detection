@@ -8,10 +8,22 @@
             "metadata": {
                 "description": "ObjectId for the Azure AD User running the Template Deployment"
             }
+        },
+        "uniqueSuffix": {
+            "type": "String",
+            "metadata": {
+                "description": "Suffix added to all resource names to make them unique."
+            }
+        },
+        "sqlAdministratorLoginPassword": {
+            "type": "SecureString",
+            "metadata": {
+                "description": "Password for SQL Admin"
+            }
         }
     },
     "variables": {
-        "name_suffix": "[uniqueString(resourceGroup().id)]",
+        "name_suffix": "[concat(uniqueString(resourceGroup().id), parameters('uniqueSuffix'))]",
         "primary_region": "East US",
         "secondary_region": "West US",
 
@@ -20,7 +32,21 @@
         "cosmosdb_region_secondary": "[variables('secondary_region')]",
         "cosmosdb_databaseName": "Woodgrove",
         "cosmosdb_containerName": "transactions",
-        "cosmosdb_database_throughput": "15000",
+        "cosmosdb_containerName2": "suspicious_transactions",
+        "autoscaleMaxThroughput": {
+            "type": "int",
+            "defaultValue": 4000,
+            "minValue": 4000,
+            "maxValue": 15000,
+            "metadata": {
+                "description": "Maximum throughput when using Autoscale Throughput Policy for the container"
+            }
+        },
+        "throughputPolicy": {
+            "Autoscale": {
+                "autoscaleSettings": { "maxThroughput": "[variables('autoscaleMaxThroughput')]" }
+            }
+        },
 
         "datalake_storageAccount_name": "[concat('adlsgen2stg', variables('name_suffix'))]",
         "datalake_region": "[variables('secondary_region')]",
@@ -32,12 +58,37 @@
         "databricks_region": "[variables('secondary_region')]",
 
         "keyvault_name": "[concat('woodgrove-', variables('name_suffix'))]",
-        "keyvault_region": "[variables('primary_region')]"
+        "keyvault_region": "[variables('primary_region')]",
+
+        "sqlAdministratorLogin": "asa.sql.admin",
+        "workspaceName": "[concat('asaworkspace', variables('name_suffix'))]",
+        "adlsStorageAccountName": "[concat('asadatalake', variables('name_suffix'))]",
+        "defaultDataLakeStorageFilesystemName": "defaultfs",
+        "sqlComputeName": "SQLPool01",
+        "sparkComputeName": "SparkPool01",
+        "computeSubnetId": "",
+        "sqlServerSKU": "DW500c",
+        "storageBlobDataContributorRoleID": "ba92f5b4-2d11-453d-a403-e96b0029c9fe",
+        "defaultDataLakeStorageAccountUrl": "[concat('https://', variables('adlsStorageAccountName'), '.dfs.core.windows.net')]",
+        "sparkAutoScaleEnabled": "true",
+        "sparkMinNodeCount": "3",
+        "sparkMaxNodeCount": "4",
+        "sparkNodeCount": "0",
+        "sparkNodeSizeFamily": "MemoryOptimized",
+        "sparkNodeSize": "Small",
+        "sparkAutoPauseEnabled": "true",
+        "sparkAutoPauseDelayInMinutes": "15",
+        "sparkVersion": "2.4",
+        "packagesRequirementsFileName": "requirements.txt",
+        "packagesRequirementsContent": "onnxruntime==1.0.0\nwerkzeug==0.16.1\nnimbusml==1.7.1\nruamel.yaml==0.16.9\nazureml-train-automl-runtime==1.6.0\nscikit-learn==0.21.1\nnumpy==1.16.2\npandas==0.23.4\npy-cpuinfo==5.0.0\nscipy==1.4.1\n",
+        "blobStorageAccountName": "[concat('asastore', variables('name_suffix'))]",
+        "applicationInsightsName": "[concat('asaappinsights', variables('name_suffix'))]",
+        "amlWorkspaceName": "[concat('amlworkspace', variables('name_suffix'))]"
     },
     "resources": [
         {
             "type": "Microsoft.DocumentDB/databaseAccounts",
-            "apiVersion": "2016-03-31",
+            "apiVersion": "2020-04-01",
             "name": "[variables('cosmosdb_databaseAccount_name')]",
             "location": "[variables('cosmosdb_region')]",
             "kind": "GlobalDocumentDB",
@@ -48,6 +99,7 @@
                 "consistencyPolicy": {
                     "defaultConsistencyLevel": "Session"
                 },
+                "enableAnalyticalStorage": true,
                 "locations": [
                     {
                         "locationName": "[variables('cosmosdb_region')]",
@@ -61,55 +113,94 @@
             }
         },
         {
-			"type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
-			"name": "[concat(variables('cosmosdb_databaseAccount_name'), '/sql/', variables('cosmosdb_databaseName'))]",
-			"apiVersion": "2016-03-31",
-			"dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/', variables('cosmosdb_databaseAccount_name'))]" ],
-			"properties":{
-				"resource":{
-					"id": "[variables('cosmosdb_databaseName')]"
-				},
-				"options": { "throughput": "[variables('cosmosdb_database_throughput')]" }
-			}
+            "type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
+            "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/sql/', variables('cosmosdb_databaseName'))]",
+            "apiVersion": "2020-04-01",
+            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/', variables('cosmosdb_databaseAccount_name'))]" ],
+            "properties": {
+                "resource": {
+                    "id": "[variables('cosmosdb_databaseName')]"
+                }
+            }
         },
         {
-			"type": "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers",
-			"name": "[concat(variables('cosmosdb_databaseAccount_name'), '/sql/', variables('cosmosdb_databaseName'), '/', variables('cosmosdb_containerName'))]",
-			"apiVersion": "2016-03-31",
-			"dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', variables('cosmosdb_databaseAccount_name'), 'sql', variables('cosmosdb_databaseName'))]" ],
-			"properties":
-			{
-				"resource":{
-					"id":  "[variables('cosmosdb_containerName')]",
-					"partitionKey": {
-						"paths": [
+            "type": "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers",
+            "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/sql/', variables('cosmosdb_databaseName'), '/', variables('cosmosdb_containerName'))]",
+            "apiVersion": "2020-04-01",
+            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', variables('cosmosdb_databaseAccount_name'), 'sql', variables('cosmosdb_databaseName'))]" ],
+            "properties": {
+                "resource": {
+                    "id": "[variables('cosmosdb_containerName')]",
+                    "partitionKey": {
+                        "paths": [
                             "/ipCountryCode"
-						],
-						"kind": "Hash"
-					},
-					"indexingPolicy": {
-						"indexingMode": "consistent",
-						"includedPaths": [{
-								"path": "/*",
-								"indexes": [
-									{
-										"kind": "Range",
-										"dataType": "number",
-										"precision": -1
-									},
-									{
-										"kind": "Range",
-										"dataType": "string",
-										"precision": -1
-									}
-								]
-							}
-						]
-					}
-				}
-			}
+                        ],
+                        "kind": "Hash"
+                    },
+                    "analyticalStorageTtl": -1,
+                    "indexingPolicy": {
+                        "indexingMode": "consistent",
+                        "includedPaths": [
+                            {
+                                "path": "/*",
+                                "indexes": [
+                                    {
+                                        "kind": "Range",
+                                        "dataType": "number",
+                                        "precision": -1
+                                    },
+                                    {
+                                        "kind": "Range",
+                                        "dataType": "string",
+                                        "precision": -1
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "options": "[variables('throughputPolicy')['Autoscale']]"
+            }
         },
-        
+        {
+            "type": "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers",
+            "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/sql/', variables('cosmosdb_databaseName'), '/', variables('cosmosdb_containerName'))]",
+            "apiVersion": "2020-04-01",
+            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', variables('cosmosdb_databaseAccount_name'), 'sql', variables('cosmosdb_databaseName'))]" ],
+            "properties": {
+                "resource": {
+                    "id": "[variables('cosmosdb_containerName2')]",
+                    "partitionKey": {
+                        "paths": [
+                            "/ipCountryCode"
+                        ],
+                        "kind": "Hash"
+                    },
+                    "analyticalStorageTtl": -1,
+                    "indexingPolicy": {
+                        "indexingMode": "consistent",
+                        "includedPaths": [
+                            {
+                                "path": "/*",
+                                "indexes": [
+                                    {
+                                        "kind": "Range",
+                                        "dataType": "number",
+                                        "precision": -1
+                                    },
+                                    {
+                                        "kind": "Range",
+                                        "dataType": "string",
+                                        "precision": -1
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "options": "[variables('throughputPolicy')['Autoscale']]"
+            }
+        },
 
 
 
@@ -147,6 +238,7 @@
                 "accessTier": "Hot"
             }
         },
+
 
 
 
@@ -207,7 +299,7 @@
             "properties": {}
         },
 
-        
+
 
 
         {
@@ -216,7 +308,7 @@
             "name": "[variables('databricks_name')]",
             "location": "[variables('databricks_region')]",
             "sku": {
-              "name": "premium"
+                "name": "premium"
             },
             "properties": {
                 "managedResourceGroupId": "[concat(resourceGroup().id, '-databricks')]"
@@ -287,7 +379,315 @@
                 "enabledForDiskEncryption": false,
                 "enabledForTemplateDeployment": false
             }
+        },
+
+
+
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[variables('blobStorageAccountName')]",
+            "location": "[variables('primary_region')]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "encryption": {
+                    "services": {
+                        "blob": {
+                            "enabled": true
+                        },
+                        "file": {
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "supportsHttpsTrafficOnly": true
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('blobStorageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('blobStorageAccountName'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[variables('adlsStorageAccountName')]",
+            "location": "[variables('primary_region')]",
+            "dependsOn": [],
+            "tags": {},
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "accessTier": "Hot",
+                "supportsHttpsTrafficOnly": "true",
+                "isHnsEnabled": "true",
+                "largeFileSharesState": "Disabled"
+            },
+            "resources": [
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2018-07-01",
+                    "name": "[concat('default/', variables('defaultDataLakeStorageFilesystemName'))]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Storage/storageAccounts/', variables('adlsStorageAccountName'))]"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('adlsStorageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('adlsStorageAccountName'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('adlsStorageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('adlsStorageAccountName'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Synapse/workspaces",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[variables('workspaceName')]",
+            "location": "[variables('primary_region')]",
+            "dependsOn": [
+                "[concat('Microsoft.Storage/storageAccounts/', variables('adlsStorageAccountName'), '/blobServices/default/containers/', variables('defaultDataLakeStorageFilesystemName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "defaultDataLakeStorage": {
+                    "accountUrl": "[variables('defaultDataLakeStorageAccountUrl')]",
+                    "filesystem": "[variables('defaultDataLakeStorageFilesystemName')]"
+                },
+                "virtualNetworkProfile": {
+                    "computeSubnetId": "[variables('computeSubnetId')]"
+                },
+                "sqlAdministratorLogin": "[variables('sqlAdministratorLogin')]",
+                "sqlAdministratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]"
+            },
+            "resources": [
+                {
+                    "type": "firewallrules",
+                    "apiVersion": "2019-06-01-preview",
+                    "name": "allowAll",
+                    "location": "[variables('primary_region')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Synapse/workspaces/', variables('workspaceName'))]"
+                    ],
+                    "properties": {
+                        "startIpAddress": "0.0.0.0",
+                        "endIpAddress": "255.255.255.255"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers/providers/roleAssignments",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[concat(variables('adlsStorageAccountName'), '/default/', variables('defaultDataLakeStorageFilesystemName'), '/Microsoft.Authorization/',  guid(concat(resourceGroup().id, '/', variables('storageBlobDataContributorRoleID'), '/', variables('workspaceName'))))]",
+            "location": "[variables('primary_region')]",
+            "dependsOn": [
+                "[concat('Microsoft.Synapse/workspaces/', variables('workspaceName'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('storageBlobDataContributorRoleID'))]",
+                "principalId": "[reference(concat('Microsoft.Synapse/workspaces/', variables('workspaceName')), '2019-06-01-preview', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[guid(concat(resourceGroup().id, '/', variables('storageBlobDataContributorRoleID'), '/', variables('workspaceName'), '2'))]",
+            "location": "[variables('primary_region')]",
+            "dependsOn": [
+                "[concat('Microsoft.Synapse/workspaces/', variables('workspaceName'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('storageBlobDataContributorRoleID'))]",
+                "principalId": "[reference(concat('Microsoft.Synapse/workspaces/', variables('workspaceName')), '2019-06-01-preview', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "type": "Microsoft.Synapse/workspaces/bigDataPools",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[concat(variables('workspaceName'), '/', variables('sparkComputeName'))]",
+            "location": "[variables('primary_region')]",
+            "dependsOn": [
+                "[concat('Microsoft.Synapse/workspaces/', variables('workspaceName'))]"
+            ],
+            "properties": {
+                "nodeCount": "[variables('sparkNodeCount')]",
+                "nodeSizeFamily": "[variables('sparkNodeSizeFamily')]",
+                "nodeSize": "[variables('sparkNodeSize')]",
+                "autoScale": {
+                    "enabled": "[variables('sparkAutoScaleEnabled')]",
+                    "minNodeCount": "[variables('sparkMinNodeCount')]",
+                    "maxNodeCount": "[variables('sparkMaxNodeCount')]"
+                },
+                "autoPause": {
+                    "enabled": "[variables('sparkAutoPauseEnabled')]",
+                    "delayInMinutes": "[variables('sparkAutoPauseDelayInMinutes')]"
+                },
+                "sparkVersion": "[variables('sparkVersion')]",
+                "libraryRequirements": {
+                    "filename": "[variables('packagesRequirementsFileName')]",
+                    "content": "[variables('packagesRequirementsContent')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Synapse/workspaces/sqlPools",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[concat(variables('workspaceName'), '/', variables('sqlComputeName'))]",
+            "location": "[variables('primary_region')]",
+            "dependsOn": [
+                "[concat('Microsoft.Synapse/workspaces/', variables('workspaceName'))]",
+                "[concat('Microsoft.Synapse/workspaces/', variables('workspaceName'), '/bigDataPools/', variables('sparkComputeName'))]"
+            ],
+            "sku": {
+                "name": "[variables('sqlServerSKU')]"
+            },
+            "properties": {
+                "createMode": "Default",
+                "collation": "SQL_Latin1_General_CP1_CI_AS"
+            }
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[variables('applicationInsightsName')]",
+            "location": "[if(or(equals(variables('primary_region'),'eastus2'),equals(variables('primary_region'),'westcentralus')),'southcentralus',variables('primary_region'))]",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web"
+            }
+        },
+        {
+            "type": "Microsoft.MachineLearningServices/workspaces",
+            "apiVersion": "2020-03-01",
+            "name": "[variables('amlWorkspaceName')]",
+            "location": "[variables('primary_region')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('blobStorageAccountName'))]",
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyvault_name'))]",
+                "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
+            ],
+            "sku": {
+                "tier": "Enterprise",
+                "name": "Enterprise"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "friendlyName": "[variables('amlWorkspaceName')]",
+                "keyVault": "[resourceId('Microsoft.KeyVault/vaults',variables('keyvault_name'))]",
+                "applicationInsights": "[resourceId('Microsoft.Insights/components',variables('applicationInsightsName'))]",
+                "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts/',variables('blobStorageAccountName'))]",
+                "hbiWorkspace": false,
+                "allowPublicAccessWhenBehindVnet": false
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('adlsStorageAccountName'), '/default/staging')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('adlsStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('adlsStorageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('adlsStorageAccountName'), '/default/wwi-02')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('adlsStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('adlsStorageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('blobStorageAccountName'), '/default/staging')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('blobStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('blobStorageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('blobStorageAccountName'), '/default/azureml')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('blobStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('blobStorageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
         }
+
 
 
 
