@@ -42,7 +42,6 @@
         "name_suffix": "[take(toLower(concat(take(uniqueString(resourceGroup().id), 10), parameters('uniqueSuffix'))), 13)]",
         "primary_region": "East US",
         "secondary_region": "West US",
-
         "cosmosdb_databaseAccount_name": "[concat('woodgrove-db-', variables('name_suffix'))]",
         "cosmosdb_region": "[variables('primary_region')]",
         "cosmosdb_region_secondary": "[variables('secondary_region')]",
@@ -55,19 +54,17 @@
                 "Throughput": "[parameters('manualProvisionedThroughput')]"
             },
             "Autoscale": {
-                "autoscaleSettings": { "maxThroughput": "[parameters('autoscaleMaxThroughput')]" }
+                "autoscaleSettings": {
+                    "maxThroughput": "[parameters('autoscaleMaxThroughput')]"
+                }
             }
         },
-
         "datalake_storageAccount_name": "[concat('adlsgen2stg', variables('name_suffix'))]",
         "datalake_region": "[variables('secondary_region')]",
-
         "eventhub_namespace_name": "[concat('woodgrove-', variables('name_suffix'))]",
         "eventhub_region": "[variables('primary_region')]",
-
         "keyvault_name": "[concat('woodgrove-', variables('name_suffix'))]",
         "keyvault_region": "[variables('primary_region')]",
-
         "sqlAdministratorLogin": "asa.sql.admin",
         "workspaceName": "[concat('asaworkspace', variables('name_suffix'))]",
         "adlsStorageAccountName": "[concat('asadatalake', variables('name_suffix'))]",
@@ -122,7 +119,9 @@
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
             "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/', variables('cosmosdb_databaseName'))]",
             "apiVersion": "2020-04-01",
-            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/', variables('cosmosdb_databaseAccount_name'))]" ],
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/', variables('cosmosdb_databaseAccount_name'))]"
+            ],
             "properties": {
                 "resource": {
                     "id": "[variables('cosmosdb_databaseName')]"
@@ -133,7 +132,9 @@
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/', variables('cosmosdb_databaseName'), '/', variables('cosmosdb_containerName'))]",
             "apiVersion": "2020-04-01",
-            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_databaseAccount_name'), variables('cosmosdb_databaseName'))]" ],
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_databaseAccount_name'), variables('cosmosdb_databaseName'))]"
+            ],
             "properties": {
                 "resource": {
                     "id": "[variables('cosmosdb_containerName')]",
@@ -152,7 +153,9 @@
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/', variables('cosmosdb_databaseName'), '/', variables('cosmosdb_containerName2'))]",
             "apiVersion": "2020-04-01",
-            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_databaseAccount_name'), variables('cosmosdb_databaseName'))]" ],
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_databaseAccount_name'), variables('cosmosdb_databaseName'))]"
+            ],
             "properties": {
                 "resource": {
                     "id": "[variables('cosmosdb_containerName2')]",
@@ -171,7 +174,9 @@
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/', variables('cosmosdb_databaseName'), '/', variables('cosmosdb_containerName3'))]",
             "apiVersion": "2020-04-01",
-            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_databaseAccount_name'), variables('cosmosdb_databaseName'))]" ],
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_databaseAccount_name'), variables('cosmosdb_databaseName'))]"
+            ],
             "properties": {
                 "resource": {
                     "id": "[variables('cosmosdb_containerName3')]",
@@ -186,10 +191,6 @@
                 "options": "[variables('throughputPolicy')[parameters('throughputPolicy')]]"
             }
         },
-
-
-
-
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2018-07-01",
@@ -223,10 +224,6 @@
                 "accessTier": "Hot"
             }
         },
-
-
-
-
         {
             "type": "Microsoft.EventHub/namespaces",
             "apiVersion": "2017-04-01",
@@ -283,8 +280,6 @@
             ],
             "properties": {}
         },
-
-
         {
             "type": "Microsoft.KeyVault/vaults",
             "apiVersion": "2016-10-01",
@@ -302,8 +297,6 @@
                 "enabledForTemplateDeployment": false
             }
         },
-
-
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-04-01",
