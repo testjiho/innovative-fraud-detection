@@ -542,6 +542,10 @@ As an added layer of security when accessing an ADLS Gen2 filesystem using Datab
 
     ![The az ad sp create-for-rbac command is entered into the Cloud Shell, and the output of the command is displayed.](media/azure-cli-create-sp.png "Azure CLI")
 
+    > **If you receive the following error:** `One or more properties contains invalid values`, it could be due to the **woodgrove-sp** app registration already existing in your Azure AD. You can either navigate to `App registrations` in Azure AD and delete the app registration, or use a different name, such as `woodgrove-sp-SUFFIX`.
+
+    ![The app registration failed because woodgrove-sp already exists.](media/azure-cli-create-sp-failed.png "Azure CLI")
+
 7. Copy the output from the command into a text editor, as you will need it in the following steps. The output should be similar to:
 
     ```json
@@ -681,7 +685,7 @@ In this task, you will connect to your Azure Databricks workspace and create a c
    - **Cluster Name**: Enter a name for your cluster, such as lab-cluster.
    - **Cluster Mode**: Select Standard.
    - **Pool**: Select None.
-   - **Databricks Runtime Version**: Select Runtime: 6.4 (Scala 2.11, Spark 2.4.5).
+   - **Databricks Runtime Version**: Select Runtime: 6.6 (Scala 2.11, Spark 2.4.5).
    - **Enable autoscaling**: Ensure this is checked.
    - **Terminate after XX minutes of inactivity**: Leave this checked, and the number of minutes set to 120.
    - **Worker Type**: Select Standard_DS4_v2.
@@ -727,7 +731,7 @@ In this task, you will connect to your Azure Databricks workspace and configure 
 
    ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
 
-4. In your browser's URL bar, append **#secrets/createScope** to your Azure Databricks base URL (for example, <https://eastus.azuredatabricks.net#secrets/createScope>).
+4. In your browser's URL bar, append **#secrets/createScope** to your Azure Databricks base URL (for example, <https://adb-8815019671311884.4.azuredatabricks.net/#secrets/createScope>).
 
 5. Enter `key-vault-secrets` for the name of the secret scope.
 

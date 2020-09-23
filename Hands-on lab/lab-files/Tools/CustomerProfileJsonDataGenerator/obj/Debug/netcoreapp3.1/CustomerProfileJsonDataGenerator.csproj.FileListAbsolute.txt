@@ -1,0 +1,94 @@
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.exe
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.csprojAssemblyReference.cache
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.AssemblyInfoInputs.cache
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.AssemblyInfo.cs
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.deps.json
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.runtimeconfig.json
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.runtimeconfig.dev.json
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.pdb
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Bogus.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.csproj.CopyComplete
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.pdb
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.genruntimeconfig.cache
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Azure.KeyVault.Core.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Azure.Storage.Blob.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Azure.Storage.Common.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.CommandLine.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.EnvironmentVariables.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.UserSecrets.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.FileSystemGlobbing.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Hosting.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Hosting.Abstractions.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.Configuration.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.Console.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.Debug.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.EventLog.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.EventSource.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Options.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Options.ConfigurationExtensions.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Primitives.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\System.Diagnostics.EventLog.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Diagnostics.EventLog.dll
+C:\Users\Joel\source\repos\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.csproj.CoreCompileInputs.cache
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.exe
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\appsettings.json
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.deps.json
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.runtimeconfig.json
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.runtimeconfig.dev.json
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.pdb
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Bogus.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Azure.KeyVault.Core.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Azure.Storage.Blob.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Azure.Storage.Common.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.Abstractions.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.Binder.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.CommandLine.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.EnvironmentVariables.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.FileExtensions.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.Json.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.UserSecrets.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.FileProviders.Abstractions.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.FileProviders.Physical.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.FileSystemGlobbing.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Hosting.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Hosting.Abstractions.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.Abstractions.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.Configuration.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.Console.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.Debug.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.EventLog.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.EventSource.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Options.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Options.ConfigurationExtensions.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Microsoft.Extensions.Primitives.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\System.Diagnostics.EventLog.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Diagnostics.EventLog.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.csprojAssemblyReference.cache
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.AssemblyInfoInputs.cache
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.AssemblyInfo.cs
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.csproj.CoreCompileInputs.cache
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.csproj.CopyComplete
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.dll
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.pdb
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\obj\Debug\netcoreapp3.1\CustomerProfileJsonDataGenerator.genruntimeconfig.cache
+D:\borra\MCW-Cosmos-DB-Real-Time-Advanced-Analytics\Hands-on lab\lab-files\Tools\CustomerProfileJsonDataGenerator\bin\Debug\netcoreapp3.1\account-data.csv

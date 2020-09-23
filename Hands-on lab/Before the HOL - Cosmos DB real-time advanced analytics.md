@@ -91,48 +91,22 @@ In this task, you will create an Azure resource group for the resources used thr
 
 ### Task 4: Deploy Environment
 
-1. In the Azure portal, navigate to **Azure Active Directory**, then select **Users** under Manage.
+1. Deploy the workspace through the following Azure ARM template (press the button below):
 
-   ![Azure Active Directory blade with Users highlighted](media/deploy-azure-ad-users-link.png 'Azure Active Directory blade with Users highlighted')
+    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoelhulen%2FMCW-Cosmos-DB-Real-Time-Advanced-Analytics%2Fmaster%2FHands-on%20lab%2FDeployment%2Fenvironment-template.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png" /></a>
 
-2. Select your user from the list with which you logged in to the portal.
-
-   ![All users list with user highlighted](media/deploy-azure-ad-user-list.png 'All users list with user highlighted')
-
-3. On the **User** blade, copy the **Object ID** for this user.
-
-   ![User blade is shown with Object ID highlighted](media/deploy-azure-ad-user-object-id.png 'User blade is shown with Object ID highlighted')
-
-4. Select **Create a resource**, then search for and select **Template Deployment**.
-
-   ![Create a resource is highlighted as step 1, and the search box is highlighted a step 2 with template deployment entered](media/deploy-create-resource-search-template-deployment.png 'Create a resource is highlighted as step 1, and the search box is highlighted a step 2 with template deployment entered')
-
-5. On the **Custom deployment** blade, select the **Build your own template in the editor** link.
-
-   ![The Build your own template in the editor link is highlighted.](media/deploy-deployment-build-your-own-link.png 'Custom deployment')
-
-6. On the **Edit template** blade, select the **Load file** button to select the ARM Template to use.
-
-   ![The Load file button is highlighted](media/deploy-deployment-load-file-button.png 'The Load file button is highlighted')
-
-7. Select the `C:\CosmosMCW\MCW-Cosmos-DB-Real-Time-Advanced-Analytics-master\Hands-on lab\Deployment\environment-template.json` ARM Template.
-
-8. Select **Save**.
-
-   ![The Save button is highlighted](media/deploy-deployment-arm-template-save.png 'The Save button is highlighted')
-
-9. Enter the following values:
+2. Enter the following values:
 
    - Resource group: **Select the Resource Group created previously for the lab**.
    - Key Vault Access Policy User Object Id: **Paste in the User Object ID that was copied previously from Azure Active Directory**.
 
    ![The parameters specified are highlighted](media/deploy-deployment-parameter-fields.png 'The parameters specified are highlighted')
 
-10. Check the **I agree...** check box, then select **Purchase**.
+3. Check the **I agree...** check box, then select **Purchase**.
 
     ![The I agree checkbox and the purchase button are highlighted](media/deploy-deployment-purchase-button.png 'The I agree checkbox and the purchase button are highlighted')
 
-11. The deployment will take approximately 5 - 10 minutes to complete.
+4. The deployment will take approximately 5 - 10 minutes to complete.
 
     ![The deployment progress is shown](media/deploy-deployment-progress.png 'The deployment progress is shown')
 
