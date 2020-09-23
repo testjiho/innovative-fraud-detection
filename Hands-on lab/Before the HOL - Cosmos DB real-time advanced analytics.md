@@ -95,18 +95,19 @@ In this task, you will create an Azure resource group for the resources used thr
 
     <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoelhulen%2FMCW-Cosmos-DB-Real-Time-Advanced-Analytics%2Fmaster%2FHands-on%20lab%2FDeployment%2Fenvironment-template.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png" /></a>
 
-2. Enter the following values:
+2. Enter the following values, then select **Review + create**:
 
    - Resource group: **Select the Resource Group created previously for the lab**.
-   - Key Vault Access Policy User Object Id: **Paste in the User Object ID that was copied previously from Azure Active Directory**.
+   - Unique Suffix: **Enter a unique value, such as your initials followed by birth year**.
+   - Autoscale Max Throughput: **Enter 4000 as the max RU/s for the Azure Cosmos DB containers**.
 
    ![The parameters specified are highlighted](media/deploy-deployment-parameter-fields.png 'The parameters specified are highlighted')
 
-3. Check the **I agree...** check box, then select **Purchase**.
+3. Select **Create** on the `Review + create` form..
 
-    ![The I agree checkbox and the purchase button are highlighted](media/deploy-deployment-purchase-button.png 'The I agree checkbox and the purchase button are highlighted')
+    ![The review page is displayed.](media/deploy-review.png "Review + create")
 
-4. The deployment will take approximately 5 - 10 minutes to complete.
+4. The deployment will take approximately 15 - 20 minutes to complete.
 
     ![The deployment progress is shown](media/deploy-deployment-progress.png 'The deployment progress is shown')
 
