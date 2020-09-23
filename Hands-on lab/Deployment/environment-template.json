@@ -8,26 +8,6 @@
                 "description": "Suffix added to all resource names to make them unique."
             }
         },
-        "throughputPolicy": {
-            "type": "string",
-            "defaultValue": "Autoscale",
-            "allowedValues": [
-                "Manual",
-                "Autoscale"
-            ],
-            "metadata": {
-                "description": "The throughput policy for the container"
-            }
-        },
-        "manualProvisionedThroughput": {
-            "type": "int",
-            "defaultValue": 4000,
-            "minValue": 400,
-            "maxValue": 4000,
-            "metadata": {
-                "description": "Throughput value when using Manual Throughput Policy for the container"
-            }
-        },
         "autoscaleMaxThroughput": {
             "type": "int",
             "defaultValue": 4000,
@@ -50,9 +30,6 @@
         "cosmosdb_containerName2": "suspicious_transactions",
         "cosmosdb_containerName3": "metadata",
         "throughputPolicy": {
-            "Manual": {
-                "Throughput": "[parameters('manualProvisionedThroughput')]"
-            },
             "Autoscale": {
                 "autoscaleSettings": {
                     "maxThroughput": "[parameters('autoscaleMaxThroughput')]"
@@ -291,6 +268,7 @@
                     "family": "A",
                     "name": "Standard"
                 },
+                "accessPolicies": [],
                 "tenantId": "[subscription().tenantId]",
                 "enabledForDeployment": false,
                 "enabledForDiskEncryption": false,
