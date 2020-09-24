@@ -165,7 +165,7 @@
                     },
                     "analyticalStorageTtl": -1
                 },
-                "options": "[variables('throughputPolicy')[parameters('throughputPolicy')]]"
+                "options": "[variables('throughputPolicy')['Autoscale']]"
             }
         },
         {
