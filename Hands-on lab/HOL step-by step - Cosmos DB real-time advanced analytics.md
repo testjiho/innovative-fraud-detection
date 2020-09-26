@@ -36,20 +36,20 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 2: Configuring Event Hubs and the transaction generator](#task-2-configuring-event-hubs-and-the-transaction-generator)
     - [Task 3: Ingesting streaming data into Cosmos DB](#task-3-ingesting-streaming-data-into-cosmos-db)
     - [Task 4: Choosing between Cosmos DB and Event Hubs for ingestion](#task-4-choosing-between-cosmos-db-and-event-hubs-for-ingestion)
-  - [Exercise 2: Understanding and preparing the transaction data at scale](#exercise-2-understanding-and-preparing-the-transaction-data-at-scale)
-    - [Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem](#task-1-create-a-service-principal-for-oauth-access-to-the-adls-gen2-filesystem)
-    - [Task 2: Add the service principal credentials and Tenant Id to Azure Key Vault](#task-2-add-the-service-principal-credentials-and-tenant-id-to-azure-key-vault)
-    - [Task 3: Configure ADLS Gen2 Storage Account in Key Vault](#task-3-configure-adls-gen2-storage-account-in-key-vault)
-    - [Task 4: Configure Cosmos DB Keys in Key Vault](#task-4-configure-cosmos-db-keys-in-key-vault)
-    - [Task 5: Create an Azure Databricks cluster](#task-5-create-an-azure-databricks-cluster)
-    - [Task 6: Open Azure Databricks and load lab notebooks](#task-6-open-azure-databricks-and-load-lab-notebooks)
-    - [Task 7: Configure Azure Databricks Key Vault-backed secrets](#task-7-configure-azure-databricks-key-vault-backed-secrets)
-    - [Task 8: Install the Azure Cosmos DB Spark Connector library in Databricks](#task-8-install-the-azure-cosmos-db-spark-connector-library-in-databricks)
-    - [Task 9: Explore historical transaction data with Azure Databricks and Spark](#task-9-explore-historical-transaction-data-with-azure-databricks-and-spark)
-    - [Task 10: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks](#task-10-responding-to-streaming-transactions-using-the-cosmos-db-change-feed-and-spark-structured-streaming-in-azure-databricks)
+  - [Exercise 2: Understanding and preparing the transaction data](#exercise-2-understanding-and-preparing-the-transaction-data)
+    - [Task 1: Configure access to the storage account from your workspace](#task-1-configure-access-to-the-storage-account-from-your-workspace)
+    - [Task 2: Open Synapse Studio](#task-2-open-synapse-studio)
+    - [Task 3: Upload historical data](#task-3-upload-historical-data)
+    - [Task 4: Create Synapse Notebook to explore historical data](#task-4-create-synapse-notebook-to-explore-historical-data)
+    - [Task 5: Review columns with `null` or unusable values](#task-5-review-columns-with-null-or-unusable-values)
+    - [Task 6: Look for invalid values](#task-6-look-for-invalid-values)
+    - [Task 7: Review column data types](#task-7-review-column-data-types)
   - [Exercise 3: Creating and evaluating fraud models](#exercise-3-creating-and-evaluating-fraud-models)
-    - [Task 1: Prepare and deploy scoring web service](#task-1-prepare-and-deploy-scoring-web-service)
-    - [Task 2: Prepare batch scoring model](#task-2-prepare-batch-scoring-model)
+    - [Task 1: Create Azure ML datastore](#task-1-create-azure-ml-datastore)
+    - [Task 2: Prepare and deploy scoring web service](#task-2-prepare-and-deploy-scoring-web-service)
+    - [Task 3: View the deployed model endpoint](#task-3-view-the-deployed-model-endpoint)
+    - [Task 4: Test the predictive maintenance model](#task-4-test-the-predictive-maintenance-model)
+    - [Task 5: Prepare batch scoring model](#task-5-prepare-batch-scoring-model)
   - [Exercise 4: Scaling globally](#exercise-4-scaling-globally)
     - [Task 1: Distributing batch scored data globally using Cosmos DB](#task-1-distributing-batch-scored-data-globally-using-cosmos-db)
     - [Task 2: Using an Azure Databricks job to batch score transactions on a schedule](#task-2-using-an-azure-databricks-job-to-batch-score-transactions-on-a-schedule)
@@ -116,7 +116,7 @@ In this task, you will create Sender and Listener Access Policies on the Event H
 
     ![The Event Hubs link is highlighted, as well as the transactions event hub in the list of event hubs.](media/event-hubs-list-transactions-event-hub.png "The Event Hubs link is highlighted, as well as the transactions event hub in the list of event hubs")
 
-3.  Select it then select **Shared access policies** under Settings in the left-hand menu.
+3. Select it then select **Shared access policies** under Settings in the left-hand menu.
 
     ![Shared access policies is selected within the left-hand menu](media/select-shared-access-policies.png 'Select Shared access policies')
 
@@ -500,344 +500,354 @@ Finally, the requirement to synchronize/write the ingested data to multiple regi
 
 We will continue the lab using Cosmos DB for data ingestion.
 
-## Exercise 2: Understanding and preparing the transaction data at scale
+## Exercise 2: Understanding and preparing the transaction data
 
-Duration: 45 minutes
+Duration: 15 minutes
 
-In this exercise, you will create connections from your Databricks workspace to ADLS Gen2 and Cosmos DB. Then, using Azure Databricks you will import and explore some of the historical raw transaction data provided by Woodgrove to gain a better understanding of the preparation that needs to be done prior to using the data for building and training a machine learning model. You will then use the connection to Cosmos DB from Databricks to read streaming transactions directly from the Cosmos DB Change Feed. Finally, you will write the incoming streaming transaction data into an Azure Databricks Delta table stored in your data lake.
+In this exercise, you will load historical transaction data to the primary ADLS Gen2 account within your Azure Synapse Analytics workspace. Then, using Synapse Spark notebooks, you will explore the historical raw transaction data provided by Woodgrove to gain a better understanding of the preparation that needs to be done prior to using the data for building and training a machine learning model.
 
-### Task 1: Create a service principal for OAuth access to the ADLS Gen2 filesystem
+### Task 1: Configure access to the storage account from your workspace
 
-As an added layer of security when accessing an ADLS Gen2 filesystem using Databricks you can use OAuth 2.0 for authentication. In this task, you will use the Azure CLI to create an identity in Azure Active Directory (Azure AD) known as a service principal to facilitate the use of OAuth authentication.
+We will be exploring files in the Synapse Analytics workspace's primary ADLS Gen2 account. Before we can do this, we need to verify that the managed identities for the workspace as well as your user account have access to the storage account.
 
-> **IMPORTANT**: You must have permissions within your Azure subscription to create an App registration and service principal within Azure Active Directory to complete this task.
+1. In the Azure Portal, navigate to the **Resource Group** created for this hands-on lab, then navigate to the storage account named **`asadatalakeSUFFIX`**.
 
-1. In the [Azure portal](https://portal.azure.com), select the **Cloud Shell** icon in the top toolbar.
+    ![The data lake within the Resource Group is highlighted.](media/resource-group-hands-on-lab-datalake.png "The data lake within the Resource Group is highlighted.")
 
-    ![The Cloud Shell icon is highlighted on the Azure toolbar.](media/azure-toolbar-cloud-shell.png "Azure Toolbar")
+2. Select **Access Control (IAM)** in the left-hand menu, then select **Role assignments**.
 
-2. Ensure **PowerShell** is selected in the Cloud Shell pane.
+    ![The IAM and role assignment links are highlighted.](media/datalake-role-assignments.png "Role assignments")
 
-    ![PowerShell is highlighted in the Cloud Shell pane.](media/cloud-shell-powershell.png "Cloud Shell")
+3. Scroll down the list of role assignments and verify that the Synapse Analytics workspace name is added to the **Storage Blob Data Contributor** role.
 
-3. Next, you will issue a command to create a service principal named **woodgrove-sp** and assign it to the _Storage Blob Data Contributor_ role on your **ADLS Gen2 Storage account**. The command will be in the following format:
+    ![The workspace is assigned to the role](media/storage-blob-contributor-role.png "Storage Blob Data Contributor role")
 
-    ```bash
-    az ad sp create-for-rbac -n "woodgrove-sp" --role "Storage Blob Data Contributor" --scopes {adls-gen2-storage-account-resource-id}
+4. If you do not see your Azure account name assigned to this role, select **+ Add** above `Role assignments`, then select **Add role assignment**.
+
+    ![The add button is highlighted.](media/role-assignments-add-button.png "Add")
+
+5. In the add role assignment form, select the **Storage Blob Data Contributor** role, search for and select your Azure user account, then select **Save**.
+
+    ![The form is displayed as described.](media/add-role-assignment-form.png "Add role assignment")
+
+### Task 2: Open Synapse Studio
+
+1. In the Azure Portal, navigate to the **Resource Group** created for this hands-on lab, then navigate to the **Synapse Analytics workspace** resource.
+
+    ![The Synapse workspace within the Resource Group is highlighted.](media/resource-group-hands-on-lab-synapse.png "The Synapse workspace within the Resource Group is highlighted.")
+
+2. In the Synapse Analytics workspace Overview blade, select **Launch Synapse Studio**.
+
+    ![The button is highlighted.](media/launch-synapse-studio.png "Launch Synapse Studio")
+
+### Task 3: Upload historical data
+
+Woodgrove Bank provided historical transaction data. We want to explore this data using Synapse Notebooks, and we want to use the data from Azure Machine Learning later on for model training. In this task, you will upload the historical files to the Synapse Analytics primary ADLS Gen2 account.
+
+1. Navigate to the **Data** hub.
+
+    ![Data hub.](media/data-hub.png "Data hub")
+
+2. Select the **Linked** tab **(1)**, then expand the ADLS Gen2 account and select the **`defaultfs (Primary)`** container **(2)**. Navigate to the **`synapse`** folder **(3)**, then select **Upload (4)**.
+
+    ![The ADLS Gen2 account is selected and the Upload button is highlighted.](media/upload-button.png "Upload")
+
+3. Browse to the location you extracted the MCW repo .zip file to (C:\\CosmosMCW\\) and navigate to the `Hands-on lab\Resources` directory. Select the three files in the directory, then click **Open**.
+
+    ![The three files are selected in the file explorer.](media/file-explorer.png "Open")
+
+4. Confirm that the three files are included in the `Upload Files` blade, then select **Upload**.
+
+    ![The three files are shown in the Upload Files blade.](media/upload-files.png "Upload Files")
+
+5. Verify that you can see the three files in the `synapse` folder after uploading. You may need to refresh the folder view after a few moments.
+
+    ![The uploaded files are shown.](media/files-uploaded.png "Files uploaded")
+
+### Task 4: Create Synapse Notebook to explore historical data
+
+Data preparation is an important step in the data engineering process. Before using data to create machine learning models, it is important to understand the data, and determine what features of the data set will be valuable for your intended purposes. To assist with this, Woodgrove has provided a CSV file contain some of its historical transactions for exploration.
+
+In this notebook, you will explore this raw transaction data provided by Woodgrove to gain a better understanding of the types of transformations that need to be performed on the data to prepare it for use in building and training a machine learning model to detect fraud.
+
+1. Right-click the **Untagged_Transactions.csv** file, then select **New notebook**.
+
+    ![The file is highlighted and the New notebook menu item is selected.](media/untagged-new-notebook.png "New notebook")
+
+2. Update the cell to uncomment the `, header=True` line by removing the two pound symbols at the beginning of the line **(`##`)** **(1)**. Make sure the notebook is attached to **SparkPool01 (2)**, then select **Run all (3)**. It will take a few minutes to run this notebook the first time since the Spark pool needs start.
+
+    ![The notebook is displayed.](media/untagged-transactions-notebook-run.png "Notebook")
+
+    Notice that the first cell uses the `spark.read.load` with a path to the CSV file to load the `data_path` DataFrame.
+
+    The output from the `display()` command allows you to inspect the columns of data contained in the dataset, including column names and the values stored in each column. With this information, you can start performing an exploratory analysis of the transaction data, looking for fields which contain information which might be useful in determining if a transaction is potentially fraudulent, as well as columns containing empty and null values. This can help in making determinations about which columns might be useful for fraud analysis and which columns can potentially be removed from the dataset.
+
+    Take a few minutes to look through some of the data to better understand the types of information being gathered in Woodgrove's transaction logs.
+
+### Task 5: Review columns with `null` or unusable values
+
+1. Hover your mouse below Cell 1's output, then select **{} Add code** to create a new code cell.
+
+    ![The add code button is highlighted.](media/add-code.png "Add code")
+
+2. Paste and execute the following in the new cell to review columns with null values (Tip: you can execute a cell by entering **Ctrl+Enter**):
+
+    ```python
+    transactions = data_path
+
+    transactions.select("browserType").distinct().show()
     ```
 
-    > **IMPORTANT**: You will need to replace the `{adls-gen2-storage-account-resource-id}` value with the resource ID of your ADLS Gen2 Storage account.
+    Here we inspect a column with empty or `null` rows to get a list of the distinct values. Columns containing only empty or `null` values are good candidates to be dropped from the dataset used for building and training your machine learning model. Rerun the new cell for other columns in the DataFrame which contain empty values to determine if they contain only empty values, or if some records contain data.
 
-4. To retrieve the ADLS Gen2 Storage account resource ID you need to replace above, navigate to **Resource groups** in the Azure navigation menu, enter "hands-on-lab-SUFFIX" into the filter box, and select the hands-on-lab-SUFFIX resource group from the list.
+3. Once done inspecting empty fields, another thing to review is columns with values, but possibly values that do not provide information useful for our fraud detection scenario. As an example, paste and execute the following command in a new cell to find the distinct values contained in the `transactionScenario` and `transactionType` fields:
 
-5. In your hands-on-lab-SUFFIX resource group, select the ADLS Gen2 Storage account you provisioned previously, and on the ADLS Gen2 Storage account blade select **Properties** under **Settings** in the left-hand menu, and then select the copy to clipboard button to the right of the **Storage account resource ID** value.
-
-    ![On the ADLS Gen2 Storage account blade, Properties is selected and highlighted in the left-hand menu, and the copy to clipboard button is highlighted next to Storage account resource ID.](media/adls-gen2-properties.png "ADLS Gen2 Storage account properties")
-
-6. Paste the Storage account resource ID into the command above, and then copy and paste the updated `az ad sp create-for-rbac` command at the Cloud Shell prompt and press `Enter`. The command should be similar to the following, with your subscription ID and resource group name:
-
-    ```bash
-    az ad sp create-for-rbac -n "woodgrove-sp" --role "Storage Blob Data Contributor" --scope /subscriptions/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX/resourceGroups/hands-on-lab/providers/Microsoft.Storage/storageAccounts/aldsgen2store
+    ```python
+    transactions.select("transactionScenario").distinct().show()
     ```
 
-    ![The az ad sp create-for-rbac command is entered into the Cloud Shell, and the output of the command is displayed.](media/azure-cli-create-sp.png "Azure CLI")
+    As you can see from the results above, both the `transactionScenario` and `transactionType` fields each contain only a single value, which provides little value in making a determination about whether the transaction might be fraudulent.
 
-    > **If you receive the following error:** `One or more properties contains invalid values`, it could be due to the **woodgrove-sp** app registration already existing in your Azure AD. You can either navigate to `App registrations` in Azure AD and delete the app registration, or use a different name, such as `woodgrove-sp-SUFFIX`.
+### Task 6: Look for invalid values
 
-    ![The app registration failed because woodgrove-sp already exists.](media/azure-cli-create-sp-failed.png "Azure CLI")
+Before moving on, let's look at one more scenario that you should consider when doing your exploration of the data.
 
-7. Copy the output from the command into a text editor, as you will need it in the following steps. The output should be similar to:
+Woodgrove has provided you with a list of possible `cvvVerifyResult` values and the meaning of each.
 
-    ```json
-    {
-      "appId": "68b7968d-d0e6-4dbf-83f9-3da68cba4719",
-      "displayName": "woodgrove-sp",
-      "name": "http://woodgrove-sp",
-      "password": "2c2d601b-5b44-4ae9-8cb4-8ad90e533658",
-      "tenant": "9c37bff0-cd20-XXXX-XXXX-XXXXXXXXXXXX"
-    }
+| Code  | Meaning
+| ----- | ---------
+| Empty | Transaction failed because wrong CVV2 number was entered or no CVV2 number was entered
+| M     | CVV2 Match
+| N     | CVV2 No Match
+| P     | Not Processed
+| S     | Issuer indicates that CVV2 data should be present on the card, but the merchant has indicated data is not present on the card
+| U     | Issuer has not certified for CVV2 or Issuer has not provided Visa with the CVV2 encryption keys
+
+> The schema details for the data used here is available at: <https://microsoft.github.io/r-server-fraud-detection/input_data.html>
+
+1. Run the following in a new cell to view the distinct values contained in `cvvVerifyResult` field, and a count of each. In this case, we are using the `groupBy()` method to provide the distinct `cvvVerifyResult` values, along with a count of each:
+
+    ```python
+    transactions.groupBy("cvvVerifyResult").count().sort("cvvVerifyResult").show()
     ```
 
-8. To verify the role assignment, select **Access control (IAM)** from the left-hand menu of the **ADLS Gen2 Storage account** blade, and then select the **Role assignments** tab and locate **woodgrove-sp** under the _STORAGE BLOB DATA CONTRIBUTOR_ role.
-
-    ![The Role assignments tab is displayed, with woodgrove-sp account highlighted under STORAGE BLOB DATA CONTRIBUTOR role in the list.](media/storage-account-role-assignments.png "Role assignments")
-
-### Task 2: Add the service principal credentials and Tenant Id to Azure Key Vault
-
-1. To provide access your ADLS Gen2 account from Azure Databricks you will use secrets stored in your Azure Key Vault account to provide the credentials of your newly created service principal within Databricks. Navigate to your Azure Key Vault account in the Azure portal, then select **Access Policies** and select the **+ Add Access Policy** button.
-
-2. Choose the account that you are currently logged into the portal with as the principal and **check Select all** under `key permissions`, `secret permissions`, and `certificate permissions`, then select OK and **Save**.
-
-3. Now select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
-
-   ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png "Key Vault secrets blade")
-
-4. On the Create a secret blade, enter the following:
-
-    - **Upload options**: Select Manual.
-    - **Name**: Enter "Woodgrove-SP-Client-ID".
-    - **Value**: Paste the **appId** value from the Azure CLI output you copied in an earlier step.
-
-    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-woodgrove-sp-client-id-secret.png "Create a secret")
-
-5. Select **Create**.
-
-6. Select **+ Generate/Import** again on the top toolbar to create another secret.
-
-7. On the Create a secret blade, enter the following:
-
-    - **Upload options**: Select Manual.
-    - **Name**: Enter "Woodgrove-SP-Client-Key".
-    - **Value**: Paste the **password** value from the Azure CLI output you copied in an earlier step.
-
-    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-woodgrove-sp-client-key-secret.png 'Create a secret')
-
-8. Select **Create**.
-
-9. To perform authentication using the service principal account in Databricks you will also need to provide your Azure AD Tenant ID. Select **+ Generate/Import** again on the top toolbar to create another secret.
-
-10. On the Create a secret blade, enter the following:
-
-   - **Upload options**: Select Manual.
-   - **Name**: Enter "Azure-Tenant-ID".
-   - **Value**: Paste the **tenant** value from the Azure CLI output you copied in an earlier step.
-
-   ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-azure-tenant-id-secret.png "Create a secret")
-
-11. Select **Create**.
-
-### Task 3: Configure ADLS Gen2 Storage Account in Key Vault
-
-In this task, you will configure the Key for the ADLS Gen2 Storage Account within Key Vault.
-
-1. In the Azure Portal, navigate to the ADLS Gen2 **Storage Account**, then select **Access keys** under Settings on the left-hand menu. You are going to copy the **Storage account name** and **Key** values and add them as secrets in your Key Vault account.
-
-   ![The storage account Access keys blade is displayed, with the storage account name highlighted.](media/storage-account-access-keys.png 'Storage account access keys')
-
-2. Open a new browser tab or window and navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
-
-   ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
-
-3. On the Create a secret blade, enter the following:
-
-   - **Upload options**: Select Manual.
-   - **Name**: Enter "ADLS-Gen2-Account-Name".
-   - **Value**: Paste the Storage account name value you copied in an earlier step.
-
-   ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-adls-gen2-account-name-secret.png 'Create a secret')
-
-4. Select **Create**.
-
-5. Select **+ Generate/Import** again on the top toolbar to create another secret.
-
-6. On the Create a secret blade, enter the following:
-
-    - **Upload options**: Select Manual.
-    - **Name**: Enter "ADLS-Gen2-Account-Key".
-    - **Value**: Paste the Storage account Key value you copied in an earlier step.
-
-    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-adls-gen2-account-key-secret.png 'Create a secret')
-
-7. Select **Create**.
-
-### Task 4: Configure Cosmos DB Keys in Key Vault
-
-1. Open a new browser tab or window and navigate to your Azure Key Vault account in the Azure portal, then select **Secrets** under Settings on the left-hand menu. On the Secrets blade, select **+ Generate/Import** on the top toolbar.
-
-    ![Secrets is highlighted on the left-hand menu, and Generate/Import is highlighted on the top toolbar of the Secrets blade.](media/key-vault-secrets.png 'Key Vault secrets blade')
-
-2. On the Create a secret blade, enter the following:
-
-    - **Upload options**: Select Manual.
-    - **Name**: Enter "Cosmos-DB-URI".
-    - **Value**: Paste the Azure Cosmos DB URI value you copied in an earlier step.
-
-    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-uri-secret.png 'Create a secret')
-
-3. Select **Create**.
-
-4. Select **+ Generate/Import** again on the top toolbar to create another secret.
-
-5. On the Create a secret blade, enter the following:
-
-    - **Upload options**: Select Manual.
-    - **Name**: Enter "Cosmos-DB-Key".
-    - **Value**: Paste the Azure Cosmos DB Primary Key value you copied in an earlier step.
-
-    ![The Create a secret blade is displayed, with the previously mentioned values entered into the appropriate fields.](media/key-vault-create-key-secret.png 'Create a secret')
-
-6. Select **Create**.
-
-### Task 5: Create an Azure Databricks cluster
-
-In this task, you will connect to your Azure Databricks workspace and create a cluster to use for this hands-on lab.
-
-1. Return to the [Azure portal](https://portal.azure.com), navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
-
-   ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
-
-2. Select **Clusters** from the left-hand navigation menu, and then select **+ Create Cluster**.
-
-   ![The Clusters option in the left-hand menu is selected and highlighted, and the Create Cluster button is highlighted on the clusters page.](media/databricks-clusters.png 'Databricks Clusters')
-
-3. On the Create Cluster screen, enter the following:
-
-   - **Cluster Name**: Enter a name for your cluster, such as lab-cluster.
-   - **Cluster Mode**: Select Standard.
-   - **Pool**: Select None.
-   - **Databricks Runtime Version**: Select Runtime: 6.6 (Scala 2.11, Spark 2.4.5).
-   - **Enable autoscaling**: Ensure this is checked.
-   - **Terminate after XX minutes of inactivity**: Leave this checked, and the number of minutes set to 120.
-   - **Worker Type**: Select Standard_DS4_v2.
-     - **Min Workers**: Leave set to 2.
-     - **Max Workers**: Leave set to 8.
-   - **Driver Type**: Set to Same as worker.
-
-   ![The Create Cluster screen is displayed, with the values specified above entered into the appropriate fields.](media/databricks-create-new-cluster.png 'Create a new Databricks cluster')
-
-4. Select **Create Cluster**. It will take 3-5 minutes for the cluster to be created and started.
-
-### Task 6: Open Azure Databricks and load lab notebooks
-
-In this task, you will import the notebooks contained in the [Cosmos DB real-time advanced analytics MCW GitHub repo](https://github.com/Microsoft/MCW-Cosmos-DB-Real-Time-Advanced-Analytics) into your Azure Databricks workspace.
-
-1. Navigate to your Azure Databricks workspace in the Azure portal, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
-
-   ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
-
-2. Select **Workspace** from the left-hand menu, then select **Users** and select your user account (email address), and then select the down arrow on top of your user workspace and select **Import** from the context menu.
-
-   ![The Workspace menu is highlighted in the Azure Databricks workspace, and Users is selected with the current user's account selected and highlighted. Import is selected in the user's context menu.](media/databricks-workspace-import.png 'Import files into user workspace')
-
-3. Within the Import Notebooks dialog, select **URL** for Import from, and then paste the following into the box: `https://github.com/Microsoft/MCW-Cosmos-DB-real-time-advanced-analytics/blob/master/Hands-on%20lab/lab-files/CosmosDbAdvancedAnalytics.dbc`
-
-   ![The Import Notebooks dialog is displayed](media/databricks-import-notebooks.png 'Import Notebooks dialog')
-
-4. Select **Import**.
-
-5. You should now see a folder named **CosmosDbAdvancedAnalytics** in your user workspace. This folder contains all of the notebooks you will use throughout this hands-on lab.
-
-### Task 7: Configure Azure Databricks Key Vault-backed secrets
-
-In this task, you will connect to your Azure Databricks workspace and configure Azure Databricks secrets to use your Azure Key Vault account as a backing store.
-
-1. Return to the [Azure portal](https://portal.azure.com), navigate to your Key Vault account and select **Properties** on the left-hand menu.
-
-2. Copy the **DNS Name** and **Resource ID** property values and paste them to Notepad or some other text application that you can reference later. These values will be used in the next section.
-
-   ![Properties is selected on the left-hand menu, and DNS Name and Resource ID are highlighted to show where to copy the values from.](media/key-vault-properties.png 'Key Vault properties')
-
-3. Navigate to the Azure Databricks workspace you provisioned above, and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
-
-   ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
-
-4. In your browser's URL bar, append **#secrets/createScope** to your Azure Databricks base URL (for example, <https://adb-8815019671311884.4.azuredatabricks.net/#secrets/createScope>).
-
-5. Enter `key-vault-secrets` for the name of the secret scope.
-
-6. Select **Creator** within the Manage Principal drop-down to specify only the creator (which is you) of the secret scope has the MANAGE permission.
-
-   > MANAGE permission allows users to read and write to this secret scope, and, in the case of accounts on the Azure Databricks Premium Plan, to change permissions for the scope.
-
-   > Your account must have the Azure Databricks Premium Plan for you to be able to select Creator. This is the recommended approach: grant MANAGE permission to the Creator when you create the secret scope, and then assign more granular access permissions after you have tested the scope.
-
-7. Enter the **DNS Name** (for example, <https://woodgrove-vault.vault.azure.net/>) and **Resource ID** you copied earlier during the Key Vault creation step, for example: `/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/hands-on-lab/providers/Microsoft.KeyVault/vaults/woodgrove-vault`.
-
-   ![Create Secret Scope form](media/create-secret-scope.png 'Create Secret Scope')
-
-8. Select **Create**.
-
-After a moment, you will see a dialog verifying that the secret scope has been created.
-
-### Task 8: Install the Azure Cosmos DB Spark Connector library in Databricks
-
-In this task, you will install the [Azure Cosmos DB Spark Connector](https://github.com/Azure/azure-cosmosdb-spark) and scikit-learn libraries on your Databricks cluster. The Cosmos DB connector allows you to easily read from and write to Azure Cosmos DB via Apache Spark DataFrames.
-
-1. Navigate to your Azure Databricks workspace in the [Azure portal](https://portal.azure.com/), and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
-
-   ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
-
-2. Select **Workspace** from the left-hand menu, then select the drop down arrow next to **Shared** and select **Create** and **Library** from the context menus.
-
-   ![The Workspace items is selected in the left-hand menu, and the shared workspace is highlighted. In the Shared workspace context menu, Create and Library are selected.](media/databricks-create-shared-library.png 'Create Shared Library')
-
-3. On the Create Library page, select **Maven** under Library Source, and then paste the following into the **Coordinates** textbox:
-
-    `com.microsoft.azure:azure-cosmosdb-spark_2.4.0_2.11:2.1.5`
-
-   ![The Databricks Create Library dialog is displayed, with Maven selected under Library Source and the Search Packages link highlighted.](media/databricks-create-maven-library.png 'Create Library')
-
-4. Select **Create** to finish installing the library.
-
-   ![The Create button is highlighted on the Create Library dialog.](media/databricks-create-library-cosmosdb-spark.png 'Create Library')
-
-5. On the following screen, check the box for **Install automatically on all clusters**, and select **Confirm** when prompted.
-
-   ![The Install automatically on all clusters box is checked and highlighted on the library dialog.](media/databricks-install-library-on-all-clusters.png 'Install library on all clusters')
-
-### Task 9: Explore historical transaction data with Azure Databricks and Spark
-
-In this task, you will use an Azure Databricks notebook to download and explore historical transaction data.
-
-1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
-
-   ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
-
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **1-Exploring-Historical-Transactions**.
-
-   ![In the user's workspace, the 2-Exploring-Historical-Transactions notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook1.png 'Notebooks in the user workspace')
-
-3. In the **1-Exploring-Historical-Transactions** notebook, follow the instructions to complete the remaining steps of this task.
-
-> **Note**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
-
-### Task 10: Responding to streaming transactions using the Cosmos DB Change Feed and Spark Structured Streaming in Azure Databricks
-
-In this task, you will use an Azure Databricks notebook to create a connection to your Cosmos DB instance from an Azure Databricks notebook, and query streaming data from the Cosmos DB Change Feed.
-
-1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
-
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 2** folder, and select the notebook named **2-Cosmos-DB-Change-Feed**.
-
-   ![In the user's workspace, the 3-Cosmos-DB-Change-Feed notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex2-notebook2.png 'Notebooks in the user workspace')
-
-3. In the **2-Cosmos-DB-Change-Feed** notebook, follow the instructions to complete the remaining steps of this task.
+    The cell output should look like the following:
+
+    ```cli
+    +---------------+------+
+    |cvvVerifyResult| count|
+    +---------------+------+
+    |           null| 22509|
+    |              M|174965|
+    |              N|   460|
+    |              P|   561|
+    |              S|    31|
+    |              U|   289|
+    |              X|  1142|
+    |              Y|    43|
+    +---------------+------+
+    ```
+
+    There are two interesting things to note for the values in the `cvvVerifyResult` field:
+
+    1. We have some rows with empty values, which, according to the values listed provided by Woodgrove, indicates a failed transaction. For our fraud detection model, we are only concerned with completed transactions, so you might consider dropping rows where the `cvvVerifyResult` is empty. The count allows us to have some insight into the impact this will have on the size of our dataset.
+    2. There are a small number of values (X or Y for instance) that are not valid values, according to the list of acceptable values. Since these rows don't contain valid transactions, some consideration should be given to how to handle them in your model.
+
+### Task 7: Review column data types
+
+Another aspect of the data to review is the data types of each column. To view the data type assigned to each column, you can use the `printSchema()` method on the DataFrame.
+
+1. Run the following in a new cell to view the file schema:
+
+    ```python
+    transactions.printSchema()
+    ```
+
+    The output should look like the following:
+
+    ```cli
+    root
+    |-- transactionID: string (nullable = true)
+    |-- accountID: string (nullable = true)
+    |-- transactionAmountUSD: string (nullable = true)
+    |-- transactionAmount: string (nullable = true)
+    |-- transactionCurrencyCode: string (nullable = true)
+    |-- transactionCurrencyConversionRate: string (nullable = true)
+    |-- transactionDate: string (nullable = true)
+    |-- transactionTime: string (nullable = true)
+    |-- localHour: string (nullable = true)
+    |-- transactionScenario: string (nullable = true)
+    |-- transactionType: string (nullable = true)
+    |-- transactionMethod: string (nullable = true)
+    |-- transactionDeviceType: string (nullable = true)
+    |-- transactionDeviceId: string (nullable = true)
+    |-- transactionIPaddress: string (nullable = true)
+    |-- ipState: string (nullable = true)
+    |-- ipPostcode: string (nullable = true)
+    |-- ipCountryCode: string (nullable = true)
+    |-- isProxyIP: string (nullable = true)
+    |-- browserType: string (nullable = true)
+    |-- browserLanguage: string (nullable = true)
+    |-- paymentInstrumentType: string (nullable = true)
+    |-- cardType: string (nullable = true)
+    |-- cardNumberInputMethod: string (nullable = true)
+    |-- paymentInstrumentID: string (nullable = true)
+    |-- paymentBillingAddress: string (nullable = true)
+    |-- paymentBillingPostalCode: string (nullable = true)
+    |-- paymentBillingState: string (nullable = true)
+    |-- paymentBillingCountryCode: string (nullable = true)
+    |-- paymentBillingName: string (nullable = true)
+    |-- shippingAddress: string (nullable = true)
+    |-- shippingPostalCode: string (nullable = true)
+    |-- shippingCity: string (nullable = true)
+    |-- shippingState: string (nullable = true)
+    |-- shippingCountry: string (nullable = true)
+    |-- cvvVerifyResult: string (nullable = true)
+    |-- responseCode: string (nullable = true)
+    |-- digitalItemCount: string (nullable = true)
+    |-- physicalItemCount: string (nullable = true)
+    |-- purchaseProductType: string (nullable = true)
+    ```
+
+    When building your model, you will want to make sure each field in reflective of the type of data stored in the column, and considering casting some columns to a more appropriate type. For example, the `transactionIPaddress` field is currently represented as a `double`, but since it contains the last two octets of the user's IP address, it may be better represented as a `string` value.
 
 ## Exercise 3: Creating and evaluating fraud models
 
 Duration: 45 minutes
 
-In this exercise, you create and evaluate a fraud model that is used for real-time scoring of transactions as they occur at the web front-end. The goal is to block fraudulent transactions before they are processed. You will then create a model for detecting suspicious transactions, which gets executed during batch processing that will take place in Exercise 4. Finally, you will deploy the fraudulent transactions model and test it through HTTP REST calls, all within Databricks notebooks.
+In this exercise, you create and evaluate a fraud model that is used for real-time scoring of transactions as they occur at the web front-end. The goal is to block fraudulent transactions before they are processed. You will then create a model for detecting suspicious transactions, which gets executed during batch processing that will take place in Exercise 4. Finally, you will deploy the fraudulent transactions model and test it through HTTP REST calls, all within Azure Machine Learning.
 
-### Task 1: Prepare and deploy scoring web service
+### Task 1: Create Azure ML datastore
 
-In this task, you will use an Azure Databricks notebook to explore the transaction and account data. You will also do some data cleanup and create a feature engineering pipeline that applies these transformations each time data is passed to the model for scoring. Finally, you will train and deploy a machine learning model that detects fraudulent transactions.
+In this task, you create a new Azure Machine Learning datastore that points to the ADLS Gen2 account that contains the historical data you uploaded in an earlier exercise. The datastore enables you to easily access these files from within a notebook in your Azure ML workspace.
 
-1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
+1. Navigate to the **Resource Group** in the [Azure portal](https://portal.azure.com) that you created for this lab.
 
-   ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
+2. Select the **amlworkspace#SUFFIX#** resource with a Type of **Machine Learning**.
 
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 3** folder, and select the notebook named **1-Prepare-Scoring-Web-Service**.
+    ![The Machine Learning resource is selected.](media/azure-ml-select.png "Machine Learning")
 
-   ![In the user's workspace, the 1-Prepare-Scoring-Web-Service notebook is selected under the Exercise 3 folder.](media/databricks-user-workspace-ex3-notebook1.png 'Notebooks in the user workspace')
+3. Select **Launch now** to open the Azure Machine Learning studio.
 
-3. In the **1-Prepare-Scoring-Web-Service** notebook, follow the instructions to complete the remaining steps of this task.
+    ![The option to launch Azure Machine Learning Studio is selected.](media/azure-ml-launch.png "Launch now")
 
-> **Note**: There will be a link at the bottom of each notebook in this exercise to move on to the notebook for the next task, so you will not need to jump back and forth between this document and the Databricks notebooks for this exercise.
+4. In the Azure Machine Learning studio, select the **Datastores** option in the Manage tab. Then, select the **+ New datastore** option.
 
-### Task 2: Prepare batch scoring model
+    ![The option to create a new datastore is selected.](media/azure-ml-new-datastore.png "New datastore")
 
-In this task, you will use an Azure Databricks notebook to prepare a model used to detect suspicious activity that will be used for batch scoring.
+5. In the **New datastore** window, complete the following:
 
-1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
+   | Field                          | Value                                              |
+   | ------------------------------ | ------------------------------------------         |
+   | Datastore name                 | _`woodgrovestorage`_                            |
+   | Datastore type                 | _select `Azure Blob Storage`_                      |
+   | Account selection method       | _select `From Azure subscription`_                 |
+   | Subscription ID                | _select the appropriate subscription_              |
+   | Storage account                | _select `asadatalake#SUFFIX#`_             |
+   | Blob container                 | _select `defaultfs`_                                 |
+   | Allow Azure ML Service...      | _select `No`_                                      |
+   | Authentication type            | _select `Account key`_                             |
+   | Account key                    | _enter the account key_                            |
 
-   ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
+   ![In the New datastore output, form field entries are filled in.](media/azure-ml-new-datastore-1.png "New datastore")
 
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 3** folder, and select the notebook named **2-Prepare-Batch-Scoring-Model**.
+   >**Note**: If you have not stored your storage account key, navigate to your storage account. Then, in the **Settings** menu, select **Access keys** and copy the **Key** value in the **key1** section.
 
-   ![In the user's workspace, the 2-Prepare-Batch-Scoring-Model notebook is selected under the Exercise 3 folder.](media/databricks-user-workspace-ex3-notebook2.png 'Notebooks in the user workspace')
+6. Select **Create** to add the new output.
 
-3. In the **2-Prepare-Batch-Scoring-Model** notebook, follow the instructions to complete the remaining steps of this task.
+### Task 2: Prepare and deploy scoring web service
+
+In this task, you will use a notebook to explore the transaction and account data. You will also do some data cleanup and create a feature engineering pipeline that applies these transformations each time data is passed to the model for scoring. Finally, you will train and deploy a machine learning model that detects fraudulent transactions.
+
+1. Navigate to the **Notebooks** section and then select the **Upload files** option.
+
+    ![The Upload files button is highlighted.](media/azure-ml-upload-files.png "Upload files")
+
+2. Browse to the location you extracted the MCW repo .zip file to (C:\\CosmosMCW\\) and navigate to the `Hands-on lab\lab-files` directory. Select the two **`.ipynb`** notebook files in the directory, then click **Open**.
+
+    ![The two files are selected in the file explorer.](media/file-explorer2.png "Open")
+
+3. In the Upload files dialog, **Check** `I trust contents of these files`, then select **Upload**.
+
+    ![The checkbox is checked as described.](media/upload-files-dialog.png "Upload files")
+
+4. Select the **Prepare real-time scoring model.ipynb** notebook.
+
+    ![The real-time scoring notebook is highlighted.](media/select-real-time-notebook.png "Notebooks")
+
+5. In the Compute menu, select **+** to add new compute.
+
+    ![The new compute button is highlighted.](media/new-compute-button.png "New compute")
+
+6. In the **New compute instance** section, complete the following and then select **Create**.
+
+   | Field                          | Value                                              |
+   | ------------------------------ | ------------------------------------------         |
+   | Compute name                   | _`woodgrove`_                                   |
+   | Virtual machine type           | _select `CPU (Central Processing Unit)`_           |
+   | Virtual machine size           | _select `Standard_DS3_v2`_                         |
+
+   ![In the New compute instance output, form field entries are filled in.](media/new-compute.png "New compute instance")
+
+7. After the **Compute** has been created **(1)**, select **Jupyter**, then **{} Edit in Jupyter (2)** to open the notebook in the Jupyter editor, which provides an enhanced notebook experience.
+
+    ![The edit in Jupyter menu item is highlighted.](media/edit-in-jupyter.png "Edit in Jupyter")
+
+8. **Run** each cell in the notebook. You can select a cell and enter **Shift+Enter** to execute the cell and advance to the next one. Be sure to read and understand each cell and descriptions throughout the notebook.
+
+9. You may receive a prompt to sign in after executing the first cell. If you do, copy the code in your notebook and then select the link to authenticate.
+
+    ![A prompt to perform interactive authentication.](media/azure-ml-notebook-authentication.png "Performing interactive authentication")
+
+    After selecting the link, enter the code and select **Next**. You may be prompted to select an account; if so, choose your Azure account and continue.
+
+    ![A prompt to enter the authentication code.](media/azure-ml-notebook-authentication-2.png "Enter code")
+
+### Task 3: View the deployed model endpoint
+
+In the notebook, you deployed the model to Azure Container Instances (ACI) and tested the endpoint with sample data. In this task, you view the registered model and deployed endpoint, then you obtain the REST endpoint value and test it from outside of the notebook.
+
+1. Close the `Prepare real-time scoring model.ipynb` notebook if it is still open.
+
+2. In Azure Machine Learning studio, navigate to the **Models** section and then select **fraud-score**. **Note**: If you have multiple versions of the model from running the notebook multiple times, select the `fraud-score` model with the highest version number.
+
+    ![The fraud-score model is selected.](media/azure-ml-models.png "fraud-score")
+
+3. On the model's page, select the **Endpoints** tab, then select the **scoringservice** endpoint, which is the name we provided when deploying the model in the notebook. Notice that the **Compute type** is set to `ACI`.
+
+    ![The scoringservice endpoint is highlighted.](media/model-endpoints.png "Endpoints")
+
+    >**Note**: in a production scenario, you will likely wish to deploy models with [Azure Machine Learning's MLOps](https://azure.microsoft.com/services/machine-learning/mlops/).
+
+4. In the `scoringservice` endpoint, observe the current state. If the Deployment state is **Transitioning**, this means that Azure Machine Learning is still deploying the endpoint. In our case, the Deployment state is **Healthy**, meaning the deployment succeeded and your Azure Machine Learning deployment is ready to be consumed. **Copy** the **REST endpoint** value to a text editor.
+
+    ![The stamp press model is deployed.](media/azure-ml-deployed.png "Deployed model")
+
+### Task 4: Test the predictive maintenance model
+
+1. Open a command prompt and run the following command, replacing `{YOUR CONTAINER LOCATION}` at the end of the command with the URI of your Azure Container Instance.
+
+    ```cmd
+    curl -X POST -H "Content-Type: application/json" -d "{\"data\": [{\"accountID\":\"A985156985579195\",\"browserLanguage\":\"en-AU\",\"cardType\":\"VISA\",\"cvvVerifyResult\":\"M\",\"digitalItemCount\":1,\"ipCountryCode\":\"au\",\"ipPostcode\":\"3000\",\"ipState\":\"victoria\",\"isProxyIP\":false,\"localHour\":19.0,\"paymentBillingCountryCode\":\"AU\",\"paymentBillingPostalCode\":\"3122\",\"paymentBillingState\":\"Victoria\",\"paymentInstrumentType\":\"CREDITCARD\",\"physicalItemCount\":0,\"transactionAmount\":99.0,\"transactionAmountUSD\":103.48965,\"transactionCurrencyCode\":\"AUD\",\"transactionDate\":20130409,\"transactionID\":\"5EAC1EBD-1428-4593-898E-F4B56BC3FA06\",\"transactionIPaddress\":121.219,\"transactionTime\":95040},{\"accountID\":\"A985156966855837\",\"browserLanguage\":\"en-AU\",\"cardType\":\"VISA\",\"cvvVerifyResult\":\"M\",\"digitalItemCount\":0,\"ipCountryCode\":\"us\",\"ipPostcode\":\"14534\",\"ipState\":\"new york\",\"isProxyIP\":false,\"localHour\":null,\"paymentBillingCountryCode\":\"AU\",\"paymentBillingPostalCode\":\"2209\",\"paymentBillingState\":\"New South Wales\",\"paymentInstrumentType\":\"CREDITCARD\",\"physicalItemCount\":1,\"transactionAmount\":679.0,\"transactionAmountUSD\":709.79265,\"transactionCurrencyCode\":\"AUD\",\"transactionDate\":20130409,\"transactionID\":\"48C88D1C-3705-472B-A4A3-5FCE45A5429B\",\"transactionIPaddress\":216.15,\"transactionTime\":94256},{\"accountID\":\"A844428012992486\",\"browserLanguage\":\"nn-NO\",\"cardType\":\"MC\",\"cvvVerifyResult\":\"M\",\"digitalItemCount\":1,\"ipCountryCode\":\"no\",\"ipPostcode\":\"1006\",\"ipState\":\"oslo\",\"isProxyIP\":false,\"localHour\":10.0,\"paymentBillingCountryCode\":\"NO\",\"paymentBillingPostalCode\":\"7033\",\"paymentBillingState\":null,\"paymentInstrumentType\":\"CREDITCARD\",\"physicalItemCount\":0,\"transactionAmount\":1099.0,\"transactionAmountUSD\":199.75424,\"transactionCurrencyCode\":\"NOK\",\"transactionDate\":20130409,\"transactionID\":\"13B2A110-EA04-42CD-88CC-A85814A5C961\",\"transactionIPaddress\":94.246,\"transactionTime\":95257},{\"accountID\":\"A1055521358474530\",\"browserLanguage\":\"en-US\",\"cardType\":\"AMEX\",\"cvvVerifyResult\":\"M\",\"digitalItemCount\":0,\"ipCountryCode\":\"ae\",\"ipPostcode\":\"0\",\"ipState\":\"dubayy\",\"isProxyIP\":false,\"localHour\":14.0,\"paymentBillingCountryCode\":\"US\",\"paymentBillingPostalCode\":\"33071\",\"paymentBillingState\":\"FL\",\"paymentInstrumentType\":\"CREDITCARD\",\"physicalItemCount\":4,\"transactionAmount\":2405.33,\"transactionAmountUSD\":2405.33,\"transactionCurrencyCode\":\"USD\",\"transactionDate\":20130409,\"transactionID\":\"C34F7C20-6203-42F5-A41B-AF26177345BE\",\"transactionIPaddress\":92.97,\"transactionTime\":102958},{\"accountID\":\"A844428033864668\",\"browserLanguage\":\"it-IT\",\"cardType\":\"VISA\",\"cvvVerifyResult\":\"U\",\"digitalItemCount\":1,\"ipCountryCode\":\"it\",\"ipPostcode\":\"39100\",\"ipState\":\"bolzano\",\"isProxyIP\":false,\"localHour\":11.0,\"paymentBillingCountryCode\":\"IT\",\"paymentBillingPostalCode\":\"50133\",\"paymentBillingState\":\"Firenze\",\"paymentInstrumentType\":\"CREDITCARD\",\"physicalItemCount\":0,\"transactionAmount\":269.0,\"transactionAmountUSD\":362.5582,\"transactionCurrencyCode\":\"EUR\",\"transactionDate\":20130409,\"transactionID\":\"C78542E6-0951-4B63-B420-BEF750B98BCD\",\"transactionIPaddress\":95.229,\"transactionTime\":103514}]}" http://{YOUR CONTAINER LOCATION}/score
+    ```
+
+    You should receive back a JSON array with the values `[true, true, false, true, false]`.
+
+    > **Note**: If you do not have the curl application installed, you may alternatively wish to install [Postman](https://www.postman.com/), a free tool for making web requests.
+
+### Task 5: Prepare batch scoring model
+
+In this task, you will use a notebook to prepare a model used to detect suspicious activity that will be used for batch scoring.
+
+1. Navigate back to **Notebooks** and select the **Prepare batch scoring model.ipynb** notebook.
+
+    ![The batch scoring notebook is highlighted.](media/select-batch-notebook.png "Notebooks")
+
+2. Ensure the **Compute** is running **(1)**, select **Jupyter**, then **{} Edit in Jupyter (2)** to open the notebook in the Jupyter editor, which provides an enhanced notebook experience.
+
+    ![The edit in Jupyter menu item is highlighted.](media/edit-in-jupyter-2.png "Edit in Jupyter")
+
+3. **Run** each cell in the notebook. You can select a cell and enter **Shift+Enter** to execute the cell and advance to the next one. Be sure to read and understand each cell and descriptions throughout the notebook.
 
 ## Exercise 4: Scaling globally
 
