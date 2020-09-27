@@ -56,6 +56,8 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 3: Create public data linked service](#task-3-create-public-data-linked-service)
     - [Task 4: Create copy pipeline](#task-4-create-copy-pipeline)
   - [Exercise 5: Scaling globally](#exercise-5-scaling-globally)
+    - [Task 1: Explore streaming data with Apache Spark](#task-1-explore-streaming-data-with-apache-spark)
+    - [Task 2: Explore analytical store with Apache Spark](#task-2-explore-analytical-store-with-apache-spark)
     - [Task 1: Distributing batch scored data globally using Cosmos DB](#task-1-distributing-batch-scored-data-globally-using-cosmos-db)
   - [Exercise 6: Reporting](#exercise-6-reporting)
     - [Task 1: Utilizing Power BI to summarize and visualize global fraud trends](#task-1-utilizing-power-bi-to-summarize-and-visualize-global-fraud-trends)
@@ -986,6 +988,94 @@ When you set up Cosmos DB you enabled both geo-redundancy and multi-region write
 ![Map showing newly added regions for Cosmos DB.](media/replicate-data-globally-map.png 'Cosmos DB region map')
 
 In this exercise, you will score the batch transaction data stored in Databricks Delta with your trained ML model, and write any transactions that are marked as "suspicious" to Cosmos DB via the Azure Cosmos DB Spark Connector. Cosmos with automatically distribute that data globally, using the [default consistency level](https://docs.microsoft.com/azure/cosmos-db/consistency-levels). To learn more, see [Global data distribution with Azure Cosmos DB - under the hood](https://docs.microsoft.com/azure/cosmos-db/global-dist-under-the-hood).
+
+### Task 1: Explore streaming data with Apache Spark
+
+Now that we have added an Azure Cosmos DB Linked Service in Synapse Analytics, we can easily explore the data in the containers by using the built-in gestures. Let's use one of these gestures to explore streaming transaction data using Apache Spark in a Synapse Notebook.
+
+1. Navigate to the **Data** hub.
+
+    ![Data hub.](media/data-hub.png "Data hub")
+
+2. Select the **Linked** tab **(1)**, expand the Azure Cosmos DB group (if you don't see this, select the Refresh button above), then expand the **WoodgroveCosmosDb** account **(2)**. Right-click on the **transactions** container **(3)**, select **New notebook (4)**, then select **Load streaming DataFrame from container (5)**.
+
+    ![The linked data blade is displayed.](media/data-load-streaming-dataframe.png "Load streaming DataFrame from container")
+
+3. Set the name of your notebook to `Stream processing` **(1)**, then select **Run all (2)** to run the notebook.
+
+    ![The Run all button is selected.](media/notebook-stream-processing.png "Stream processing notebook")
+
+    The first cell contains auto-generated code **(3)** that populates a new DataFrame from the Azure Cosmos DB change feed stream from the `transactions` container. Notice that the `format` value is set to `cosmos.oltp`. This specifies that we are connecting to the transactional store instead of the analytical store. The `spark.cosmos.changeFeed.startFromTheBeginning` option ensures we process all the data streamed into the container.
+
+    > The initial run of this notebook will take time while the Spark pool starts.
+
+4. Select **{} Add code** underneath Cell 1 to create a new cell. Add the following to the cell and run it to indicate whether the `dfStream` DataFrame is a streaming type:
+
+    ```python
+    dfStream.isStreaming
+    ```
+
+    The output should be `True`.
+
+5. Execute the following in a new cell to remove unwanted columns from the DataFrame:
+
+    ```python
+    # Remove unwanted columns from the columns collection
+    cols = list(set(dfStream.columns) - {'_attachments','_etag','_rid','_self','_ts','collectionType','id','ttl'})
+
+    changes_clean = dfStream.select(cols)
+    ```
+
+6. Execute the following in a new cell to write the stream to a new in-memory table named `transactions`:
+
+    ```python
+    query = (
+    changes_clean
+        .writeStream
+        .format("memory")        # memory = store in-memory table (for testing only)
+        .queryName("transactions")     # counts = name of the in-memory table
+        .start()
+    )
+    ```
+
+7. Execute the following in a new cell to count how many documents were written to the `transactions` container, using SQL syntax:
+
+    ```sql
+    %%sql
+    SELECT COUNT(*) FROM transactions
+    ```
+
+8. We are done with this notebook. Select **Stop session** on the bottom-left of the notebook. This will free up SQL pool resources for other notebooks you will run.
+
+    ![Stop session is highlighted.](media/notebook-stop-session.png "Stop session")
+
+### Task 2: Explore analytical store with Apache Spark
+
+We have connected to the transactional (OLTP) data store, now let's use Apache Spark to run analytical queries against the `transactions` container. In this task, we will use built-in gestures in Synapse Studio to quickly create a Synapse Notebook that loads data from the analytical store of the Hybrid Transactional/Analytical Processing (HTAP)-enabled container, without impacting the transactional store.
+
+1. Navigate to the **Data** hub.
+
+    ![Data hub.](media/data-hub.png "Data hub")
+
+2. Select the **Linked** tab **(1)**, expand the Azure Cosmos DB group (if you don't see this, select the Refresh button above), then expand the **WoodgroveCosmosDb** account **(2)**. Right-click on the **transactions** container **(3)**, select **New notebook (4)**, then select **Load to DataFrame (5)**.
+
+    ![The linked data blade is displayed.](media/data-load-olap-dataframe.png "Load to DataFrame")
+
+3. Set the name of your notebook to `Spark table` **(1)**, then select **Run all (2)** to run the notebook.
+
+    ![The Run all button is selected.](media/notebook-olap.png "Spark table")
+
+    In the generated code within Cell 1 **(3)**, notice that the `spark.read` format is set to `cosmos.olap` this time. This instructs Synapse Link to use the container's analytical store. If we wanted to connect to the transactional store, like to read from the change feed or write to the container, we'd use `cosmos.oltp` instead.
+
+    > **Note**: You cannot write to the analytical store, only read from it. If you want to load data into the container, you need to connect to the transactional store.
+
+    The first `option` configures the name of the Azure Cosmos DB linked service. The second `option` defines the Azure Cosmos DB container from which we want to read. The last line displays the first 10 rows of the DataFrame.
+
+    > The initial run of this notebook will take time while the Spark pool starts.
+
+4. We are done with this notebook. Select **Stop session** on the bottom-left of the notebook. This will free up SQL pool resources for other notebooks you will run.
+
+    ![Stop session is highlighted.](media/notebook-stop-session.png "Stop session")
 
 ### Task 1: Distributing batch scored data globally using Cosmos DB
 
