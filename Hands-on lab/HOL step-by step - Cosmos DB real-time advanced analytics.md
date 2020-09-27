@@ -58,7 +58,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
   - [Exercise 5: Scaling globally](#exercise-5-scaling-globally)
     - [Task 1: Explore streaming data with Apache Spark](#task-1-explore-streaming-data-with-apache-spark)
     - [Task 2: Explore analytical store with Apache Spark](#task-2-explore-analytical-store-with-apache-spark)
-    - [Task 1: Distributing batch scored data globally using Cosmos DB](#task-1-distributing-batch-scored-data-globally-using-cosmos-db)
+    - [Task 3: Distributing real-time and batch scored data globally using Cosmos DB](#task-3-distributing-real-time-and-batch-scored-data-globally-using-cosmos-db)
   - [Exercise 6: Reporting](#exercise-6-reporting)
     - [Task 1: Utilizing Power BI to summarize and visualize global fraud trends](#task-1-utilizing-power-bi-to-summarize-and-visualize-global-fraud-trends)
     - [Task 2: Creating dashboards in Azure Databricks](#task-2-creating-dashboards-in-azure-databricks)
@@ -1077,19 +1077,37 @@ We have connected to the transactional (OLTP) data store, now let's use Apache S
 
     ![Stop session is highlighted.](media/notebook-stop-session.png "Stop session")
 
-### Task 1: Distributing batch scored data globally using Cosmos DB
+### Task 3: Distributing real-time and batch scored data globally using Cosmos DB
 
-In this task, you will use an Azure Databricks notebook to batch stored the data stored in the `transactions` Databricks Delta table with your machine learning model. The scoring results will be written to a new `scored_transactions` Delta table, and any suspicious transactions will also be written back to Cosmos DB.
+In this task, you will execute Synapse Notebooks to perform both near real-time scoring of transactions from the Cosmos DB change feed, and to connect to the analytical store to batch score transactions and store aggregated results. You will write the results from both notebooks to Cosmos DB.
 
-1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
+1. Navigate to the **Develop** hub.
 
-   ![In the Databricks workspace, Workspace is selected in the left-hand menu, Users is selected, and the user account is selected and highlighted.](media/databricks-user-workspace.png)
+    ![Develop hub.](media/develop-hub.png "Develop hub")
 
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 4** folder, and select the notebook named **1-Distributing-Data-Globally**.
+2. Select **+**, then select **Import**.
 
-   ![In the user's workspace, the 1-Distributing-Data-Globally notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex4-notebook1.png 'Notebooks in the user workspace')
+    ![The import button is highlighted.](media/develop-import.png "Import")
 
-3. In the **1-Distributing-Data-Globally** notebook, follow the instructions to complete the remaining steps of this task.
+3. Browse to the location you extracted the MCW repo .zip file to (C:\\CosmosMCW\\) and navigate to the `Hands-on lab\lab-files\synapse` directory. Select the two **`.ipynb`** notebook files in the directory, then click **Open**.
+
+    ![The two files are selected in the file explorer.](media/file-explorer3.png "Open")
+
+4. Expand Notebooks and select the **Real-time-scoring** notebook.
+
+    ![The notebook is selected.](media/notebook-real-time-scoring.png "Real-time-scoring")
+
+5. In the **Real-time-scoring** notebook, follow the instructions to complete the remaining steps of this task.
+
+    > In the cell that requires the Azure Machine Learning connection information, enter the same values you copied from the **Prepare batch scoring model** Azure ML notebook.
+
+6. Select the **Batch-scoring-analytical-store** notebook.
+
+    ![The notebook is selected.](media/notebook-batch-scoring.png "Batch-scoring-analytical-store")
+
+7. In the **Batch-scoring-analytical-store** notebook, follow the instructions to complete the remaining steps of this task.
+
+    > In the cell that requires the Azure Machine Learning connection information, enter the same values you copied from the **Prepare batch scoring model** Azure ML notebook.
 
 ## Exercise 6: Reporting
 
