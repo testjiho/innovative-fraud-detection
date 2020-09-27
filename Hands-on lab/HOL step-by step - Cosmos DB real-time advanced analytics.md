@@ -1109,6 +1109,14 @@ In this task, you will execute Synapse Notebooks to perform both near real-time 
 
     > In the cell that requires the Azure Machine Learning connection information, enter the same values you copied from the **Prepare batch scoring model** Azure ML notebook.
 
+8. If you receive an error stating "Session job is rejected because the session of the size specified cannot be allocated, due to core capacity being exceeded", then you need to stop the Spark session of the previous notebook.
+
+    ![The error is displayed.](media/session-job-rejected.png "Session job rejected")
+
+    If the `Real-time-scoring` notebook is still open, select **Stop session** on the bottom-left of the notebook. This will free up SQL pool resources for other notebooks you will run.
+
+    ![Stop session is highlighted.](media/notebook-stop-session.png "Stop session")
+
 ## Exercise 6: Reporting
 
 Duration: 30 minutes
