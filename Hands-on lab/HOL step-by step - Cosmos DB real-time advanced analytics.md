@@ -50,10 +50,14 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 3: View the deployed model endpoint](#task-3-view-the-deployed-model-endpoint)
     - [Task 4: Test the predictive maintenance model](#task-4-test-the-predictive-maintenance-model)
     - [Task 5: Prepare batch scoring model](#task-5-prepare-batch-scoring-model)
-  - [Exercise 4: Scaling globally](#exercise-4-scaling-globally)
+  - [Exercise 4: Create Synapse Linked Services and copy pipeline](#exercise-4-create-synapse-linked-services-and-copy-pipeline)
+    - [Task 1: Open Synapse Studio](#task-1-open-synapse-studio)
+    - [Task 2: Create Azure Cosmos DB linked service](#task-2-create-azure-cosmos-db-linked-service)
+    - [Task 3: Create public data linked service](#task-3-create-public-data-linked-service)
+    - [Task 4: Create copy pipeline](#task-4-create-copy-pipeline)
+  - [Exercise 5: Scaling globally](#exercise-5-scaling-globally)
     - [Task 1: Distributing batch scored data globally using Cosmos DB](#task-1-distributing-batch-scored-data-globally-using-cosmos-db)
-    - [Task 2: Using an Azure Databricks job to batch score transactions on a schedule](#task-2-using-an-azure-databricks-job-to-batch-score-transactions-on-a-schedule)
-  - [Exercise 5: Reporting](#exercise-5-reporting)
+  - [Exercise 6: Reporting](#exercise-6-reporting)
     - [Task 1: Utilizing Power BI to summarize and visualize global fraud trends](#task-1-utilizing-power-bi-to-summarize-and-visualize-global-fraud-trends)
     - [Task 2: Creating dashboards in Azure Databricks](#task-2-creating-dashboards-in-azure-databricks)
   - [After the hands-on lab](#after-the-hands-on-lab)
@@ -474,31 +478,31 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
     ![UK South is selected and highlighted in the location dropdown list.](media/add-region-uk-south.png 'UK South')
 
-34. Notice that the two new regions are highlighted on the world map, and each have both reads and writes enabled. Congratulations! You completed all the steps to write to and read from multiple regions around the world with Cosmos DB! Finally, select **Save** to save your changes.
+34. Notice that the two new regions are highlighted on the world map, and each have both reads and writes enabled. Congratulations! You completed all the steps to write to and read from multiple regions around the world with Cosmos DB! Finally, select **Discard** to discard your changes.
 
     ![Map showing newly added regions for Cosmos DB.](media/replicate-data-globally-map.png 'Cosmos DB region map')
 
-    > **Note**: You may have to wait several minutes for the change to take effect. In the meantime, you can feel free to continue and run the transaction generator. Cosmos DB can still ingest data as regions are being added. There should be no performance impact during this time or after the provisioning is complete.
+    > **Note**: We **do not** need to add the two new regions to complete this lab. However, if you do decide to save the changes, you may have to wait several minutes for the change to take effect. In the meantime, you can feel free to continue and run the transaction generator. Cosmos DB can still ingest data as regions are being added. There should be no performance impact during this time or after the provisioning is complete.
 
 35. Open Visual Studio and debug the TransactionGenerator project. Let it run for at least 2 minutes, or long enough to send 10,000 messages.
 
     ![The TransactionGenerator console shows event hubs overall running slower than Cosmos DB.](media/console-output-event-hubs-slower.png 'Console output')
 
-    Results will vary depending on machine specifications and network speeds, but overall, it will likely take longer to send the data to the three Event Hub instances than to Cosmos DB. You may also notice the Event Hubs pending queue filling up quite a bit more. Also notice that you did not have to make any code changes to write to the additional Cosmos DB regions.
+    Results will vary depending on machine specifications and network speeds, but overall, it will likely take longer to send the data to the three Event Hub instances than to Azure Cosmos DB. You may also notice the Event Hubs pending queue filling up quite a bit more. Also notice that you did not have to make any code changes to write to the additional Cosmos DB regions.
 
 36. Open each of the three Event Hubs namespaces you have created for this lab. You should see an equal number of messages that were sent to each. The graph is shown on the bottom of the Overview blade. Select the **Messages** metric above the graph to view the number of messages received. The screenshot below is of the UK South Event Hub:
 
     ![The Messages metric is selected for the UK South Event Hubs namespace.](media/uk-south-metrics.png 'Event Hubs Overview blade')
 
-37. View the data that was saved to Cosmos DB. Navigate to the Cosmos DB account for this lab in the Azure portal. Select **Data Explorer** on the left-hand menu. Expand the **Woodgrove** database and **transactions** collection, then select **Documents**. Select one of the documents from the list to view it. If you selected a more recently added document, notice that it contains a `ttl` value of 5,184,000 seconds, or 60 days. Also, there is a `collectionType` value of "Transaction". This allows consumers to query documents stored within the collection by the type. This is needed because a collection can contain any number of document types within, since it does not enforce any type of schema.
+37. View the data that was saved to Azure Cosmos DB. Navigate to the Azure Cosmos DB account for this lab in the Azure portal. Select **Data Explorer** on the left-hand menu. Expand the **Woodgrove** database and **transactions** collection, then select **Documents**. Select one of the documents from the list to view it. If you selected a more recently added document, notice that it contains a `ttl` value of 5,184,000 seconds, or 60 days. Also, there is a `collectionType` value of "Transaction". This allows consumers to query documents stored within the collection by the type. This is needed because a collection can contain any number of document types within, since it does not enforce any type of schema.
 
     ![Screenshot shows a document displayed within the Cosmos DB Data Explorer.](media/cosmos-db-document.png 'Cosmos DB Data Explorer')
 
-Given the requirements provided by the customer, Cosmos DB is the best choice for ingesting data for this PoC. Cosmos DB allows for more flexible, and longer, TTL (message retention) than Event Hubs, which is capped at 7 days, or 4 weeks when you contact Microsoft to request the extra capacity. Another option for Event Hubs is to use Event Hubs Capture to simultaneously save ingested data to Blob Storage or Azure Data Lake Store for longer retention and cold storage. However, this will require additional development, including automatic clearing of the data after a period of time. In addition, Woodgrove Bank wanted to be able to easily query this data during the 60-day message retention period, from a database. This could also be accomplished through Azure Data Warehouse using Polybase to query the files, but that requires yet another service they may otherwise not need, as well as additional development, administration, and cost.
+Given the requirements provided by the customer, Azure Cosmos DB is the best choice for ingesting data for this PoC. Azure Cosmos DB allows for more flexible, and longer, TTL (message retention) than Event Hubs, which is capped at 7 days, or 4 weeks when you contact Microsoft to request the extra capacity. Another option for Event Hubs is to use Event Hubs Capture to simultaneously save ingested data to Blob Storage or Azure Data Lake Store for longer retention and cold storage. However, this will require additional development, including automatic clearing of the data after a period of time. In addition, Woodgrove Bank wanted to be able to easily query and replay the transactional data during the 60-day message retention period, from a database. Setting the TTL on the documents to 60 days keeps them in the Azure Cosmos DB transactional store for 60 days, where they can replay the transactions flowing through the change feed. However, with the addition of the analytical store that is enabled through Synapse Link, all data gets automatically copied to a low-cost Azure storage account in columnar format, giving Woodgrove easy access to all their data, regardless of the transactional store's TTL value, from within Synapse Analytics. Since these queries are executed against the analytical store, they do not use any RU/s allocated to the transaction store.
 
-Finally, the requirement to synchronize/write the ingested data to multiple regions, which could grow at any time, makes Cosmos DB a more favorable choice. As you can see, there are more steps required to send data to additional regions using Event Hubs, since you have to provision new namespaces and Event Hub instances in each region. You would also have to account for all those instances on the consuming side, which we will not cover in this lab for sake of time. The ability to read/write to multiple regions by adding and removing them at will with no code or changes required is a great value that Cosmos DB adds. Plus, the fact that Cosmos DB will be used in this solution for serving batch-processed fraudulent data on a global scale means that Cosmos DB can be used to meet both the data ingest and delivery needs with no additional services, like Event Hubs, required.
+Finally, the requirement to synchronize/write the ingested data to multiple regions, which could grow at any time, makes Azure Cosmos DB a more favorable choice. As you can see, there are more steps required to send data to additional regions using Event Hubs, since you have to provision new namespaces and Event Hub instances in each region. You would also have to account for all those instances on the consuming side, which we will not cover in this lab for sake of time. The ability to read/write to multiple regions by adding and removing them at will with no code or changes required is a great value that Azure Cosmos DB adds. Plus, the fact that Azure Cosmos DB will be used in this solution for serving batch-processed fraudulent data on a global scale means that Azure Cosmos DB can be used to meet both the data ingest and delivery needs with no additional services, like Event Hubs, required.
 
-We will continue the lab using Cosmos DB for data ingestion.
+We will continue the lab using Azure Cosmos DB for data ingestion.
 
 ## Exercise 2: Understanding and preparing the transaction data
 
@@ -795,6 +799,8 @@ In this task, you will use a notebook to explore the transaction and account dat
 
 8. **Run** each cell in the notebook. You can select a cell and enter **Shift+Enter** to execute the cell and advance to the next one. Be sure to read and understand each cell and descriptions throughout the notebook.
 
+    > If you receive errors after executing the first two cells, rerun them again. The first cell performs `!pip install` commands, which take a few moments to apply to all the worker nodes.
+
 9. You may receive a prompt to sign in after executing the first cell. If you do, copy the code in your notebook and then select the link to authenticate.
 
     ![A prompt to perform interactive authentication.](media/azure-ml-notebook-authentication.png "Performing interactive authentication")
@@ -849,13 +855,137 @@ In this task, you will use a notebook to prepare a model used to detect suspicio
 
 3. **Run** each cell in the notebook. You can select a cell and enter **Shift+Enter** to execute the cell and advance to the next one. Be sure to read and understand each cell and descriptions throughout the notebook.
 
-## Exercise 4: Scaling globally
+4. **Copy the output of the last cell** of the notebook and save it to Notebook or similar text editor for a later exercise. The output contains information for connecting to your Azure Machine Learning workspace from a Synapse notebook. The output will look similar to the following:
+
+    ```python
+    subscription_id = '0a1b2c3d-0a1b-0a1b-0a1b-0a1b2c3d4e5f'
+    resource_group = 'hands-on-lab-SUFFIX'
+    workspace_name = 'amlworkspaceannSUFFIX'
+    workspace_region = 'eastus2'
+    ```
+
+## Exercise 4: Create Synapse Linked Services and copy pipeline
+
+Woodgrove has provided JSON files exported from their customer relationship management (CRM) system containing user account data that they want to load into Azure Cosmos DB. This account data needs to be loaded to the `metadata` container.
+
+To do this you will create a Synapse Analytics pipeline with a copy activity. Synapse Pipelines include over 90 built-in connectors, can load data by manual execution of the pipeline or by orchestration, supports common loading patterns, enables fully parallel loading into the data lake, SQL tables, Azure Cosmos DB, or any number of destinations. Synapse Pipelines share a code base with Azure Data Factory (ADF).
+
+### Task 1: Open Synapse Studio
+
+1. In the Azure Portal, navigate to the **Resource Group** created for this hands-on lab, then navigate to the **Synapse Analytics workspace** resource.
+
+    ![The Synapse workspace within the Resource Group is highlighted.](media/resource-group-hands-on-lab-synapse.png "The Synapse workspace within the Resource Group is highlighted.")
+
+2. In the Synapse Analytics workspace Overview blade, select **Launch Synapse Studio**.
+
+    ![The button is highlighted.](media/launch-synapse-studio.png "Launch Synapse Studio")
+
+### Task 2: Create Azure Cosmos DB linked service
+
+1. Navigate to the **Manage** hub.
+
+    ![Manage hub.](media/manage-hub.png "Manage hub")
+
+2. Select **Linked services** on the left-hand menu, then select **+ New**.
+
+    ![The new button is highlighted.](media/new-linked-service.png "Linked services")
+
+3. Select **Azure Cosmos DB (SQL API)**, then select **Continue** (make sure you do not select the MongoDB API).
+
+    ![The Cosmos DB SQL API is selected.](media/new-linked-service-cosmos.png "New linked service")
+
+4. In the New linked service form, complete the following, test the connection, and then select **Create**:
+
+   | Field                          | Value                                              |
+   | ------------------------------ | ------------------------------------------         |
+   | Name                   | _`WoodgroveCosmosDb`_                                   |
+   | Account selection method           | _select `From Azure subscription`_           |
+   | Azure subscription           | _select the subscription used for this lab_                         |
+   | Azure Cosmos DB account name                   | _select the account named `woodgrove-db-SUFFIX`_                                   |
+   | Database name           | _select `Woodgrove`_           |
+
+   ![The form is configured as described.](media/new-linked-service-cosmos-form.png "New linked service")
+
+### Task 3: Create public data linked service
+
+1. Within **Linked services**, select **+ New**.
+
+    ![The new button is highlighted.](media/new-linked-service2.png "Linked services")
+
+2. Select **Azure Blob Storage**, then select **Continue**.
+
+    ![The Blob Storage service is selected.](media/new-linked-service-blob.png "New linked service")
+
+3. In the New linked service form, complete the following, test the connection, and then select **Create**:
+
+   | Field                          | Value                                              |
+   | ------------------------------ | ------------------------------------------         |
+   | Name                   | _`publicdata`_                                   |
+   | Authentication method           | _select `SAS URI`_           |
+   | SAS URL           | `https://solliancepublicdata.blob.core.windows.net/mcw-cosmosdb`                         |
+   | SAS token                   | _enter `''`_                                   |
+
+   ![The form is configured as described.](media/new-linked-service-blob-form.png "New linked service")
+
+### Task 4: Create copy pipeline
+
+1. Navigate to the **Orchestrate** hub.
+
+    ![Orchestrate hub.](media/orchestrate-hub.png "Orchestrate hub")
+
+2. Select **+** then **Copy data tool**.
+
+    ![The copy data button is highlighted.](media/new-copy-data.png "Orchestrate")
+
+3. Enter **`CopyAccountData`** for the task name, then select **Next**.
+
+    ![The task name is highlighted.](media/copy-properties.png "Properties")
+
+4. Select the **publicdata** source data store, then select **Next**.
+
+    ![The publicdata source is highlighted.](media/copy-source.png "Source data store")
+
+5. Copy and paste `mcw-cosmosdb/accounts/` for the folder path (you cannot browse the public data source), check **Recursively**, then select **Next**.
+
+    ![The form is completed as described.](media/copy-input-folder.png "Choose the input file or folder")
+
+6. Select the `JSON` file format and check `Export as-is to JSON files or Cosmos DB collection`, then select **Next**.
+
+    ![The form is configured as described.](media/copy-file-format.png "File format settings")
+
+7. Select the **WoodgroveCosmosDb** destination data store, then select **Next**.
+
+    ![The Cosmos DB data store is selected.](media/copy-destination.png "Destination data store")
+
+8. Select the `metadata` container as the destination, then select **Next**.
+
+    ![The metadata container is selected.](media/copy-table-mapping.png "Table mapping")
+
+9. Expand the `Advanced settings` section under Settings, then set the degree of copy parallelism to **32**, then select **Next**.
+
+    ![The settings blade is shown.](media/copy-settings.png "Settings")
+
+10. In the Summary blade, select **Next**.
+
+    ![The summary blade is shown.](media/copy-summary.png "Summary")
+
+11. Once the deployment is complete, select **Monitor**.
+
+    ![The Monitor button is highlighted.](media/copy-monitor-button.png "Deployment complete")
+
+12. It will take between 3 and 5 minutes for the pipeline run to complete. You may need to refresh the list a few times to see the status change.
+
+    ![The pipeline run is displayed.](media/copy-pipeline-monitor.png "Pipeline runs")
+
+    > You may move on to the next exercise while the pipeline runs.
+
+## Exercise 5: Scaling globally
 
 When you set up Cosmos DB you enabled both geo-redundancy and multi-region writes, and in Exercise 1 you added more regions to your Cosmos DB instance.
 
 ![Map showing newly added regions for Cosmos DB.](media/replicate-data-globally-map.png 'Cosmos DB region map')
 
-In this exercise, you will score the batch transaction data stored in Databricks Delta with your trained ML model, and write any transactions that are marked as "suspicious" to Cosmos DB via the Azure Cosmos DB Spark Connector. Cosmos with automatically distribute that data globally, using the [default consistency level](https://docs.microsoft.com/en-us/azure/cosmos-db/consistency-levels). To learn more, see [Global data distribution with Azure Cosmos DB - under the hood](https://docs.microsoft.com/en-us/azure/cosmos-db/global-dist-under-the-hood).
+In this exercise, you will score the batch transaction data stored in Databricks Delta with your trained ML model, and write any transactions that are marked as "suspicious" to Cosmos DB via the Azure Cosmos DB Spark Connector. Cosmos with automatically distribute that data globally, using the [default consistency level](https://docs.microsoft.com/azure/cosmos-db/consistency-levels). To learn more, see [Global data distribution with Azure Cosmos DB - under the hood](https://docs.microsoft.com/azure/cosmos-db/global-dist-under-the-hood).
 
 ### Task 1: Distributing batch scored data globally using Cosmos DB
 
@@ -871,58 +1001,7 @@ In this task, you will use an Azure Databricks notebook to batch stored the data
 
 3. In the **1-Distributing-Data-Globally** notebook, follow the instructions to complete the remaining steps of this task.
 
-### Task 2: Using an Azure Databricks job to batch score transactions on a schedule
-
-In this task, you will create an Azure Databricks job, which will execute a notebook that performs batch scoring on transactions on an hourly schedule.
-
-1. Navigate to your Databricks workspace, select **Jobs** from the left-hand menu, and then select **+ Create Job**.
-
-   ![Jobs is highlighted in left-hand menu in Databricks, and the Create Job button is highlighted.](media/databricks-jobs.png 'Databricks Jobs')
-
-2. On the untitled job screen, complete the following steps:
-
-   - Enter a title, such as **Batch-Scoring-Job**.
-
-   - Select the **Select Notebook** link next to Task, and on the Select Notebook dialog select **Users --> Your user account --> CosmosDbAdvancedAnalytics --> Exercise 4** and then select the `2-Batch-Scoring-Job` notebook and select **OK**.
-
-     ![The Databricks Job Select Notebook dialog is displayed, with the 2-Batch-Scoring-Job notebook highlighted under CosmosDbAdvancedAnalytics/Exercise 4.](media/databricks-job-select-notebook-ex4.png 'Select Notebook')
-
-   - Select **Add** next to Dependent Libraries, navigate to the Shared folder, select the **azure-cosmosdb-spark** library and select **OK**.
-
-     ![The Add Dependent Library dialog is displayed with the azure-cosmosdb-spark library highlighted within the Shared folder.](media/databricks-job-add-dependent-library.png 'Add Dependent Library')
-
-   - Select **Edit** next to Cluster, and select the following:
-
-     - **Databricks Runtime Version**: Runtime 5.5 LTS (Scala 2.11, Spark 2.4.3)
-     - **Python Version**: 3
-     - **Worker Type**: Standard_DS4_v2
-     - **Workers**: 8
-     - **Driver Type**: Same as worker
-     - Expand Advanced and ensure that `spark.databricks.delta.preview.enabled true` is entered into the Spark Config box.
-
-       ![The Configure Cluster dialog for the jbo is displayed, with the values specified above entered into the dialog.](media/databricks-job-cluster-config.png 'Configure Cluster')
-
-   - Select **Confirm** to save the cluster configuration.
-
-   - Select **Edit** next to Schedule, and on the Schedule Job dialog set the schedule to Every hour starting at a minute value that is close to the current time, so you can see it triggered in a reasonable amount of time. Select your time zone, and select **Confirm**.
-
-   ![The Schedule Job dialog is displayed, with the schedule set to every hour starting at 00:55.](media/databricks-job-schedule-job.png 'Schedule Job dialog')
-
-3. Your final job screen should look something like the following:
-
-   ![Screen shot of the Transactions-Batch-Scoring job.](media/databricks-job-batch-scoring.png 'Transactions Batch Scoring job')
-
-4. Select **< All Jobs** to return to the Jobs list when complete.
-
-5. While waiting for your job to start, select **Workspace** from the left-hand menu, and navigate to the `2-Batch-Scoring-Job` notebook under the Exercise 4 folder.
-
-6. Open the notebook, and take a few minutes to understand the steps that are being used to perform the batch scoring process. As you will see, they are almost identical to the steps you've gone through already in preparing and transforming the transaction data in the previous task.
-
-7. You can monitor your job progress by selecting **Clusters** from the left-hand menu in Databricks, and then selecting **Job Run** for your Job Cluster. This will display the notebook, and you can view execution times and results within the notebook.
-
-   ![The Databricks Clusters screen is displayed, with Job Run highlighted for the job cluster.](media/databricks-job-clusters-job-run.png 'Clusters dialog')
-
-## Exercise 5: Reporting
+## Exercise 6: Reporting
 
 Duration: 30 minutes
 
