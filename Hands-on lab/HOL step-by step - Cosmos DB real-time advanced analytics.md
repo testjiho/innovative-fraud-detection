@@ -875,6 +875,8 @@ In this task, you will use a notebook to prepare a model used to detect suspicio
 
 ## Exercise 4: Create Synapse Linked Services and copy pipeline
 
+Duration: 15 minutes
+
 Woodgrove has provided JSON files exported from their customer relationship management (CRM) system containing user account data that they want to load into Azure Cosmos DB. This account data needs to be loaded to the `metadata` container.
 
 To do this you will create a Synapse Analytics pipeline with a copy activity. Synapse Pipelines include over 90 built-in connectors, can load data by manual execution of the pipeline or by orchestration, supports common loading patterns, enables fully parallel loading into the data lake, SQL tables, Azure Cosmos DB, or any number of destinations. Synapse Pipelines share a code base with Azure Data Factory (ADF).
@@ -989,6 +991,8 @@ To do this you will create a Synapse Analytics pipeline with a copy activity. Sy
     > You may move on to the next exercise while the pipeline runs.
 
 ## Exercise 5: Scaling globally
+
+Duration: 45 minutes
 
 When you set up Cosmos DB you enabled both geo-redundancy and multi-region writes, and in Exercise 1 you added more regions to your Cosmos DB instance.
 
@@ -1498,6 +1502,8 @@ The SQL views require the Azure Cosmos DB account name and account key.
     ![The view output is displayed.](media/transactioncounts-view.png "TransactionCounts view")
 
 ## Exercise 7: Query the analytical store with Apache Spark
+
+Duration: 10 minutes
 
 Woodgrove also wants to explore the Cosmos DB analytical store with Apache Spark, using Synapse Notebooks. In this exercise, you create a new notebook to query and join data from the `metadata` and `suspicious_transactions` analytical stores to view user account data associated with transactions scored as being suspicious.
 
