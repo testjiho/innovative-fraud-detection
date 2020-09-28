@@ -368,18 +368,14 @@ Directions: Tables reconvene with the larger group to hear the facilitator/SME s
 | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | Introduction to Cosmos DB                              | <https://docs.microsoft.com/azure/cosmos-db/introduction>                                                                         |
 | About Event Hubs                                       | <https://docs.microsoft.com/azure/event-hubs/event-hubs-about>                                                                    |
-| What is Azure Databricks?                              | <https://docs.microsoft.com/azure/azure-databricks/what-is-azure-databricks>                                                      |
-| Azure Databricks Delta Lake                            | <https://docs.azuredatabricks.net/delta/index.html>                                                                               |
-| Using Azure Databricks as a Power BI data source       | <https://docs.azuredatabricks.net/user-guide/bi/power-bi.html>                                                                    |
-| Introduction to Azure Data Lake Storage                | <https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-introduction>                                                   |
-| What is Azure Machine Learning service?                | <https://docs.microsoft.com/azure/machine-learning/service/overview-what-is-azure-ml>                                             |
-| Access ADLS with Azure Databricks using Spark          | <https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-use-databricks-spark?toc=%2fazure%2fstorage%2fblobs%2ftoc.json> |
+| What is Azure Machine Learning?                | <https://docs.microsoft.com/azure/machine-learning/service/overview-what-is-azure-ml>                                             |
 | What is Azure Key Vault?                               | <https://docs.microsoft.com/azure/key-vault/key-vault-overview>                                                                   |
 | Scaling throughput in Azure Cosmos DB                  | <https://docs.microsoft.com/azure/cosmos-db/scaling-throughput>                                                                   |
 | Partitioning and horizontal scaling in Azure Cosmos DB | <https://docs.microsoft.com/azure/cosmos-db/partition-data>                                                                       |
 | Consistency levels in Azure Cosmos DB                  | <https://docs.microsoft.com/azure/cosmos-db/consistency-levels>                                                                   |
-| Apache Spark Connector to Cosmos DB                    | <https://docs.microsoft.com/en-us/azure/cosmos-db/spark-connector>                                                                |
-| Azure Machine Learning SDK for Python                  | <https://docs.microsoft.com/python/api/overview/azure/ml/intro?view=azure-ml-py>                                                  |
+| Apache Spark Connector to Cosmos DB                    | <https://docs.microsoft.com/azure/cosmos-db/spark-connector>                                                                |
+| What is Azure Cosmos DB Analytical Store? | <https://docs.microsoft.com/azure/cosmos-db/analytical-store-introduction?toc=/azure/synapse-analytics/toc.json&bc=/azure/synapse-analytics/breadcrumb/toc.json> |
+| What is Azure Synapse Link for Azure Cosmos DB? | <https://docs.microsoft.com/azure/cosmos-db/synapse-link?toc=/azure/synapse-analytics/toc.json&bc=/azure/synapse-analytics/breadcrumb/toc.json> |
 
 # Cosmos DB real-time advanced analytics whiteboard design session trainer guide
 

@@ -65,7 +65,10 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
   - [Exercise 7: Query the analytical store with Apache Spark](#exercise-7-query-the-analytical-store-with-apache-spark)
   - [Exercise 8: Reporting](#exercise-8-reporting)
     - [Task 1: Retrieve the Synapse SQL Serverless endpoint address](#task-1-retrieve-the-synapse-sql-serverless-endpoint-address)
-    - [Task 2: Utilizing Power BI to summarize and visualize global fraud trends](#task-2-utilizing-power-bi-to-summarize-and-visualize-global-fraud-trends)
+    - [Task 2: Create Power BI workspace](#task-2-create-power-bi-workspace)
+    - [Task 3: Utilizing Power BI to summarize and visualize global fraud trends](#task-3-utilizing-power-bi-to-summarize-and-visualize-global-fraud-trends)
+    - [Task 4: Publish report and add Power BI Linked Service](#task-4-publish-report-and-add-power-bi-linked-service)
+    - [Task 5: View the report in Synapse Studio](#task-5-view-the-report-in-synapse-studio)
   - [After the hands-on lab](#after-the-hands-on-lab)
     - [Task 1: Delete the resource group](#task-1-delete-the-resource-group)
 
@@ -1612,7 +1615,23 @@ In this task, you retrieve the SQL service endpoint address used to connect to y
 
     ![The on-demand endpoint is highlighted.](media/synapse-serverless-address.png "Overview blade")
 
-### Task 2: Utilizing Power BI to summarize and visualize global fraud trends
+### Task 2: Create Power BI workspace
+
+Later in this exercise, you will add a Power BI Linked Service. When you do this, you need to select a workspace. In this task, you create a new Power BI workspace for this lab.
+
+> You need a Power BI Pro license to complete this step and to link Power BI to Synapse Analytics. Skip ahead to Task 3 or sign up for a trial Pro subscription if you do not have a license.
+
+1. Sign in to Power BI online (<https://powerbi.com>)
+
+2. Select **Workspaces**, then **Create a workspace**.
+
+    ![The button is highlighted.](media/pbi-create-workspace.png "Create a workspace")
+
+3. Enter **Woodgrove** for the workspace name, then select **Save**.
+
+    ![The form is displayed as described.](media/pbi-create-workspace-form.png "Create a workspace")
+
+### Task 3: Utilizing Power BI to summarize and visualize global fraud trends
 
 In this task, you will use the Synapse SQL Serverless service endpoint to connect to from Power BI desktop. Then you will create reports and add them to a dashboard to summarize and visualize global fraud trends to gain more insight into the data.
 
@@ -1738,7 +1757,57 @@ In this task, you will use the Synapse SQL Serverless service endpoint to connec
 
     ![The visualizations are filtered by the selected account.](media/power-bi-filtered.png "Filtered view")
 
-You may save your chart to local disk. Once saved, you are able to upload the chart to the Power BI website, making it available online with all the charts and data connections intact.
+### Task 4: Publish report and add Power BI Linked Service
+
+So far, the report you created is only available to you. To share the report with others, you need to publish it to the Power BI online service. Once you've published your report, you can make it available within Synapse Studio, along with other reports published to your workspace.
+
+In this task, you save and publish your report online, then create a Power BI Linked Service in Synapse Studio. Finally, you view the report within the Studio interface.
+
+1. Click **Publish** in the ribbon bar above the report.
+
+    ![The Publish button is highlighted.](media/pbi-publish.png "Publish")
+
+2. When prompted to save your report, save it to your local disk with a descriptive name, such as `Cosmos DB MCW`.
+
+3. In the Publish to Power BI dialog, select the **Woodgrove** workspace, then click **Select**.
+
+    ![The Woodgrove workspace is selected.](media/pbi-select-destination.png "Publish to Power BI")
+
+4. Wait for the publish to complete. It may take several minutes.
+
+    ![The publishing dialog is displayed.](media/pbi-publishing.png "Publishing to Power BI")
+
+5. Return to Synapse Studio and navigate to the **Manage** hub.
+
+    ![Manage hub.](media/manage-hub.png "Manage hub")
+
+6. Select **Linked services** on the left-hand menu, then select **+ New**.
+
+    ![The New button is highlighted.](media/new-linked-service3.png "Linked services")
+
+7. Select either **Connect to Power BI** if the dialog appears at the top, or select **Power BI** from the list and select **Continue**.
+
+    ![The Power BI linked service is selected.](media/linked-service-power-bi.png "New linked service")
+
+8. Enter **PowerBIWorkspace** for the name, select the tenant associated with your Power BI account, then select the **Woodgrove** workspace name. Select **Create**.
+
+    ![The Power BI linked service form is displayed.](media/linked-service-power-bi-form.png "New linked service (Power BI)")
+
+### Task 5: View the report in Synapse Studio
+
+1. Navigate to the **Develop** hub.
+
+    ![Develop hub.](media/develop-hub.png "Develop hub")
+
+2. If you do not see the Power BI group, select **Refresh** above the list.
+
+    ![The refresh button is highlighted.](media/develop-refresh.png "Develop")
+
+3. Expand the Power BI group, expand the **Woodgrove** workspace, then expand Power BI reports. Select the **Cosmos DB MCW** report.
+
+    ![The embedded report is displayed.](media/embedded-power-bi-report.png "Embedded Power BI report")
+
+    You can view and edit the report with the same functions available to you online. This integrated ability enables you to work with Power BI reports without leaving Synapse Studio.
 
 ## After the hands-on lab
 
