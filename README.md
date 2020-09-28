@@ -14,7 +14,7 @@ June 2020
 
 ### Workshop
 
-In this workshop, you will learn to design a data pipeline solution that leverages Cosmos DB for both the scalable ingest of streaming data, and the globally distributed serving of both pre-scored data and machine learning models. The solution leverages the Cosmos DB change data feed in concert with the Azure Databricks Delta to enable a modern data warehouse solution that can be used to create risk reduction solutions for scoring transactions for fraud in an offline, batch approach and in a near real-time, request/response approach.
+In this workshop, you will learn to design a data pipeline solution that leverages Cosmos DB for both the scalable ingest of streaming data, and the globally distributed serving of both pre-scored data and machine learning models. The solution leverages the Cosmos DB change data feed in concert with the Azure Synapse Analytics to enable a modern data warehouse solution that can be used to create risk reduction solutions for scoring transactions for fraud in an offline, batch approach and in a near real-time, request/response approach.
 
 At the end of this workshop, you will be better able to design and implement solutions that leverage the strengths of Cosmos DB in support of advanced analytics solutions that require high throughput ingest, low latency serving and global scale in combination with scalable machine learning, big data and real-time processing capabilities.
 
@@ -37,8 +37,8 @@ At the end of this workshop, you will be better able to implement solutions that
 ## Azure services and related products
 
 - Azure Cosmos DB
-- Azure Databricks
-- Azure Data Lake Store
+- Azure Synapse Analytics
+- Azure Data Lake Storage Gen2
 - Azure Event Hubs
 - Azure Kubernetes Service
 - Azure Machine Learning

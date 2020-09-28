@@ -107,10 +107,7 @@ Finally, Azure Key Vault is used to securely store secrets, such as account keys
 ## Requirements
 
 1. Microsoft Azure subscription (non-Microsoft subscription, must be a pay-as-you subscription).
-2. An Azure Databricks cluster running Databricks Runtime 5.1 or above. Azure Databricks integration with Azure Data Lake Storage Gen2 is **fully supported in Databricks Runtime 5.1 and greater**.
-   - **IMPORTANT**: To complete the OAuth 2.0 access components of this hands-on lab you must:
-     - Have a cluster running Databricks Runtime 5.1 and above.
-     - Have permissions within your Azure subscription to create an App Registration and service principal within Azure Active Directory.
+2. Power BI pro license (optional)
 
 ## Exercise 1: Collecting streaming transaction data
 
@@ -344,7 +341,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
    tx.TimeToLive = 60 * 60 * 24 * 60;
    ```
 
-   This configures Cosmos DB to automatically delete the ingested messages after 60 days by setting the TTL value (`ttl` property) on individual messages as they are sent. This optimization helps save in storage costs while meeting Woodgrove Bank's requirement to keep the streaming data available for that amount of time so they can reprocess in Azure Databricks, or query the raw data within the collection as needed.
+   This configures Cosmos DB to automatically delete the ingested messages after 60 days by setting the TTL value (`ttl` property) on individual messages as they are sent. This optimization helps save in storage costs while meeting Woodgrove Bank's requirement to keep the streaming data available for that amount of time so they can reprocess in Azure Synapse Analytics, or query the raw data within the collection as needed.
 
    > Setting the TTL for documents saved to Cosmos DB individually for any length of time desired (even beyond 7 days) is an advantage Cosmos DB has over Event Hubs when used for ingesting streaming data.
 
@@ -999,7 +996,7 @@ When you set up Cosmos DB you enabled both geo-redundancy and multi-region write
 
 ![Map showing newly added regions for Cosmos DB.](media/replicate-data-globally-map.png 'Cosmos DB region map')
 
-In this exercise, you will score the batch transaction data stored in Databricks Delta with your trained ML model, and write any transactions that are marked as "suspicious" to Cosmos DB via the Azure Cosmos DB Spark Connector. Cosmos with automatically distribute that data globally, using the [default consistency level](https://docs.microsoft.com/azure/cosmos-db/consistency-levels). To learn more, see [Global data distribution with Azure Cosmos DB - under the hood](https://docs.microsoft.com/azure/cosmos-db/global-dist-under-the-hood).
+In this exercise, you will score the batch transaction data stored in Cosmos DB with your trained ML model, and write any transactions that are marked as "suspicious" to Cosmos DB via the Azure Cosmos DB Spark Connector. Cosmos with automatically distribute that data globally, using the [default consistency level](https://docs.microsoft.com/azure/cosmos-db/consistency-levels). To learn more, see [Global data distribution with Azure Cosmos DB - under the hood](https://docs.microsoft.com/azure/cosmos-db/global-dist-under-the-hood).
 
 ### Task 1: Explore streaming data with Apache Spark
 

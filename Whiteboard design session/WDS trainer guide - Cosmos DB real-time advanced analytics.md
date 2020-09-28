@@ -489,7 +489,7 @@ _Data ingest_
 
         - Fully managed PaaS with little configuration or management overhead.
         - Highly scalable to process millions of events per second. Use the Auto-inflate feature to automatically scale the number of throughput units to meet usage needs.
-        - Contains an optional Apache Kafka endpoint, allowing for event processing from existing Kafka-based applications. This also allows for simple integration with Apache Spark clusters, such as those hosted in Azure Databricks.
+        - Contains an optional Apache Kafka endpoint, allowing for event processing from existing Kafka-based applications. This also allows for simple integration with Apache Spark clusters.
         - Simultaneously supports real-time and batch processing through Event Hubs Capture. This feature allows one to easily capture and store all events in their raw form to either Azure Blob storage or Azure Data Lake Store for long-term retention and micro-batch processing.
         - Event publishers (systems sending payment transaction data) can publish events using HTTPS, AMQP 1.0, or Apache Kafka 1.0 and above.
         - Event consumers can process streams using .NET, Java, Python, Go, or Node.js.
@@ -502,7 +502,7 @@ _Data ingest_
 
         - Fully managed PaaS with little configuration or management overhead.
         - Cosmos DB is highly scalable, and is already being used to store pre-scored fraud data.
-        - An Apache Spark connector is available, allowing Azure Databricks clusters to directly access the change feed with very little code.
+        - An Apache Spark connector is available, allowing Azure Synapse Analytics Spark Pools to directly access the change feed with very little code.
         - Cosmos DB with change feed enabled acts as both a raw data store for batch processing and stream processing.
         - Event publishers can publish events to Cosmos DB using .NET, Java, Node.js, and Python, using a number of APIs, such as SQL, Cassandra, MongoDB, Gremlin, and Azure Table Storage.
         - The change feed feature can only be used by the SQL and Gremlin APIs of Cosmos DB. Woodgrove will be using the SQL API, so they will be able to use the change feed feature.
@@ -561,7 +561,7 @@ _Data pipeline processing_
 
 5. What specific secrets might their processing solution want to store? How would they securely store and access those secrets?
 
-    Specific secrets that they may need to be accessed by Azure Databricks are account names and keys for Azure Data Lake Storage, Cosmos DB connection strings or access keys, and Azure Machine Learning service account keys.
+    Specific secrets that they may need to be accessed by Azure Synapse Analytics are account names and keys for Azure Data Lake Storage, Cosmos DB connection strings or access keys, and Azure Machine Learning service account keys.
 
     To securely store these secrets, use Azure Key Vault and create a linked service within Synapse Analytics for the Key Vault account. Azure Key Vault provides a service that allows you to securely centralize application secrets. The benefit of it being a centralized store of secrets, is that you only need to define those secrets, like connection strings or account keys, in one place which can be accessed by several Azure services as well as custom applications.
 
