@@ -64,8 +64,8 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 2: Create Synapse SQL Serverless views](#task-2-create-synapse-sql-serverless-views)
   - [Exercise 7: Query the analytical store with Apache Spark](#exercise-7-query-the-analytical-store-with-apache-spark)
   - [Exercise 8: Reporting](#exercise-8-reporting)
-    - [Task 1: Utilizing Power BI to summarize and visualize global fraud trends](#task-1-utilizing-power-bi-to-summarize-and-visualize-global-fraud-trends)
-    - [Task 2: Creating dashboards in Azure Databricks](#task-2-creating-dashboards-in-azure-databricks)
+    - [Task 1: Retrieve the Synapse SQL Serverless endpoint address](#task-1-retrieve-the-synapse-sql-serverless-endpoint-address)
+    - [Task 2: Utilizing Power BI to summarize and visualize global fraud trends](#task-2-utilizing-power-bi-to-summarize-and-visualize-global-fraud-trends)
   - [After the hands-on lab](#after-the-hands-on-lab)
     - [Task 1: Delete the resource group](#task-1-delete-the-resource-group)
 
@@ -1598,140 +1598,107 @@ Woodgrove also wants to explore the Cosmos DB analytical store with Apache Spark
 
 Duration: 30 minutes
 
-In this exercise, you create dashboards and reports in Power BI for business analysts to use, as well as within Azure Databricks for data scientists and analysts to query and visualize the data interactively.
+In this exercise, you create dashboards and reports in Power BI that connect to the Azure Cosmos DB analytical stores through the Synapse SQL Serverless views you created earlier.
 
-### Task 1: Utilizing Power BI to summarize and visualize global fraud trends
+### Task 1: Retrieve the Synapse SQL Serverless endpoint address
 
-In this task, you will use the JDBC URL for your Azure Databricks cluster to connect to from Power BI desktop. Then you will create reports and add them to a dashboard to summarize and visualize global fraud trends to gain more insight into the data.
+In this task, you retrieve the SQL service endpoint address used to connect to your Synapse SQL Serverless database from your Power BI reports.
 
-1. Navigate to your Azure Databricks workspace in the [Azure portal](https://portal.azure.com/), and select **Launch Workspace** from the overview blade, signing into the workspace with your Azure credentials, if required.
+1. In the Azure Portal, navigate to the **Resource Group** created for this hands-on lab, then navigate to the **Synapse Analytics workspace** resource.
 
-    ![The Launch Workspace button is displayed on the Databricks Workspace Overview blade.](media/databricks-launch-workspace.png 'Launch Workspace')
+    ![The Synapse workspace within the Resource Group is highlighted.](media/resource-group-hands-on-lab-synapse.png "The Synapse workspace within the Resource Group is highlighted.")
 
-2. Select **Clusters** from the left-hand menu, then select your cluster in the list of interactive clusters.
+2. In the Synapse Analytics workspace Overview blade, copy the **SQL on-demand endpoint** and save it to Notepad or similar text editor.
 
-    ![The cluster is listed and selected](media/databricks-select-cluster.png 'Select cluster')
+    ![The on-demand endpoint is highlighted.](media/synapse-serverless-address.png "Overview blade")
 
-3. Scroll down and expand the **Advanced Options** section, then select the **JDBC/ODBC** tab. Copy the first **JDBC URL** value.
+### Task 2: Utilizing Power BI to summarize and visualize global fraud trends
 
-    ![The cluster is displayed with the JDBC/ODBC tab selected, and the first JDBC URL value is highlighted.](media/databricks-jdbc.png 'JDBC/ODBC')
+In this task, you will use the Synapse SQL Serverless service endpoint to connect to from Power BI desktop. Then you will create reports and add them to a dashboard to summarize and visualize global fraud trends to gain more insight into the data.
 
-4. Now, you need to modify the JDBC URL to construct the JDBC server address that you will use to set up your Spark cluster connection in Power BI Desktop.
+1. Open Power BI Desktop and sign in if needed.
 
-    - In the JDBC URL:
-      - Replace `jdbc:spark` with `https`.
-      - Remove everything in the path between the port number and `/sql`.
-      - Remove the following string from the end of the URL: `;AuthMech=3;UID=token;PWD=<personal-access-token>`, retaining the components indicated by the highlights in the image below.
+    ![The Sign in button is highlighted.](media/pbi-signin.png "Power BI Desktop")
 
-    ![Parsed Cluster JDBC URL](media/databricks-cluster-jdbc-url-parsed.png 'Parsed JDBC URL')
+2. On the Power BI Desktop welcome screen select **Get data**.
 
-    - In our example, the server address would be: `https://eastus.azuredatabricks.net:443/sql/protocolv1/o/8433778235244215/0210-035431-quad242`
+    ![Select Get Data on the Power BI Desktop home screen.](media/pbi-getdata.png "Power BI Desktop")
 
-    - Copy your server address.
+3. In the Get Data dialog, select **Azure**, then **Azure SQL database**. Select **Connect**.
 
-5. Open Power BI Desktop, then select **Get data**.
+    ![The Azure SQL database connection is selected.](media/pbi-get-data-azure-sql-database.png "Get Data")
 
-    ![Select Get Data on the Power BI Desktop home screen.](media/power-bi-desktop-home.png 'Power BI Desktop')
+4. Paste the SQL on-demand endpoint you copied in Task 1 above, into the **Server** field. Type `Woodgrove` in the **Database** field. Select the **Import** option and then select **OK**.
 
-6. In the Get Data dialog, search for `spark`, then select **Spark** from the list of results.
+    ![The SQL connection details are displayed.](media/pbi-sql-connection.png "SQL Server database")
 
-    ![Search for Spark in the Get Data dialog, then select Spark from the list results.](media/power-bi-desktop-get-data.png 'Get Data')
+5. Select **Microsoft account** for the authentication type, then select **Sign in** to enter your Azure account credentials used for this lab. After authenticating, select **Connect** to continue.
 
-7. Enter the Databricks server address you created above into the Server field.
+    ![The sign in button is highlighted.](media/pbi-azure-auth.png "Microsoft account")
 
-8. Set the Protocol to HTTP.
+6. Select all the views, then select **Load**.
 
-9. Select DirectQuery as the data connectivity mode, then select OK.
+    ![All views are selected.](media/pbi-navigator.png "Navigator")
 
-    ![The Spark connection dialog is displayed with the previously mentioned values.](media/power-bi-desktop-spark-connection.png 'Spark connection dialog')
+7. After a few moments, you will be redirected to a blank report screen with the tables listed on the right-hand side. Select the **Donut chart** visualization on the right-hand menu under Visualizations and next to the list of tables and fields.
 
-    > Setting the data connectivity mode to DirectQuery lets you offload processing to Spark. This is ideal when you have a large volume of data or when you want near real-time analysis.
+    ![Select Donut chart under the Visualizations menu on the right.](media/power-bi-donut-chart.png "Donut Chart")
 
-10. Before you can enter credentials on the next screen, you need to create an Access token in Azure Databricks. In your Databricks workspace, select the Account icon in the top right corner, then select User settings from the menu.
+8. Expand the `SuspiciousTransactions` view, then drag `ipCountryCode` under **Legend**, and `transactionAmountUSD` under **Values**.
 
-    ![Select User Settings from the Account menu.](media/databricks-user-settings.png 'User Settings menu')
+    ![Screenshot shows the donut chart settings.](media/power-bi-donut-chart-country-transaction.png "Donut Chart settings")
 
-11. On the User Settings page, select **Generate New Token**, enter "Power BI Desktop" in the comment, and select Generate.
-
-    ![Enter Power BI Desktop as the comment then select Generate.](media/databricks-generate-token.png 'Generate New Token')
-
-12. Copy the generated token, and save it as you will need it more than once below. **NOTE**: You will not be able to access the token in Databricks once you close the Generate token dialog, so be sure to save this value to a text editor or another location you can access during this lab.
-
-13. Back in Power BI Desktop, enter "token" for the username, and paste the access token you copied from Databricks into the password field.
-
-    ![Enter "token" as the user name and paste your generated token into the password field.](media/power-bi-desktop-spark-token.png 'Enter Spark credentials')
-
-14. Select the `scored_transactions` and `percent_suspicious` tables, then select **Load**.
-
-    ![Select the scored_transactions and percent_suspicious tables, then select Load.](media/power-bi-desktop-select-tables.png 'Select Tables')
-
-15. After a few moments, you will be redirected to a blank report screen with the tables listed on the right-hand side. Select the **Donut chart** visualization on the right-hand menu under Visualizations and next to the list of tables and fields.
-
-    ![Select Donut chart under the Visualizations menu on the right.](media/power-bi-donut-chart.png 'Donut Chart')
-
-16. Expand the `scored_transactions` table, then drag `ipCountryCode` under **Legend**, and `transactionAmountUSD` under **Values**.
-
-    ![Screenshot shows the donut chart settings.](media/power-bi-donut-chart-country-transaction.png 'Donut Chart settings')
-
-17. Now select the **Format** tab for the donut chart and expand the **Legend** section underneath. Select **On** to turn on the legend, and select **Right** underneath **Position**. This turns on the legend for the chart and displays it to the right.
-
-    ![Screenshot shows the donut chart format settings.](media/power-bi-donut-chart-country-transaction-format.png 'Donut Chart format')
-
-18. Your donut chart should look similar to the following, displaying the US dollar amount of transactions by country code:
+9. Your donut chart should look similar to the following, displaying the US dollar amount of transactions by country code:
 
     ![Screenshot of the donut chart.](media/power-bi-donut-chart-country-transaction-display.png 'Donut Chart')
 
-19. Select a blank area on the report to deselect the donut chart. Now select the **Treemap** visualization.
+10. Select a blank area on the report to deselect the donut chart. Now select the **Treemap** visualization.
 
-    ![The Treemap visualization is selected.](media/power-bi-treemap-visualization.png 'Treemap visualization')
+    ![The Treemap visualization is selected.](media/power-bi-treemap-visualization.png "Treemap visualization")
 
-20. Drag the `ipCountryCode` field from the `scored_transactions` table under **Group**, then drag `isSuspicious` under **Values**.
+11. Drag the `ipCountryCode` field from the `SuspiciousTransactions` view under **Group**, then drag `isSuspicious` under **Values**.
 
-    ![Screenshot shows the treemap settings.](media/power-bi-treemap-country-suspicious-transactions.png 'Treemap settings')
+    ![Screenshot shows the treemap settings.](media/power-bi-treemap-country-suspicious-transactions.png "Treemap settings")
 
-21. The treemap should look similar to the following, displaying the number of suspicious transactions per country:
+12. The treemap should look similar to the following, displaying the number of suspicious transactions per country:
 
     ![Screenshot of the treemap.](media/power-bi-treemap-country-suspicious-transactions-display.png 'Treemap')
 
-22. Select a blank area on the report to deselect the treemap. Now select the **Treemap** visualization once more to add a new treemap. Drag the `transactionAmountUSD` field from the `scored_transactions` table under **Group**, then drag `isSuspicious` under **Values**.
+13. Select a blank area on the report to deselect the treemap. Now select the **Treemap** visualization once more to add a new treemap. Drag the `transactionAmountUSD` field from the `scored_transactions` table under **Group**, then drag `isSuspicious` under **Values**.
 
-    ![Screenshot shows the treemap settings.](media/power-bi-treemap-suspicious-transactions.png 'Treemap settings')
+    ![Screenshot shows the treemap settings.](media/power-bi-treemap-suspicious-transactions.png "Treemap settings")
 
-23. The new treemap should look similar to the following, displaying the US dollar amounts that tend to have suspicious transactions, with the larger boxes representing higher suspicious transactions compared to smaller boxes:
+14. The new treemap should look similar to the following, displaying the US dollar amounts that tend to have suspicious transactions, with the larger boxes representing higher suspicious transactions compared to smaller boxes:
 
     ![Screenshot of the treemap.](media/power-bi-treemap-suspicious-transactions-display.png 'Treemap')
 
-24. Select a blank area on the report to deselect the treemap. Now select the **Donut chart** visualization. Drag the `localHour` field from the `scored_transactions` table under **Legend**, then drag `isSuspicious` under **Values**.
+15. Select a blank area on the report to deselect the treemap. Now select the **Donut chart** visualization. Drag the `localHour` field from the `SuspiciousTransactions` view under **Legend**, then drag `isSuspicious` under **Values**.
 
-    ![Screenshot of the Donut chart settings.](media/power-bi-donut-chart-suspicious-hour.png 'Donut Chart settings')
+    ![Screenshot of the Donut chart settings.](media/power-bi-donut-chart-suspicious-hour.png "Donut Chart settings")
 
-25. The donut chart should look similar to the following, displaying which hours of the day tend to have a higher number of suspicious activity overall:
+16. The donut chart should look similar to the following, displaying which hours of the day tend to have a higher number of suspicious activity overall:
 
     ![Screenshot of the donut chart highlighted.](media/power-bi-donut-chart-suspicious-hour-display.png 'Donut Chart')
 
-26. Select a blank area on the report to deselect the donut chart. Now select the **Map** visualization. Drag the `ipCountryCode` field from the `scored_transactions` table under **Location**, then drag `isSuspicious` under **Size**.
+17. Select a blank area on the report to deselect the donut chart. Now select the **Map** visualization. Drag the `ipCountryCode` field from the `SuspiciousTransactions` view under **Location**, then drag `isSuspicious` under **Size**.
 
-    ![Screenshot of the Map visualization settings.](media/power-bi-map.png 'Map settings')
+    ![Screenshot of the Map visualization settings.](media/power-bi-map.png "Map settings")
 
-27. The map should look similar to the following, showing circles of varying sizes on different regions of the map. The larger the circle, the more suspicious transactions there are in that region. You may also resize the charts to optimize your layout:
+18. The map should look similar to the following, showing circles of varying sizes on different regions of the map. The larger the circle, the more suspicious transactions there are in that region. You may also resize the charts to optimize your layout:
 
-    ![Screenshot of the map visualization and the full report view.](media/power-bi-map-display.png 'Map')
+    ![Screenshot of the map visualization and the full report view.](media/power-bi-map-display.png "Map")
 
-28. Now add a new page to your report. Select the **+** button on the bottom-left next to **Page 1**. This will create a new blank report page to add a few more visualizations.
+19. Now add a new page to your report. Select the **+** button on the bottom-left next to **Page 1**. This will create a new blank report page to add a few more visualizations.
 
-    ![Screenshot of the button you select to add a new page to the report.](media/power-bi-new-page.png 'New page button')
+    ![Screenshot of the button you select to add a new page to the report.](media/power-bi-new-page.png "New page button")
 
-29. Select a blank area on the report, then select the **Donut chart** visualization. Drag the `cvvVerifyResult` field from the `scored_transactions` table under **Legend**, then drag `isSuspicious` under **Values**.
+20. Select a blank area on the report, then select the **Donut chart** visualization. Drag the `cvvVerifyResult` field from the `SuspiciousTransactoins` view under **Legend**, then drag `isSuspicious` under **Values**.
 
-    ![Screenshot of the Donut chart settings.](media/power-bi-donut-chart-verify-result.png 'Donut Chart settings')
+    ![Screenshot of the Donut chart settings.](media/power-bi-donut-chart-verify-result.png "Donut Chart settings")
 
-30. Now select the **Format** tab for the donut chart and expand the **Legend** section underneath. Select **On** to turn on the legend, and select **Right** underneath **Position**. This turns on the legend for the chart and displays it to the right.
+21. The donut chart should look similar to the following, displaying which CVV2 credit card verification codes correlate with the most suspicious transactions:
 
-    ![Screenshot shows the donut chart format settings.](media/power-bi-donut-chart-country-transaction-format.png 'Donut Chart format')
-
-31. The donut chart should look similar to the following, displaying which CVV2 credit card verification codes correlate with the most suspicious transactions:
-
-    ![Screenshot of the donut chart highlighted.](media/power-bi-donut-chart-verify-result-display.png 'Donut Chart')
+    ![Screenshot of the donut chart highlighted.](media/power-bi-donut-chart-verify-result-display.png "Donut Chart")
 
     The CVV2 codes have the following meaning in the data set:
 
@@ -1743,43 +1710,35 @@ In this task, you will use the JDBC URL for your Azure Databricks cluster to con
     | S    | Issuer indicates that CVV2 data should be present on the card, but the merchant has indicated data is not present on the card |
     | U    | Issuer has not certified for CVV2 or Issuer has not provided Visa with the CVV2 encryption keys                               |
 
-32. Select a blank area on the report, then select the **100% Stacked column chart** visualization. Drag the `isSuspicious` field from the `scored_transactions` table under **Axis**, then drag `digitalItemCount` under **Value**, and finally `physicalItemCount` under **Value** as well.
+22. Select a blank area on the report, then select the **Pie chart** visualization. Drag the `ipCountryCode` field from the `SuspiciousAgg` view under **Legend**, then drag `PercentSuspicious` under **Values**.
 
-    ![Screenshot of the 100% Stacked Column Chart settings.](media/power-bi-stacked-column-chart.png '100% Stacked Column Chart settings')
+    ![Screenshot of the pie chart settings.](media/power-bi-pie-chart-percent-suspicious.png "Pie chart settings")
 
-33. The 100% stacked column chart should look similar to the following, displaying the percentage of the number of physical items and digital items purchased for transactions that were not suspicious (value of 0) in one column, and the percentage of the number of both types of items purchased with suspicious transactions (value of 1):
+23. The pie chart should look similar to the following, displaying the percent of suspicious transactions by country code:
 
-    ![Screenshot of the 100% stacked column chart.](media/power-bi-stacked-column-chart-display.png '100% Stacked Column Chart')
+    ![Screenshot of the pie chart.](media/power-bi-pie-chart-percent-suspicious-display.png "Donut Chart")
 
-34. Select a blank area on the report, then select the **ArcGIS Maps for Power BI** visualization. If you are prompted to accept the terms for using this visualization, please do so now. Drag the `ipCountryCode` field from the `percent_suspicious` table under **Location**, then drag `SuspiciousTransactionCount` under **Color**.
+24. Select a blank area on the report, then select the **Matrix** visualization. Drag the `AccountId` field from the `TransactionCounts` view under **Rows**, drag `SuspiciousCount` under **Values**, then drag `NonSuspiciousCount` under **Values**.
 
-    ![Screenshot of the ArcGIS Map settings.](media/power-bi-arcgis-map.png 'ArcGIS Map settings')
+    ![The Matrix visualization configuration form is displayed.](media/power-bi-matrix.png "Matrix")
 
-35. The ArcGIS Map should look similar to the following, displaying countries that have a higher number of suspicious transactions in darker colors than those with lower amounts:
+25. The matrix showing suspicious vs. non-suspicious counts per user account is displayed. Select the **SuspiciousCount** header to sort by the column in descending order.
 
-    ![Screenshot of the ArcGIS Map.](media/power-bi-arcgis-map-display.png 'ArcGIS Map')
+    ![The Matrix visualization is displayed.](media/power-bi-matrix-display.png "Matrix")
 
-36. Select a blank area on the report, then select the **Pie chart** visualization. Drag the `ipCountryCode` field from the `percent_suspicious` table under **Legend**, then drag `PercentSuspicious` under **Values**.
+26. Select a blank area on the report, then select the **Table** visualization. Expand the `SuspiciousTransactionsWithAccountInfo` view, then drag the following fields into the **Values** field: `fullName`, `accountID`, `city`, `country`, `cardType`, `cvvVerifyResult`, and `browserLanguage`.
 
-    ![Screenshot of the donut chart settings.](media/power-bi-donut-chart-percent-suspicious.png 'Donut Chart settings')
+    ![The table visualization configuration form is displayed.](media/power-bi-table.png "Table")
 
-37. The pie chart should look similar to the following, displaying the percent of suspicious transactions by country code:
+27. The table showing user account information for suspicious transactions is displayed.
 
-    ![Screenshot of the donut chart.](media/power-bi-donut-chart-percent-suspicious-display.png 'Donut Chart')
+    ![The table visualization is displayed.](media/power-bi-table-display.png "Table")
+
+28. Select the account with the highest number of suspicious transactions from the Matrix visualization. The other visualizations will filter based on the selected account.
+
+    ![The visualizations are filtered by the selected account.](media/power-bi-filtered.png "Filtered view")
 
 You may save your chart to local disk. Once saved, you are able to upload the chart to the Power BI website, making it available online with all the charts and data connections intact.
-
-### Task 2: Creating dashboards in Azure Databricks
-
-In this task, you will use an Azure Databricks notebook to build a dashboard, for displaying visualization in Azure Databricks.
-
-1. In your Databricks workspace, select **Workspace** from the left-hand menu, then select **Users** and your user account.
-
-2. In your user workspace, select the **CosmosDbAdvancedAnalytics** folder, then select the **Exercise 5** folder, and select the notebook named **1-Databricks-Dashboards**.
-
-   ![In the user's workspace, the 1-Databricks-Dashboards notebook is selected under the Exercise 2 folder.](media/databricks-user-workspace-ex5-notebook1.png 'Notebooks in the user workspace')
-
-3. In the **1-Databricks-Dashboards** notebook, follow the instructions to complete the remaining steps of this task.
 
 ## After the hands-on lab
 
