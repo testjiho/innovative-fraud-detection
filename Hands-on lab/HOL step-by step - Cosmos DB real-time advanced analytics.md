@@ -59,7 +59,11 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 1: Explore streaming data with Apache Spark](#task-1-explore-streaming-data-with-apache-spark)
     - [Task 2: Explore analytical store with Apache Spark](#task-2-explore-analytical-store-with-apache-spark)
     - [Task 3: Distributing real-time and batch scored data globally using Cosmos DB](#task-3-distributing-real-time-and-batch-scored-data-globally-using-cosmos-db)
-  - [Exercise 6: Reporting](#exercise-6-reporting)
+  - [Exercise 6: Querying Azure Cosmos DB with SQL Serverless for Synapse Analytics](#exercise-6-querying-azure-cosmos-db-with-sql-serverless-for-synapse-analytics)
+    - [Task 1: Retrieve the Cosmos DB account name and key](#task-1-retrieve-the-cosmos-db-account-name-and-key)
+    - [Task 2: Create Synapse SQL Serverless views](#task-2-create-synapse-sql-serverless-views)
+  - [Exercise 7: Query the analytical store with Apache Spark](#exercise-7-query-the-analytical-store-with-apache-spark)
+  - [Exercise 8: Reporting](#exercise-8-reporting)
     - [Task 1: Utilizing Power BI to summarize and visualize global fraud trends](#task-1-utilizing-power-bi-to-summarize-and-visualize-global-fraud-trends)
     - [Task 2: Creating dashboards in Azure Databricks](#task-2-creating-dashboards-in-azure-databricks)
   - [After the hands-on lab](#after-the-hands-on-lab)
@@ -1117,7 +1121,480 @@ In this task, you will execute Synapse Notebooks to perform both near real-time 
 
     ![Stop session is highlighted.](media/notebook-stop-session.png "Stop session")
 
-## Exercise 6: Reporting
+## Exercise 6: Querying Azure Cosmos DB with SQL Serverless for Synapse Analytics
+
+Woodgrove wants to explore the Azure Cosmos DB analytical store with T-SQL. Ideally, they can create views that can then be used for joins with other analytical store containers, files from the data lake, or accessed by external tools, like Power BI.
+
+In this exercise, you create SQL views to query data in the analytical store using Synapse SQL Serverless. You will use these views when creating Power BI reports in the next exercise.
+
+### Task 1: Retrieve the Cosmos DB account name and key
+
+The SQL views require the Azure Cosmos DB account name and account key.
+
+1. Navigate to your Azure Cosmos DB account in the Azure portal, then select **Keys** in the left-hand menu **(1)**, then copy the **Primary Key** value **(2)** and save it to Notepad or similar for later reference. Copy the Azure Cosmos DB **account name** in the upper-left corner **(3)** and also save it to Notepad or similar text editor for later.
+
+    ![The primary key is highlighted.](media/cosmos-keys.png "Keys")
+
+### Task 2: Create Synapse SQL Serverless views
+
+1. Navigate to the **Develop** hub.
+
+    ![Develop hub.](media/develop-hub.png "Develop hub")
+
+2. Select **+ (1)**, then **SQL script (2)**.
+
+    ![The SQL script button is highlighted.](media/new-script.png "SQL script")
+
+3. Paste the following SQL query to create a new database named `Woodgrove`, then run the query.
+
+    ```sql
+    USE master
+    GO
+
+    -- Drop database if it exists
+    DROP DATABASE IF EXISTS Woodgrove
+    GO
+
+    -- Create new database
+    CREATE DATABASE [Woodgrove];
+    GO
+    ```
+
+4. Replace the SQL query with the following to create a new view that displays the customer account data you imported with the copy pipeline earlier in this lab. In the OPENROWSET statement, replace **`YOUR_ACCOUNT_NAME`** with the Azure Cosmos DB account name and **`YOUR_ACCOUNT_KEY`** with the Azure Cosmos DB Primary Key value you copied in Task 1 above.
+
+    ```sql
+    USE Woodgrove
+    GO
+
+    DROP VIEW IF EXISTS Accounts;
+    GO
+
+    CREATE VIEW Accounts
+    AS
+    SELECT accounts.accountID,
+        firstName,
+        lastName,
+        userName,
+        email,
+        gender,
+        cartId,
+        fullName,
+        dateOfBirth,
+        [address],
+        street,
+        suite,
+        city,
+        [state],
+        postalCode,
+        country,
+        phone,
+        website,
+        accountAge,
+        isUserRegistered,
+        id
+    FROM OPENROWSET
+        (
+            'CosmosDB',
+            N'account=YOUR_ACCOUNT_NAME;database=Woodgrove;key=YOUR_ACCOUNT_KEY',
+            metadata
+        )
+    WITH (
+        accountID varchar(50),
+        firstName varchar(50),
+        lastName varchar(50),
+        userName varchar(50),
+        email varchar(50),
+        gender bigint,
+        cartId varchar(50),
+        fullName varchar(50),
+        dateOfBirth varchar(50),
+        [address] varchar(max),
+        phone varchar(50),
+        website varchar(50),
+        accountAge bigint,
+        isUserRegistered bit,
+        id varchar(50)
+    ) AS accounts
+    CROSS APPLY OPENJSON([address])  
+    WITH (
+        street varchar(50) '$.street',
+        suite varchar(50) '$.suite',
+        city varchar(50)  '$.city', 
+        [state] varchar(50) '$.state',
+        postalCode varchar(50) '$.postalCode', 
+        country varchar(50) '$.country'
+    ) AS addressinfo
+    GO
+    ```
+
+    The query starts out with executing `USE Woodgrove` to run the rest of the script contents against the `Woodgrove` database. Next, it drops the `Accounts` view if it exists. Finally, it performs the following:
+
+    - **1.** Creates a SQL view named `Accounts`.
+    - **2.** Uses the `OPENROWSET` statement to set the data source type to `CosmosDB`, sets the account details, and specifies that we want to create the view over the Azure Cosmos DB analytical store container named `metadata`.
+    - **3.** The `WITH` clause matches the property names in the JSON documents and applies the appropriate SQL data types. Notice that we set the `address` field to `varchar(max)`. This is because it contains JSON-formatted data within.
+    - **4.** Since the `address` property in the JSON documents contains a child JSON value, we want to "join" the properties from the document with the child element's properties. Synapse SQL enables us to flatten the nested structure by applying the `OPENJSON` function on the property. We flatten the values within the `address` child element into new fields.
+
+    The account document looks like the following:
+
+    ```json
+    {
+        "accountID": "A914801037141001",
+        "firstName": "Gene",
+        "lastName": "Wilkinson",
+        "userName": "Gene.Wilkinson",
+        "email": "Gene.Wilkinson@yahoo.com",
+        "gender": 0,
+        "cartId": "e1179552-7ad4-4651-8281-5be4b7120746",
+        "fullName": "Gene Wilkinson",
+        "dateOfBirth": "1965-10-25T15:15:33.2371477-04:00",
+        "address": {
+            "street": "153 Mckayla Groves",
+            "suite": "Apt. 378",
+            "city": "South Geovany",
+            "state": "MI",
+            "postalCode": "48312",
+            "country": "US",
+            "geo": {
+                "lat": -65.6941,
+                "lng": -105.719
+            }
+        },
+        "phone": "815-928-5510 x99673",
+        "website": "mara.org",
+        "accountAge": 1,
+        "isUserRegistered": false,
+        "id": "375502a3-33fa-4299-8d33-bb364ec64e91",
+        "_rid": "5RkmAJYvclYBAAAAAAAAAA==",
+        "_self": "dbs/5RkmAA==/colls/5RkmAJYvclY=/docs/5RkmAJYvclYBAAAAAAAAAA==/",
+        "_etag": "\"1600556c-0000-0100-0000-5f7007070000\"",
+        "_attachments": "attachments/",
+        "_ts": 1601177352
+    }
+    ```
+
+5. Replace the SQL query with the following to create a view for the `SuspiciousAgg` data. In the OPENROWSET statement, replace **`YOUR_ACCOUNT_NAME`** with the Azure Cosmos DB account name and **`YOUR_ACCOUNT_KEY`** with the Azure Cosmos DB Primary Key value you copied in Task 1 above.
+
+    ```sql
+    USE Woodgrove
+    GO
+
+    DROP VIEW IF EXISTS SuspiciousAgg;
+    GO
+
+    CREATE VIEW SuspiciousAgg
+    AS
+    SELECT
+        [collectionType]
+        ,[SuspiciousTransactionCount]
+        ,[TotalTransactionCount]
+        ,[ipCountryCode]
+        ,[id]
+        ,[PercentSuspicious]
+    FROM OPENROWSET
+        (
+            'CosmosDB',
+            N'account=YOUR_ACCOUNT_NAME;database=Woodgrove;key=YOUR_ACCOUNT_KEY',
+            suspicious_transactions
+        )
+    WITH (
+        [collectionType] varchar(50)
+        ,[SuspiciousTransactionCount] bigint
+        ,[TotalTransactionCount] bigint
+        ,[ipCountryCode] varchar(5)
+        ,[id] varchar(50)
+        ,[PercentSuspicious] float
+    ) AS Q1
+    WHERE collectionType = 'SuspiciousAgg'
+    ```
+
+6. Replace the SQL query with the following to create a view for the `SuspiciousTransactions` data. In the OPENROWSET statement, replace **`YOUR_ACCOUNT_NAME`** with the Azure Cosmos DB account name and **`YOUR_ACCOUNT_KEY`** with the Azure Cosmos DB Primary Key value you copied in Task 1 above.
+
+    ```sql
+    USE Woodgrove
+    GO
+
+    DROP VIEW IF EXISTS SuspiciousTransactions;
+    GO
+
+    CREATE VIEW SuspiciousTransactions
+    AS
+    SELECT
+        transactionID, accountID, transactionAmountUSD, transactionAmount, transactionCurrencyCode,
+        localHour, transactionIPaddress, ipState, ipPostcode, ipCountryCode, isProxyIP,
+        browserLanguage, paymentInstrumentType, cardType, paymentBillingPostalCode,
+        paymentBillingState, paymentBillingCountryCode, cvvVerifyResult, digitalItemCount,
+        physicalItemCount, accountPostalCode, accountState, accountCountry, accountAge,
+        isUserRegistered, paymentInstrumentAgeInAccount, numPaymentRejects1dPerUser,
+        transactionDateTime, isSuspicious, collectionType
+    FROM OPENROWSET
+        (
+            'CosmosDB',
+            N'account=YOUR_ACCOUNT_NAME;database=Woodgrove;key=YOUR_ACCOUNT_KEY',
+            suspicious_transactions
+        )
+    WITH (
+        transactionID varchar(50),
+        accountID varchar(50),
+        transactionAmountUSD float,
+        transactionAmount float,
+        transactionCurrencyCode varchar(10),
+        localHour bigint,
+        transactionIPaddress varchar(25),
+        ipState varchar(50),
+        ipPostcode varchar(10),
+        ipCountryCode varchar(5),
+        isProxyIP bit,
+        browserLanguage varchar(10),
+        paymentInstrumentType varchar(15),
+        cardType varchar(15),
+        paymentBillingPostalCode varchar(10),
+        paymentBillingState varchar(50),
+        paymentBillingCountryCode varchar(5),
+        cvvVerifyResult varchar(10),
+        digitalItemCount bigint,
+        physicalItemCount bigint,
+        accountPostalCode varchar(20),
+        accountState varchar(50),
+        accountCountry varchar(50),
+        accountAge bigint,
+        isUserRegistered bigint,
+        paymentInstrumentAgeInAccount float,
+        numPaymentRejects1dPerUser bigint,
+        transactionDateTime varchar(50),
+        isSuspicious bigint,
+        collectionType varchar(50)
+    ) AS Q1
+    WHERE collectionType = 'SuspiciousTransactions'
+    ```
+
+7. Replace the SQL query with the following to create a view for the `Transactions` data to access all transactions. In the OPENROWSET statement, replace **`YOUR_ACCOUNT_NAME`** with the Azure Cosmos DB account name and **`YOUR_ACCOUNT_KEY`** with the Azure Cosmos DB Primary Key value you copied in Task 1 above.
+
+    ```sql
+    USE Woodgrove
+    GO
+
+    DROP VIEW IF EXISTS Transactions;
+    GO
+
+    CREATE VIEW Transactions
+    AS
+    SELECT
+        transactionID, accountID, transactionAmountUSD, transactionAmount, transactionCurrencyCode,
+        localHour, transactionIPaddress, ipState, ipPostcode, ipCountryCode, isProxyIP,
+        browserLanguage, paymentInstrumentType, cardType, paymentBillingPostalCode,
+        paymentBillingState, paymentBillingCountryCode, cvvVerifyResult, digitalItemCount,
+        physicalItemCount, accountPostalCode, accountState, accountCountry, accountAge,
+        isUserRegistered, paymentInstrumentAgeInAccount, numPaymentRejects1dPerUser,
+        transactionDateTime, collectionType
+    FROM OPENROWSET
+        (
+            'CosmosDB',
+            N'account=YOUR_ACCOUNT_NAME;database=Woodgrove;key=YOUR_ACCOUNT_KEY',
+            transactions
+        )
+    WITH (
+        transactionID varchar(50),
+        accountID varchar(50),
+        transactionAmountUSD float,
+        transactionAmount float,
+        transactionCurrencyCode varchar(10),
+        localHour bigint,
+        transactionIPaddress varchar(25),
+        ipState varchar(50),
+        ipPostcode varchar(10),
+        ipCountryCode varchar(5),
+        isProxyIP bit,
+        browserLanguage varchar(10),
+        paymentInstrumentType varchar(15),
+        cardType varchar(15),
+        paymentBillingPostalCode varchar(10),
+        paymentBillingState varchar(50),
+        paymentBillingCountryCode varchar(5),
+        cvvVerifyResult varchar(10),
+        digitalItemCount bigint,
+        physicalItemCount bigint,
+        accountPostalCode varchar(20),
+        accountState varchar(50),
+        accountCountry varchar(50),
+        accountAge bigint,
+        isUserRegistered bigint,
+        paymentInstrumentAgeInAccount float,
+        numPaymentRejects1dPerUser bigint,
+        transactionDateTime varchar(50),
+        collectionType varchar(50)
+    ) AS Q1
+    WHERE collectionType = 'Transaction'
+    ```
+
+8. Replace the SQL query with the following to create a view that joins the suspicious transactions with user account information. We use an INNER JOIN between the `SuspiciousTransactions` view and the `Accounts` view:
+
+    ```sql
+    USE Woodgrove
+    GO
+
+    DROP VIEW IF EXISTS SuspiciousTransactionsWithAccountInfo;
+    GO
+
+    CREATE VIEW SuspiciousTransactionsWithAccountInfo
+    AS
+    SELECT TOP(100) t.transactionID, a.accountID, transactionAmountUSD, transactionAmount, transactionCurrencyCode,
+        localHour, transactionIPaddress, ipState, ipPostcode, ipCountryCode, isProxyIP,
+        browserLanguage, paymentInstrumentType, cardType, paymentBillingPostalCode,
+        paymentBillingState, paymentBillingCountryCode, cvvVerifyResult, digitalItemCount,
+        physicalItemCount, accountPostalCode, accountState, accountCountry,
+        paymentInstrumentAgeInAccount, numPaymentRejects1dPerUser,
+        transactionDateTime, isSuspicious, collectionType,
+        firstName,
+        lastName,
+        userName,
+        email,
+        gender,
+        cartId,
+        fullName,
+        dateOfBirth,
+        phone,
+        website,
+        a.accountAge,
+        a.isUserRegistered,
+        a.street,
+        a.suite, a.city, a.[state], a.postalCode,
+        a.country
+    FROM SuspiciousTransactions t INNER JOIN Accounts a ON t.accountID = a.accountID
+    ```
+
+9. Replace the SQL query with the following to create a view that counts the number of suspicious vs. non-suspicious transactions per account (user), referencing the `Transactions` and `SuspiciousTransactions` views you created. Then we select from the new view where `SuspiciousCount > 0`.
+
+    ```sql
+    USE Woodgrove
+    GO
+
+    DROP VIEW IF EXISTS TransactionCounts;
+    GO
+
+    CREATE VIEW TransactionCounts
+    AS
+    SELECT AccountId, MAX(SuspiciousCount) SuspiciousCount, MAX(NonSuspiciousCount) NonSuspiciousCount FROM
+        (SELECT AccountId, COUNT(*) SuspiciousCount, 0 NonSuspiciousCount FROM SuspiciousTransactions
+        GROUP BY AccountId
+        UNION
+        (
+            SELECT AccountId, 0 SuspiciousCount, COUNT(*) NonSuspiciousCount FROM Transactions
+            WHERE TransactionId NOT IN (select TransactionId FROM SuspiciousTransactions)
+            GROUP BY AccountId
+        )) Q1
+    GROUP BY AccountId;
+    GO
+
+    SELECT * FROM TransactionCounts
+    WHERE SuspiciousCount > 0
+    ORDER BY SuspiciousCount DESC, NonSuspiciousCount DESC;
+    ```
+
+    You should see results similar to the following:
+
+    ![The view output is displayed.](media/transactioncounts-view.png "TransactionCounts view")
+
+## Exercise 7: Query the analytical store with Apache Spark
+
+Woodgrove also wants to explore the Cosmos DB analytical store with Apache Spark, using Synapse Notebooks. In this exercise, you create a new notebook to query and join data from the `metadata` and `suspicious_transactions` analytical stores to view user account data associated with transactions scored as being suspicious.
+
+1. Navigate to the **Develop** hub.
+
+    ![Develop hub.](media/develop-hub.png "Develop hub")
+
+2. Select **+ (1)**, then **Notebook (2)**.
+
+    ![The Notebook button is highlighted.](media/new-notebook.png "Notebook")
+
+3. Make sure that the notebook language is set to **PySpark (Python)**, then select **{} Add code**.
+
+    ![The PySpark language is highlighted.](media/new-notebook-new-cell.png "New notebook")
+
+4. Execute the following in the new cell to populate a new DataFrame from the `metadata` analytical store, identify unwanted columns, and display the results:
+
+    ```python
+    accounts = spark.read\
+        .format("cosmos.olap")\
+        .option("spark.synapse.linkedService", "WoodgroveCosmosDb")\
+        .option("spark.cosmos.container", "metadata")\
+        .load()
+
+    unwanted_cols = {'_attachments','_etag','_rid','_self','_ts','collectionType','id','ttl','SuspiciousTransactionCount','TotalTransactionCount','PercentSuspicious'}
+
+    # Remove unwanted columns from the columns collection
+    cols = list(set(accounts.columns) - unwanted_cols)
+
+    accounts = accounts.select(cols)
+
+    display(accounts.limit(10))
+    ```
+
+    > Remember, when you run a cell for the first time in a notebook, it initially takes a few minutes for the Spark pool session to start.
+
+5. Execute the following in a new cell to populate a new DataFrame from the `suspicious_transactions` analytical store:
+
+    ```python
+    suspicious = spark.read\
+        .format("cosmos.olap")\
+        .option("spark.synapse.linkedService", "WoodgroveCosmosDb")\
+        .option("spark.cosmos.container", "suspicious_transactions")\
+        .load()
+    ```
+
+6. Execute the following in a new cell to filter the `suspicious_transactions` data by documents of type "SuspiciousTransactions", and remove duplicate and unwanted columns:
+
+    ```python
+    suspicious_transactions = (suspicious
+        .where("collectionType == 'SuspiciousTransactions'"))
+
+    # Remove columns that exist in both this Dataframe and the accounts Dataframe
+    duplicate_cols = {'accountPostalCode', 'accountState', 'accountCountry', 'accountAge', 'isUserRegistered'}
+
+    # Remove unwanted columns from the columns collection
+    cols = list(set(suspicious_transactions.columns) - unwanted_cols - duplicate_cols)
+
+    suspicious_transactions = suspicious_transactions.select(cols)
+    ```
+
+7. Execute the following in a new cell to display the suspicious transactions:
+
+    ```python
+    display(suspicious_transactions.limit(10))
+    ```
+
+8. Execute the following in a new cell to perform an inner join on the `suspicious_transactions` and `accounts` DataFrames on the `accountID` field, then select only the columns we're interested in:
+
+    ```python
+    suspicious_transactions_accounts = suspicious_transactions.join(accounts, on=['accountID'], how='inner')
+
+    # Set the columns to only the ones we want
+    cols = list({'accountID','transactionCurrencyCode','paymentInstrumentType','ipCountryCode',
+        'transactionDateTime', 'paymentInstrumentAgeInAccount', 'transactionIPaddress', 'paymentBillingCountryCode',
+        'cvvVerifyResult', 'paymentBillingState', 'browserLanguage', 'digitalItemCount', 'physicalItemCount',
+        'transactionID', 'localHour', 'transactionAmountUSD', 'ipPostcode', 'paymentBillingPostalCode', 'transactionAmount',
+        'numPaymentRejects1dPerUser', 'ipState', 'cardType', 'accountAge', 'userName', 'firstName', 'lastName',
+        'gender', 'dateOfBirth', 'phone', 'email', 'address', 'fullName'})
+
+    suspicious_transactions_accounts = suspicious_transactions_accounts.select(cols)
+
+    display(suspicious_transactions_accounts.limit(10))
+    ```
+
+9. Finally, execute the following in a new cell to view the aggregates from the `suspicious_transactions` analytical store:
+
+    ```python
+    suspicious_agg = (suspicious
+        .where("collectionType == 'SuspiciousAgg'"))
+
+    # Set the columns to only the ones we want
+    cols = list({'SuspiciousTransactionCount','TotalTransactionCount','PercentSuspicious','ipCountryCode'})
+
+    suspicious_agg = suspicious_agg.select(cols)
+
+    display(suspicious_agg.limit(10))
+    ```
+
+## Exercise 8: Reporting
 
 Duration: 30 minutes
 
