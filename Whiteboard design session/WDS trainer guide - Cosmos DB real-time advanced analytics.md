@@ -550,7 +550,7 @@ _Data pipeline processing_
 
 4. What configuration would you need to apply to your solution to allow it to restart any stream processing in the case the job is stopped?
 
-    When defining a Delta Lake streaming query, one of the options that you need to specify is the location of a checkpoint directory.
+    When defining a streaming query, one of the options that you need to specify is the location of a checkpoint directory.
 
     `spark.readStream.format("cosmos.oltp").option("spark.cosmos.changeFeed.checkpointLocation", "<path-to-checkpoint-directory>") ...`
 
