@@ -59,7 +59,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 1: Explore streaming data with Apache Spark](#task-1-explore-streaming-data-with-apache-spark)
     - [Task 2: Explore analytical store with Apache Spark](#task-2-explore-analytical-store-with-apache-spark)
     - [Task 3: Distributing real-time and batch scored data globally using Cosmos DB](#task-3-distributing-real-time-and-batch-scored-data-globally-using-cosmos-db)
-  - [Exercise 6: Querying Azure Cosmos DB with SQL Serverless for Synapse Analytics](#exercise-6-querying-azure-cosmos-db-with-sql-serverless-for-synapse-analytics)
+  - [Exercise 6: Querying Azure Cosmos DB with Azure Synapse serverless SQL](#exercise-6-querying-azure-cosmos-db-with-azure-synapse-serverless-sql)
     - [Task 1: Retrieve the Cosmos DB account name and key](#task-1-retrieve-the-cosmos-db-account-name-and-key)
     - [Task 2: Create Synapse SQL Serverless views](#task-2-create-synapse-sql-serverless-views)
   - [Exercise 7: Query the analytical store with Apache Spark](#exercise-7-query-the-analytical-store-with-apache-spark)
@@ -94,13 +94,13 @@ Below is a diagram of the solution architecture you will build in this lab. Plea
 
 ![The Solution diagram is described in the text following this diagram.](media/outline-architecture.png "Solution diagram")
 
-The data flow for the solution begins with the payment transaction systems writing transactions to Azure Cosmos DB. The lab deployment ARM template enables Synapse Link integration when provisioning the Azure Cosmos DB account. With this feature enabled, we turn on the analytical store when creating each of the containers, which serves as a fully isolated column store that is automatically populated when the payment transaction system writes data to the transactional container. The analytical store enables large-scale analytics against the operational data in Azure Cosmos DB, without impacting the transactional workloads or incurring resource unit (RU) costs. Woodgrove Bank's analysts query historical data within the analytical store and use it to join on reference data stored within the analytical store of other containers and the data lake. They execute these queries using Azure Synapse Spark notebooks and Azure Synapse SQL Serverless.
+The data flow for the solution begins with the payment transaction systems writing transactions to Azure Cosmos DB. The lab deployment ARM template enables Synapse Link integration when provisioning the Azure Cosmos DB account. With this feature enabled, we turn on the analytical store when creating each of the containers, which serves as a fully isolated column store that is automatically populated when the payment transaction system writes data to the transactional container. The analytical store enables large-scale analytics against the operational data in Azure Cosmos DB, without impacting the transactional workloads or incurring resource unit (RU) costs. Woodgrove Bank's analysts query historical data within the analytical store and use it to join on reference data stored within the analytical store of other containers and the data lake. They execute these queries using Azure Synapse serverless Apache Spark pools and Azure Synapse serverless SQL pools.
 
 Woodgrove requires that the data retention for payment transactions stored in Azure Cosmos DB is set to 60 days and that all payment transactions need to be stored in long-term storage. To meet these requirements, the 'Transactional Store Time to Live (Transactional TTL)' property on the transactions container is enabled, and the TTL value is set to 60 on the documents. This setting automatically deletes payment transactions from the transactional store after the 60-day time period. The 'Analytical Store Time To Live (Analytical TTL)' setting allows Woodgrove Bank to manage the lifecycle of data retained in the analytical store independently from the transactional store. The TTL on the analytical store is set never to expire, enabling Woodgrove to seamlessly tier and define the two stores' data retention period.
 
 Azure Synapse Analytics serves as the end-to-end analytics platform that combines SQL data warehousing, big data analytics, and data integration, and is central to the architecture. Synapse Analytics is required when using the Synapse Link feature that enables the Azure Cosmos DB analytical store.
 
-Azure Machine Learning (Azure ML) is used to train both the real-time and batch machine learning models. The Azure ML workspace stores and manages trained models and deploys the trained model as a real-time scoring web service running on a highly available Azure Kubernetes Service cluster (AKS cluster). Woodgrove Bank uses the batch-scoring machine learning model within Azure Synapse Analytics notebooks to predict fraud against the day's transactions, build aggregates showing statistics around fraudulent activity, and write the results to an Azure Cosmos DB container. The batch-scoring model is also used within a Synapse notebook to reduce prediction latency by scoring the Azure Cosmos DB change feed's streaming data, using Spark Structured Streaming. All transactions with "suspicious activity" output are stored in Azure Cosmos DB, so it is globally available in regions closest to Woodgrove Bank's customers through their web applications. The analytical store feature is enabled on the container that contains predicted suspicious activity. Synapse SQL Serverless views are created against this and other analytical stores. Business analysts can access them using dashboards and reports in Power BI, which are embedded within the Synapse Analytics workspace. Data scientists and engineers can create their own reports against the Azure Cosmos DB analytical store, using Synapse notebooks.
+Azure Machine Learning (Azure ML) is used to train both the real-time and batch machine learning models. The Azure ML workspace stores and manages trained models and deploys the trained model as a real-time scoring web service running on a highly available Azure Kubernetes Service cluster (AKS cluster). Woodgrove Bank uses the batch-scoring machine learning model within Azure Synapse Analytics notebooks to predict fraud against the day's transactions, build aggregates showing statistics around fraudulent activity, and write the results to an Azure Cosmos DB container. The batch-scoring model is also used within a Synapse notebook to reduce prediction latency by scoring the Azure Cosmos DB change feed's streaming data, using Spark Structured Streaming. All transactions with "suspicious activity" output are stored in Azure Cosmos DB, so it is globally available in regions closest to Woodgrove Bank's customers through their web applications. The analytical store feature is enabled on the container that contains predicted suspicious activity. Azure Synapse serverless SQL views are created against this and other analytical stores. Business analysts can access them using dashboards and reports in Power BI, which are embedded within the Synapse Analytics workspace. Data scientists and engineers can create their own reports against the Azure Cosmos DB analytical store, using Synapse notebooks.
 
 Finally, Azure Key Vault is used to securely store secrets, such as account keys and connection strings. The Synapse Linked Services securely access these secrets, hiding them from Synapse Analytics users who connect to the services.
 
@@ -587,7 +587,7 @@ In this notebook, you will explore this raw transaction data provided by Woodgro
 
     ![The file is highlighted and the New notebook menu item is selected.](media/untagged-new-notebook.png "New notebook")
 
-2. Update the cell to uncomment the `, header=True` line by removing the two pound symbols at the beginning of the line **(`##`)** **(1)**. Make sure the notebook is attached to **SparkPool01 (2)**, then select **Run all (3)**. It will take a few minutes to run this notebook the first time since the Spark pool needs start.
+2. Update the cell to uncomment the `, header=True` line by removing the two pound symbols at the beginning of the line **(`##`)** **(1)**. Make sure the notebook is attached to **SparkPool01 (2)**, then select **Run all (3)**. It will take a few minutes to run this notebook the first time since the serverless Apache Spark pool needs start.
 
     ![The notebook is displayed.](media/untagged-transactions-notebook-run.png "Notebook")
 
@@ -1056,7 +1056,7 @@ Now that we have added an Azure Cosmos DB Linked Service in Synapse Analytics, w
     SELECT COUNT(*) FROM transactions
     ```
 
-8. We are done with this notebook. Select **Stop session** on the bottom-left of the notebook. This will free up SQL pool resources for other notebooks you will run.
+8. We are done with this notebook. Select **Stop session** on the bottom-left of the notebook. This will free up serverless Apache Spark pool resources for other notebooks you will run.
 
     ![Stop session is highlighted.](media/notebook-stop-session.png "Stop session")
 
@@ -1084,7 +1084,7 @@ We have connected to the transactional (OLTP) data store, now let's use Apache S
 
     > The initial run of this notebook will take time while the Spark pool starts.
 
-4. We are done with this notebook. Select **Stop session** on the bottom-left of the notebook. This will free up SQL pool resources for other notebooks you will run.
+4. We are done with this notebook. Select **Stop session** on the bottom-left of the notebook. This will free up serverless Apache Spark pool resources for other notebooks you will run.
 
     ![Stop session is highlighted.](media/notebook-stop-session.png "Stop session")
 
@@ -1124,15 +1124,15 @@ In this task, you will execute Synapse Notebooks to perform both near real-time 
 
     ![The error is displayed.](media/session-job-rejected.png "Session job rejected")
 
-    If the `Real-time-scoring` notebook is still open, select **Stop session** on the bottom-left of the notebook. This will free up SQL pool resources for other notebooks you will run.
+    If the `Real-time-scoring` notebook is still open, select **Stop session** on the bottom-left of the notebook. This will free up serverless Apache Spark pool resources for other notebooks you will run.
 
     ![Stop session is highlighted.](media/notebook-stop-session.png "Stop session")
 
-## Exercise 6: Querying Azure Cosmos DB with SQL Serverless for Synapse Analytics
+## Exercise 6: Querying Azure Cosmos DB with Azure Synapse serverless SQL
 
 Woodgrove wants to explore the Azure Cosmos DB analytical store with T-SQL. Ideally, they can create views that can then be used for joins with other analytical store containers, files from the data lake, or accessed by external tools, like Power BI.
 
-In this exercise, you create SQL views to query data in the analytical store using Synapse SQL Serverless. You will use these views when creating Power BI reports in the next exercise.
+In this exercise, you create SQL views to query data in the analytical store using an Azure Synapse serverless SQL pool. You will use these views when creating Power BI reports in the next exercise.
 
 ### Task 1: Retrieve the Cosmos DB account name and key
 
