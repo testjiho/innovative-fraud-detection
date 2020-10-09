@@ -5,7 +5,7 @@
         "uniqueSuffix": {
             "type": "String",
             "metadata": {
-                "description": "Suffix added to all resource names to make them unique."
+                "description": "Suffix added to all resource names to make them unique. Use a maximum of 3 random characters. Four or more characters will be ignored."
             }
         },
         "autoscaleMaxThroughput": {

@@ -247,6 +247,6 @@ Directions: Tables reconvene with the larger group to hear the facilitator/SME s
 | Partitioning and horizontal scaling in Azure Cosmos DB | <https://docs.microsoft.com/azure/cosmos-db/partition-data>                                                                       |
 | Consistency levels in Azure Cosmos DB                  | <https://docs.microsoft.com/azure/cosmos-db/consistency-levels>                                                                   |
 | Apache Spark Connector to Cosmos DB                    | <https://docs.microsoft.com/azure/cosmos-db/spark-connector>                                                                |
-| What is Azure Cosmos DB Analytical Store? | <https://docs.microsoft.com/azure/cosmos-db/analytical-store-introduction?toc=/azure/synapse-analytics/toc.json&bc=/azure/synapse-analytics/breadcrumb/toc.json> |
+| What is Azure Cosmos DB analytical store? | <https://docs.microsoft.com/azure/cosmos-db/analytical-store-introduction?toc=/azure/synapse-analytics/toc.json&bc=/azure/synapse-analytics/breadcrumb/toc.json> |
 | What is Azure Synapse Link for Azure Cosmos DB? | <https://docs.microsoft.com/azure/cosmos-db/synapse-link?toc=/azure/synapse-analytics/toc.json&bc=/azure/synapse-analytics/breadcrumb/toc.json> |
 | Azure Cosmos DB autoscale throughput feature | <https://docs.microsoft.com/azure/cosmos-db/provision-throughput-autoscale> |
