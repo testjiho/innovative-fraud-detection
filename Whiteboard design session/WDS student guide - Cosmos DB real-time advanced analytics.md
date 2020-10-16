@@ -1,7 +1,7 @@
 ![](https://github.com/Microsoft/MCW-Template-Cloud-Workshop/raw/master/Media/ms-cloud-workshop.png 'Microsoft Cloud Workshops')
 
 <div class="MCWHeader1">
-Cosmos DB Real Time Advanced Analytics
+Cosmos DB real-time advanced analytics
 </div>
 
 <div class="MCWHeader2">
@@ -9,7 +9,7 @@ Whiteboard design session student guide
 </div>
 
 <div class="MCWHeader3">
-June 2020
+October 2020
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -122,7 +122,7 @@ Below is a simple diagram Woodgrove Bank provided of their current process (blue
 
 ### Infographic for common scenarios
 
-![Infographic for common scenarios](media/common-scenarios.png 'Common scenarios diagram')
+![Infographic for common scenarios.](media/common-scenarios.png 'Common scenarios diagram')
 
 ## Step 2: Design a proof of concept solution
 
