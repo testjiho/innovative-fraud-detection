@@ -1,0 +1,152 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "uniqueSuffix": {
+            "type": "String",
+            "metadata": {
+                "description": "Suffix added to all resource names to make them unique."
+            }
+        },
+        "throughputPolicy": {
+            "type": "string",
+            "defaultValue": "Autoscale",
+            "allowedValues": [
+                "Manual",
+                "Autoscale"
+            ],
+            "metadata": {
+                "description": "The throughput policy for the container"
+            }
+        },
+        "manualProvisionedThroughput": {
+            "type": "int",
+            "defaultValue": 4000,
+            "minValue": 400,
+            "maxValue": 4000,
+            "metadata": {
+                "description": "Throughput value when using Manual Throughput Policy for the container"
+            }
+        },
+        "autoscaleMaxThroughput": {
+            "type": "int",
+            "defaultValue": 4000,
+            "minValue": 400,
+            "maxValue": 4000,
+            "metadata": {
+                "description": "Maximum throughput when using Autoscale Throughput Policy for the container"
+            }
+        }
+    },
+    "variables": {
+        "name_suffix": "[take(toLower(concat(take(uniqueString(resourceGroup().id), 10), parameters('uniqueSuffix'))), 13)]",
+        "primary_region": "East US",
+
+        "cosmosdb_databaseAccount_name": "[concat('woodgrove-db-', variables('name_suffix'))]",
+        "cosmosdb_region": "[variables('primary_region')]",
+        "cosmosdb_databaseName": "Woodgrove",
+        "cosmosdb_containerName": "transactions",
+        "cosmosdb_containerName2": "suspicious_transactions",
+        "cosmosdb_containerName3": "metadata",
+        "throughputPolicy": {
+            "Manual": {
+                "Throughput": "[parameters('manualProvisionedThroughput')]"
+            },
+            "Autoscale": {
+                "autoscaleSettings": { "maxThroughput": "[parameters('autoscaleMaxThroughput')]" }
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "apiVersion": "2020-04-01",
+            "name": "[variables('cosmosdb_databaseAccount_name')]",
+            "location": "[variables('cosmosdb_region')]",
+            "kind": "GlobalDocumentDB",
+            "properties": {
+                "enableAutomaticFailover": false,
+                "enableMultipleWriteLocations": true,
+                "databaseAccountOfferType": "Standard",
+                "consistencyPolicy": {
+                    "defaultConsistencyLevel": "Session"
+                },
+                "enableAnalyticalStorage": true,
+                "locations": [
+                    {
+                        "locationName": "[variables('cosmosdb_region')]",
+                        "failoverPriority": 0
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+            "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/', variables('cosmosdb_databaseName'))]",
+            "apiVersion": "2020-04-01",
+            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/', variables('cosmosdb_databaseAccount_name'))]" ],
+            "properties": {
+                "resource": {
+                    "id": "[variables('cosmosdb_databaseName')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+            "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/', variables('cosmosdb_databaseName'), '/', variables('cosmosdb_containerName'))]",
+            "apiVersion": "2020-04-01",
+            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_databaseAccount_name'), variables('cosmosdb_databaseName'))]" ],
+            "properties": {
+                "resource": {
+                    "id": "[variables('cosmosdb_containerName')]",
+                    "partitionKey": {
+                        "paths": [
+                            "/ipCountryCode"
+                        ],
+                        "kind": "Hash"
+                    },
+                    "analyticalStorageTtl": -1
+                },
+                "options": "[variables('throughputPolicy')[parameters('throughputPolicy')]]"
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+            "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/', variables('cosmosdb_databaseName'), '/', variables('cosmosdb_containerName2'))]",
+            "apiVersion": "2020-04-01",
+            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_databaseAccount_name'), variables('cosmosdb_databaseName'))]" ],
+            "properties": {
+                "resource": {
+                    "id": "[variables('cosmosdb_containerName2')]",
+                    "partitionKey": {
+                        "paths": [
+                            "/ipCountryCode"
+                        ],
+                        "kind": "Hash"
+                    },
+                    "analyticalStorageTtl": -1
+                },
+                "options": "[variables('throughputPolicy')[parameters('throughputPolicy')]]"
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+            "name": "[concat(variables('cosmosdb_databaseAccount_name'), '/', variables('cosmosdb_databaseName'), '/', variables('cosmosdb_containerName3'))]",
+            "apiVersion": "2020-04-01",
+            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_databaseAccount_name'), variables('cosmosdb_databaseName'))]" ],
+            "properties": {
+                "resource": {
+                    "id": "[variables('cosmosdb_containerName3')]",
+                    "partitionKey": {
+                        "paths": [
+                            "/accountID"
+                        ],
+                        "kind": "Hash"
+                    },
+                    "analyticalStorageTtl": -1
+                },
+                "options": "[variables('throughputPolicy')[parameters('throughputPolicy')]]"
+            }
+        }
+    ]
+}

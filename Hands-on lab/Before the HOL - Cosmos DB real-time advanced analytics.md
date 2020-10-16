@@ -9,7 +9,7 @@ Before the hands-on lab setup guide
 </div>
 
 <div class="MCWHeader3">
-October 2019
+October 2020
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -18,7 +18,7 @@ Microsoft may have patents, patent applications, trademarks, copyrights, or othe
 
 The names of manufacturers, products, or URLs are provided for informational purposes only and Microsoft makes no representations and warranties, either expressed, implied, or statutory, regarding these manufacturers or the use of the products with any Microsoft technologies. The inclusion of a manufacturer or product does not imply endorsement of Microsoft of the manufacturer or product. Links may be provided to third party sites. Such sites are not under the control of Microsoft and Microsoft is not responsible for the contents of any linked site or any link contained in a linked site, or any changes or updates to such sites. Microsoft is not responsible for webcasting or any other form of transmission received from any linked site. Microsoft is providing these links to you only as a convenience, and the inclusion of any link does not imply endorsement of Microsoft of the site or the products contained therein.
 
-© 2019 Microsoft Corporation. All rights reserved.
+© 2020 Microsoft Corporation. All rights reserved.
 
 Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/Usage/General.aspx> are trademarks of the Microsoft group of companies. All other trademarks are property of their respective owners.
 
@@ -91,49 +91,24 @@ In this task, you will create an Azure resource group for the resources used thr
 
 ### Task 4: Deploy Environment
 
-1. In the Azure portal, navigate to **Azure Active Directory**, then select **Users** under Manage.
+1. Deploy the workspace through the following Azure ARM template (press the button below):
 
-   ![Azure Active Directory blade with Users highlighted](media/deploy-azure-ad-users-link.png 'Azure Active Directory blade with Users highlighted')
+    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoelhulen%2FMCW-Cosmos-DB-Real-Time-Advanced-Analytics%2Fmaster%2FHands-on%20lab%2FDeployment%2Fenvironment-template.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png" /></a>
 
-2. Select your user from the list with which you logged in to the portal.
-
-   ![All users list with user highlighted](media/deploy-azure-ad-user-list.png 'All users list with user highlighted')
-
-3. On the **User** blade, copy the **Object ID** for this user.
-
-   ![User blade is shown with Object ID highlighted](media/deploy-azure-ad-user-object-id.png 'User blade is shown with Object ID highlighted')
-
-4. Select **Create a resource**, then search for and select **Template Deployment**.
-
-   ![Create a resource is highlighted as step 1, and the search box is highlighted a step 2 with template deployment entered](media/deploy-create-resource-search-template-deployment.png 'Create a resource is highlighted as step 1, and the search box is highlighted a step 2 with template deployment entered')
-
-5. On the **Custom deployment** blade, select the **Build your own template in the editor** link.
-
-   ![The Build your own template in the editor link is highlighted.](media/deploy-deployment-build-your-own-link.png 'Custom deployment')
-
-6. On the **Edit template** blade, select the **Load file** button to select the ARM Template to use.
-
-   ![The Load file button is highlighted](media/deploy-deployment-load-file-button.png 'The Load file button is highlighted')
-
-7. Select the `C:\CosmosMCW\MCW-Cosmos-DB-Real-Time-Advanced-Analytics-master\Hands-on lab\Deployment\environment-template.json` ARM Template.
-
-8. Select **Save**.
-
-   ![The Save button is highlighted](media/deploy-deployment-arm-template-save.png 'The Save button is highlighted')
-
-9. Enter the following values:
+2. Enter the following values, then select **Review + create**:
 
    - Resource group: **Select the Resource Group created previously for the lab**.
-   - Key Vault Access Policy User Object Id: **Paste in the User Object ID that was copied previously from Azure Active Directory**.
+   - Unique Suffix: **Enter a unique value, such as your initials followed by birth year**.
+   - Autoscale Max Throughput: **Enter 4000 as the max RU/s for the Azure Cosmos DB containers**.
 
-   ![The parameters specified are highlighted](media/deploy-deployment-parameter-fields.png 'The parameters specified are highlighted')
+   ![The parameters specified are highlighted.](media/deploy-deployment-parameter-fields.png 'The parameters specified are highlighted')
 
-10. Check the **I agree...** check box, then select **Purchase**.
+3. Select **Create** on the `Review + create` form.
 
-    ![The I agree checkbox and the purchase button are highlighted](media/deploy-deployment-purchase-button.png 'The I agree checkbox and the purchase button are highlighted')
+    ![The review page is displayed.](media/deploy-review.png "Review + create")
 
-11. The deployment will take approximately 5 - 10 minutes to complete.
+4. The deployment will take approximately 15 - 20 minutes to complete.
 
-    ![The deployment progress is shown](media/deploy-deployment-progress.png 'The deployment progress is shown')
+    ![The deployment progress is shown.](media/deploy-deployment-progress.png 'The deployment progress is shown')
 
 You should follow all steps provided _before_ performing the Hands-on lab.
