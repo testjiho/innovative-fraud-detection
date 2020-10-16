@@ -9,7 +9,7 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-June 2020
+October 2020
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -131,35 +131,35 @@ In this task, you will create Sender and Listener Access Policies on the Event H
 
 3. Select it then select **Shared access policies** under Settings in the left-hand menu.
 
-    ![Shared access policies is selected within the left-hand menu](media/select-shared-access-policies.png 'Select Shared access policies')
+    ![Shared access policies is selected within the left-hand menu.](media/select-shared-access-policies.png 'Select Shared access policies')
 
 4. Select **+ Add** in the top toolbar.
 
-   ![Select the + Add button in the top toolbar](media/add-shared-access-policy.png 'Add Shared Access Policy')
+   ![Select the + Add button in the top toolbar.](media/add-shared-access-policy.png 'Add Shared Access Policy')
 
 5. In the **Add SAS Policy** blade, configure the following:
 
-    - **Policy name**: Enter "Sender".
+    - **Policy name**: Enter **Sender**.
     - **Manage**: Unchecked
     - **Send**: Checked
     - **Listen**: Unchecked
 
-    ![The Add SAS Plicy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-sender.png 'Add SAS Policy')
+    ![The Add SAS Plicy is displayed, with the previously mentioned settings entered into the appropriate fields.](media/add-sas-policy-sender.png 'Add SAS Policy')
 
 6. Select **Create**.
 
 7. Select **+ Add** in the top toolbar to add another policy.
 
-    ![Select the + Add button in the top toolbar](media/add-shared-access-policy.png 'Add Shared Access Policy')
+    ![Select the + Add button in the top toolbar.](media/add-shared-access-policy.png 'Add Shared Access Policy')
 
 8. In the **Add SAS Policy** blade, configure the following:
 
-    - **Policy name**: Enter "Listener".
+    - **Policy name**: Enter **Listener**.
     - **Manage**: Unchecked
     - **Send**: Unchecked
     - **Listen**: Checked
 
-    ![The Add SAS Policy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-listener.png 'Add SAS Policy')
+    ![The Add SAS Policy is displayed, with the previously mentioned settings entered into the appropriate fields.](media/add-sas-policy-listener.png 'Add SAS Policy')
 
 9. Select **Create**.
 
@@ -308,7 +308,7 @@ Next you will pass in the Azure Cosmos DB URI and Key values to the data generat
 
 12. Save your changes.
 
-13. Run the console app by clicking **Debug**, then **Start Debugging** in the top menu in Visual Studio, or press _F-5_ on your keyboard.
+13. Run the console app by selecting **Debug**, then **Start Debugging** in the top menu in Visual Studio, or press _F-5_ on your keyboard.
 
     ![Screenshot showing the Debug menu expanded in Visual Studio with the Start Debugging menu option highlighted.](media/debug-in-vs.png 'Debug')
 
@@ -387,54 +387,54 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
 11. Navigate to the newly provisioned Event Hubs namespace in the Azure portal, then select **Event Hubs** under Entities on the left-hand menu.
 
-    ![Event Hubs is selected within the left-hand menu](media/select-event-hubs.png 'Select Event Hubs')
+    ![Event Hubs is selected within the left-hand menu.](media/select-event-hubs.png 'Select Event Hubs')
 
 12. Select **+ Event Hub** in the top toolbar.
 
-    ![Select the + Event Hub button in the top toolbar](media/add-event-hub-button.png 'Add Event Hub')
+    ![Select the + Event Hub button in the top toolbar.](media/add-event-hub-button.png 'Add Event Hub')
 
 13. In the **Create Event Hub** blade, configure the following:
 
-    - **Name**: Enter "transactions".
+    - **Name**: Enter **transactions**.
     - **Partition Count**: Move the slider to set the value to 10.
     - **Message Retention**: Set to 7.
     - **Capture**: Off
 
-    ![The Create Event Hub blade is displayed, with the previously mentioned settings entered into the appropriate fields](media/create-event-hub-blade-7-day-retention.png 'Create Event Hub')
+    ![The Create Event Hub blade is displayed, with the previously mentioned settings entered into the appropriate fields.](media/create-event-hub-blade-7-day-retention.png 'Create Event Hub')
 
 14. Select **Create**.
 
 15. After the new Event Hub is created, select it then select **Shared access policies** under Settings in the left-hand menu.
 
-    ![Shared access policies is selected within the left-hand menu](media/select-shared-access-policies.png 'Select Shared access policies')
+    ![Shared access policies is selected within the left-hand menu.](media/select-shared-access-policies.png 'Select Shared access policies')
 
 16. Select **+ Add** in the top toolbar.
 
-    ![Select the + Add button in the top toolbar](media/add-shared-access-policy.png 'Add Shared Access Policy')
+    ![Select the + Add button in the top toolbar.](media/add-shared-access-policy.png 'Add Shared Access Policy')
 
 17. In the **Add SAS Policy** blade, configure the following:
 
-    - **Policy name**: Enter "Sender".
+    - **Policy name**: Enter **Sender**.
     - **Manage**: Unchecked
     - **Send**: Checked
     - **Listen**: Unchecked
 
-    ![The Add SAS Policy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-sender.png 'Add SAS Policy')
+    ![The Add SAS Policy is displayed, with the previously mentioned settings entered into the appropriate fields.](media/add-sas-policy-sender.png 'Add SAS Policy')
 
 18. Select **Create**.
 
 19. Select **+ Add** in the top toolbar to add another policy.
 
-    ![Select the + Add button in the top toolbar](media/add-shared-access-policy.png 'Add Shared Access Policy')
+    ![Select the + Add button in the top toolbar.](media/add-shared-access-policy.png 'Add Shared Access Policy')
 
 20. In the **Add SAS Policy** blade, configure the following:
 
-    - **Policy name**: Enter "Listener".
+    - **Policy name**: Enter **Listener**.
     - **Manage**: Unchecked
     - **Send**: Unchecked
     - **Listen**: Checked
 
-    ![The Add SAS Policy is displayed, with the previously mentioned settings entered into the appropriate fields](media/add-sas-policy-listener.png 'Add SAS Policy')
+    ![The Add SAS Policy is displayed, with the previously mentioned settings entered into the appropriate fields.](media/add-sas-policy-listener.png 'Add SAS Policy')
 
 21. Select **Create**.
 
@@ -533,7 +533,7 @@ We will be exploring files in the Synapse Analytics workspace's primary ADLS Gen
 
 3. Scroll down the list of role assignments and verify that the Synapse Analytics workspace name is added to the **Storage Blob Data Contributor** role.
 
-    ![The workspace is assigned to the role](media/storage-blob-contributor-role.png "Storage Blob Data Contributor role")
+    ![The workspace is assigned to the role.](media/storage-blob-contributor-role.png "Storage Blob Data Contributor role")
 
 4. If you do not see your Azure account name assigned to this role, select **+ Add** above `Role assignments`, then select **Add role assignment**.
 
@@ -565,7 +565,7 @@ Woodgrove Bank provided historical transaction data. We want to explore this dat
 
     ![The ADLS Gen2 account is selected and the Upload button is highlighted.](media/upload-button.png "Upload")
 
-3. Browse to the location you extracted the MCW repo .zip file to (C:\\CosmosMCW\\) and navigate to the `Hands-on lab\Resources` directory. Select the three files in the directory, then click **Open**.
+3. Browse to the location you extracted the MCW repo .zip file to (C:\\CosmosMCW\\) and navigate to the `Hands-on lab\Resources` directory. Select the three files in the directory, then select **Open**.
 
     ![The three files are selected in the file explorer.](media/file-explorer.png "Open")
 
@@ -636,7 +636,7 @@ Woodgrove has provided you with a list of possible `cvvVerifyResult` values and 
 | S     | Issuer indicates that CVV2 data should be present on the card, but the merchant has indicated data is not present on the card
 | U     | Issuer has not certified for CVV2 or Issuer has not provided Visa with the CVV2 encryption keys
 
-> The schema details for the data used here is available at: <https://microsoft.github.io/r-server-fraud-detection/input_data.html>
+> The schema details for the data used here is available at: <https://microsoft.github.io/r-server-fraud-detection/input_data.html>.
 
 1. Run the following in a new cell to view the distinct values contained in `cvvVerifyResult` field, and a count of each. In this case, we are using the `groupBy()` method to provide the distinct `cvvVerifyResult` values, along with a count of each:
 
@@ -664,6 +664,7 @@ Woodgrove has provided you with a list of possible `cvvVerifyResult` values and 
     There are two interesting things to note for the values in the `cvvVerifyResult` field:
 
     1. We have some rows with empty values, which, according to the values listed provided by Woodgrove, indicates a failed transaction. For our fraud detection model, we are only concerned with completed transactions, so you might consider dropping rows where the `cvvVerifyResult` is empty. The count allows us to have some insight into the impact this will have on the size of our dataset.
+    
     2. There are a small number of values (X or Y for instance) that are not valid values, according to the list of acceptable values. Since these rows don't contain valid transactions, some consideration should be given to how to handle them in your model.
 
 ### Task 7: Review column data types
@@ -776,7 +777,7 @@ In this task, you will use a notebook to explore the transaction and account dat
 
     ![The Upload files button is highlighted.](media/azure-ml-upload-files.png "Upload files")
 
-2. Browse to the location you extracted the MCW repo .zip file to (C:\\CosmosMCW\\) and navigate to the `Hands-on lab\lab-files` directory. Select the two **`.ipynb`** notebook files in the directory, then click **Open**.
+2. Browse to the location you extracted the MCW repo .zip file to (C:\\CosmosMCW\\) and navigate to the `Hands-on lab\lab-files` directory. Select the two **`.ipynb`** notebook files in the directory, then select **Open**.
 
     ![The two files are selected in the file explorer.](media/file-explorer2.png "Open")
 
@@ -889,7 +890,7 @@ To do this you will create a Synapse Analytics pipeline with a copy activity. Sy
 
 2. In the Synapse Analytics workspace Overview blade, select **Launch Synapse Studio**.
 
-    ![The button is highlighted.](media/launch-synapse-studio.png "Launch Synapse Studio")
+    ![The Launch Synapse Studio button is highlighted in the overview blade.](media/launch-synapse-studio.png "Launch Synapse Studio")
 
 ### Task 2: Create Azure Cosmos DB linked service
 
@@ -921,11 +922,11 @@ To do this you will create a Synapse Analytics pipeline with a copy activity. Sy
 
 1. Within **Linked services**, select **+ New**.
 
-    ![The new button is highlighted.](media/new-linked-service2.png "Linked services")
+    ![The new button in linked services is highlighted.](media/new-linked-service2.png "Linked services")
 
 2. Select **Azure Blob Storage**, then select **Continue**.
 
-    ![The Blob Storage service is selected.](media/new-linked-service-blob.png "New linked service")
+    ![The Azure Blob Storage service is selected.](media/new-linked-service-blob.png "New linked service")
 
 3. In the New linked service form, complete the following, test the connection, and then select **Create**:
 
@@ -1100,7 +1101,7 @@ In this task, you will execute Synapse Notebooks to perform both near real-time 
 
     ![The import button is highlighted.](media/develop-import.png "Import")
 
-3. Browse to the location you extracted the MCW repo .zip file to (C:\\CosmosMCW\\) and navigate to the `Hands-on lab\lab-files\synapse` directory. Select the two **`.ipynb`** notebook files in the directory, then click **Open**.
+3. Browse to the location you extracted the MCW repo .zip file to (C:\\CosmosMCW\\) and navigate to the `Hands-on lab\lab-files\synapse` directory. Select the two **`.ipynb`** notebook files in the directory, then select **Open**.
 
     ![The two files are selected in the file explorer.](media/file-explorer3.png "Open")
 
@@ -1627,11 +1628,11 @@ Later in this exercise, you will add a Power BI Linked Service. When you do this
 
 > You need a Power BI Pro license to complete this step and to link Power BI to Synapse Analytics. Skip ahead to Task 3 or sign up for a trial Pro subscription if you do not have a license.
 
-1. Sign in to Power BI online (<https://powerbi.com>)
+1. Sign in to Power BI online (<https://powerbi.com>).
 
 2. Select **Workspaces**, then **Create a workspace**.
 
-    ![The button is highlighted.](media/pbi-create-workspace.png "Create a workspace")
+    ![The Workspaces and Create a workspace buttons are highlighted.](media/pbi-create-workspace.png "Create a workspace")
 
 3. Enter **Woodgrove** for the workspace name, then select **Save**.
 
@@ -1769,13 +1770,13 @@ So far, the report you created is only available to you. To share the report wit
 
 In this task, you save and publish your report online, then create a Power BI Linked Service in Synapse Studio. Finally, you view the report within the Studio interface.
 
-1. Click **Publish** in the ribbon bar above the report.
+1. Select **Publish** in the ribbon bar above the report.
 
     ![The Publish button is highlighted.](media/pbi-publish.png "Publish")
 
 2. When prompted to save your report, save it to your local disk with a descriptive name, such as `Cosmos DB MCW`.
 
-3. In the Publish to Power BI dialog, select the **Woodgrove** workspace, then click **Select**.
+3. In the Publish to Power BI dialog, select the **Woodgrove** workspace, then select **Select**.
 
     ![The Woodgrove workspace is selected.](media/pbi-select-destination.png "Publish to Power BI")
 
@@ -1817,14 +1818,16 @@ In this task, you save and publish your report online, then create a Power BI Li
 
 ## After the hands-on lab
 
-Duration: 10 mins
+Duration: 10 minutes
 
 In this exercise, you will delete any Azure resources that were created in support of the lab. You should follow all steps provided after attending the Hands-on lab to ensure your account does not continue to be charged for lab resources.
 
 ### Task 1: Delete the resource group
 
 1. Using the [Azure portal](https://portal.azure.com), navigate to the Resource group you used throughout this hands-on lab by selecting Resource groups in the left menu.
+
 2. Search for the name of your research group, and select it from the list.
+
 3. Select Delete in the command bar, and confirm the deletion by re-typing the Resource group name, and selecting Delete.
 
 You should follow all steps provided _after_ attending the Hands-on lab.
