@@ -583,7 +583,7 @@ Data preparation is an important step in the data engineering process. Before us
 
 In this notebook, you will explore this raw transaction data provided by Woodgrove to gain a better understanding of the types of transformations that need to be performed on the data to prepare it for use in building and training a machine learning model to detect fraud.
 
-1. Right-click the **Untagged_Transactions.csv** file, then select **New notebook**.
+1. Right-click the **Untagged_Transactions.csv** file, select **New notebook**, then select **Load to DataFrame**.
 
     ![The file is highlighted and the New notebook menu item is selected.](media/untagged-new-notebook.png "New notebook")
 
@@ -591,7 +591,7 @@ In this notebook, you will explore this raw transaction data provided by Woodgro
 
     ![The notebook is displayed.](media/untagged-transactions-notebook-run.png "Notebook")
 
-    Notice that the first cell uses the `spark.read.load` with a path to the CSV file to load the `data_path` DataFrame.
+    Notice that the first cell uses the `spark.read.load` with a path to the CSV file to load the `df` DataFrame.
 
     The output from the `display()` command allows you to inspect the columns of data contained in the dataset, including column names and the values stored in each column. With this information, you can start performing an exploratory analysis of the transaction data, looking for fields which contain information which might be useful in determining if a transaction is potentially fraudulent, as well as columns containing empty and null values. This can help in making determinations about which columns might be useful for fraud analysis and which columns can potentially be removed from the dataset.
 
@@ -606,7 +606,7 @@ In this notebook, you will explore this raw transaction data provided by Woodgro
 2. Paste and execute the following in the new cell to review columns with null values (Tip: you can execute a cell by entering **Ctrl+Enter**):
 
     ```python
-    transactions = data_path
+    transactions = df
 
     transactions.select("browserType").distinct().show()
     ```
@@ -793,25 +793,32 @@ In this task, you will use a notebook to explore the transaction and account dat
 
     ![The new compute button is highlighted.](media/new-compute-button.png "New compute")
 
-6. In the **New compute instance** section, complete the following and then select **Create**.
+6. In the **Create compute instance** section, complete the following and then select **Next**.
+
+    | Field                          | Value                                              |
+    | ------------------------------ | ------------------------------------------         |
+    | Virtual machine type           | _select `CPU`_           |
+    | Virtual machine size           | _select `Select from recommended options`, then select `Standard_DS3_v2`_                         |
+
+    ![The field entries are completed as described.](media/new-compute-vm.png "New compute instance - VM")
+
+7. In the **Create compute instance** section, complete the following and then select **Create**.
 
    | Field                          | Value                                              |
    | ------------------------------ | ------------------------------------------         |
-   | Compute name                   | _`woodgrove`_                                   |
-   | Virtual machine type           | _select `CPU (Central Processing Unit)`_           |
-   | Virtual machine size           | _select `Standard_DS3_v2`_                         |
+   | Compute name                   | _`woodgrove`_ or unique value |
 
    ![In the New compute instance output, form field entries are filled in.](media/new-compute.png "New compute instance")
 
-7. After the **Compute** has been created **(1)**, select **Jupyter**, then **{} Edit in Jupyter (2)** to open the notebook in the Jupyter editor, which provides an enhanced notebook experience.
+8. After the **Compute** has been created **(1)**, select **Editors**, then **{} Edit in Jupyter (2)** to open the notebook in the Jupyter editor, which provides an enhanced notebook experience.
 
     ![The edit in Jupyter menu item is highlighted.](media/edit-in-jupyter.png "Edit in Jupyter")
 
-8. **Run** each cell in the notebook. You can select a cell and enter **Shift+Enter** to execute the cell and advance to the next one. Be sure to read and understand each cell and descriptions throughout the notebook.
+9. **Run** each cell in the notebook. You can select a cell and enter **Shift+Enter** to execute the cell and advance to the next one. Be sure to read and understand each cell and descriptions throughout the notebook.
 
     > If you receive errors after executing the first two cells, rerun them again. The first cell performs `!pip install` commands, which take a few moments to apply to all the worker nodes.
 
-9. You may receive a prompt to sign in after executing the first cell. If you do, copy the code in your notebook and then select the link to authenticate.
+10. You may receive a prompt to sign in after executing the first cell. If you do, copy the code in your notebook and then select the link to authenticate.
 
     ![A prompt to perform interactive authentication.](media/azure-ml-notebook-authentication.png "Performing interactive authentication")
 
@@ -941,13 +948,13 @@ To do this you will create a Synapse Analytics pipeline with a copy activity. Sy
 
 ### Task 4: Create copy pipeline
 
-1. Navigate to the **Orchestrate** hub.
+1. Navigate to the **Integrate** hub.
 
-    ![Orchestrate hub.](media/orchestrate-hub.png "Orchestrate hub")
+    ![Integrate hub.](media/integrate-hub.png "Integrate hub")
 
 2. Select **+** then **Copy data tool**.
 
-    ![The copy data button is highlighted.](media/new-copy-data.png "Orchestrate")
+    ![The copy data button is highlighted.](media/new-copy-data.png "Integrate")
 
 3. Enter **`CopyAccountData`** for the task name, then select **Next**.
 
@@ -999,7 +1006,7 @@ When you set up Cosmos DB you enabled both geo-redundancy and multi-region write
 
 ![Map showing newly added regions for Cosmos DB.](media/replicate-data-globally-map.png 'Cosmos DB region map')
 
-In this exercise, you will score the batch transaction data stored in Cosmos DB with your trained ML model, and write any transactions that are marked as "suspicious" to Cosmos DB via the Azure Cosmos DB Spark Connector. Cosmos with automatically distribute that data globally, using the [default consistency level](https://docs.microsoft.com/azure/cosmos-db/consistency-levels). To learn more, see [Global data distribution with Azure Cosmos DB - under the hood](https://docs.microsoft.com/azure/cosmos-db/global-dist-under-the-hood).
+In this exercise, you will score the batch transaction data stored in Cosmos DB with your trained ML model, and write any transactions that are marked as "suspicious" to Cosmos DB via the Azure Cosmos DB Spark Connector. Cosmos DB will automatically distribute that data globally, using the [default consistency level](https://docs.microsoft.com/azure/cosmos-db/consistency-levels). To learn more, see [Global data distribution with Azure Cosmos DB - under the hood](https://docs.microsoft.com/azure/cosmos-db/global-dist-under-the-hood).
 
 ### Task 1: Explore streaming data with Apache Spark
 
@@ -1057,7 +1064,9 @@ Now that we have added an Azure Cosmos DB Linked Service in Synapse Analytics, w
     SELECT COUNT(*) FROM transactions
     ```
 
-8. We are done with this notebook. Select **Stop session** on the bottom-left of the notebook. This will free up serverless Apache Spark pool resources for other notebooks you will run.
+    > If the count is `0`, wait a while and execute this cell again. You may need to execute it a couple of times before you start seeing the count increase.
+
+8. We are done with this notebook. Select **Stop session** on the top-right of the notebook. This will free up serverless Apache Spark pool resources for other notebooks you will run.
 
     ![Stop session is highlighted.](media/notebook-stop-session.png "Stop session")
 
@@ -1082,6 +1091,8 @@ We have connected to the transactional (OLTP) data store, now let's use Apache S
     > **Note**: You cannot write to the analytical store, only read from it. If you want to load data into the container, you need to connect to the transactional store.
 
     The first `option` configures the name of the Azure Cosmos DB linked service. The second `option` defines the Azure Cosmos DB container from which we want to read. The last line displays the first 10 rows of the DataFrame.
+
+    ![The output of the notebook is displayed.](media/notebook-olap-output.png "Notebook output")
 
     > The initial run of this notebook will take time while the Spark pool starts.
 

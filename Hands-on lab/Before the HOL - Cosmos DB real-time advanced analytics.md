@@ -93,7 +93,7 @@ In this task, you will create an Azure resource group for the resources used thr
 
 1. Deploy the workspace through the following Azure ARM template (press the button below):
 
-    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjoelhulen%2FMCW-Cosmos-DB-Real-Time-Advanced-Analytics%2Fmaster%2FHands-on%20lab%2FDeployment%2Fenvironment-template.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png" /></a>
+    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoft%2FMCW-Cosmos-DB-Real-Time-Advanced-Analytics%2Fmaster%2FHands-on%20lab%2FDeployment%2Fenvironment-template.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png" /></a>
 
 2. Enter the following values, then select **Review + create**:
 
